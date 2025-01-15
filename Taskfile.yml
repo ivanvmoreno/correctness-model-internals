@@ -9,6 +9,10 @@ tasks:
     desc: Prepare benchmark datasets for question-answering
     cmds:
       - '{{.PYTHON}} -m src.stages.format_datasets --config={{.CONFIG}}'
+  generate-answers:
+    desc: Generate answers for the benchmark datasets
+    cmds:
+      - '{{.PYTHON}} -m src.stages.generate_answers --config={{.CONFIG}} --model={{.CLI_ARGS}}'
   dep-lock:
     desc: Update the project's lockfiles from the requirements-<env>.in files
     cmds:
