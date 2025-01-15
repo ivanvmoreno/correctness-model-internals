@@ -1,8 +1,8 @@
 base:
   project_name: correctness-model-internals
   log_level: DEBUG
-  models_dir_path: "../models"
-  datasets_dir_path: "../datasets"
+  models_dir: "../models"
+  datasets_dir: "../datasets"
 
 datasets:
   mmlu:
@@ -20,6 +20,7 @@ models:
     type: "chat"
 
 format_dataset:
+  formatted_dir_path: "formatted"
   prompts:
     base: "The following is a multiple choice question (with answers) about {topic}."
     cot: |-

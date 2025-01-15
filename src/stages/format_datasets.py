@@ -24,9 +24,13 @@ def load_format_dataset(
     path: str, sys_prompt: str, answer_map: list[str]
 ) -> pd.DataFrame:
     dataset_df = pd.read_parquet(path)
+    # Parse subjects
+    dataset_df["parsed_subject"] = dataset_df["subject"].apply(
+        lambda s: s.replace("_", " ")
+    )
     prompts = dataset_df.apply(
         lambda row: format_prompt(
-            row["subject"],
+            row["parsed_subject"],
             row["question"],
             row["choices"],
             sys_prompt,
@@ -55,19 +59,18 @@ def format_dataset(
     config = load_config(config_path)
     logger = get_logger("DATA_PREPROCESS", config.base.log_level)
 
-    logger.info(f"Loading datasets from local path {config.base.datasets_dir_path}")
+    logger.info(f"Loading datasets from local path {config.base.datasets_dir}")
 
     for dataset_name, dataset_conf in config.datasets.items():
-        for prompt_version, prompt in config.format_dataset.prompts:
+        for prompt_version, prompt in config.format_dataset.prompts.items():
             if dataset_name == "mmlu":
                 for subset in dataset_conf.subsets:
                     dataset_f = load_format_dataset(
-                        f"{config.base.datasets_dir_path}/{dataset_name}/{subset}",
+                        f"{config.base.datasets_dir}/{dataset_name}/{subset}",
                         prompt,
                         dataset_conf.answer_map,
                     )
-
-                    formatted_dir = f"{config.base.formatted_datasets_dir_path}/{dataset_name}/{prompt_version}"
+                    formatted_dir = f"{config.base.datasets_dir}/{config.format_dataset.formatted_dir_path}/{dataset_name}/{prompt_version}"
                     formatted_path = f"{formatted_dir}/{subset}.csv"
 
                     if not os.path.exists(formatted_dir):
