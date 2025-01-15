@@ -19,11 +19,10 @@ def load_model(
     """
     Load model from local weights.
     """
-    model = (
-        AutoModelForCausalLM.from_pretrained(f"{models_path}/{model_dir}")
-        .to(device)
-        .eval()
+    model = AutoModelForCausalLM.from_pretrained(f"{models_path}/{model_dir}").to(
+        device
     )
+    model.eval()
     tokenizer = AutoTokenizer.from_pretrained(f"{models_path}/{model_dir}")
     return tokenizer, model
 
@@ -37,9 +36,7 @@ def load_statements(dataset_path: str):
     return statements
 
 
-def generate_const_answer(
-    tokenizer, model, prompt: str, choices_ids
-) -> Tuple[str, str]:
+def generate(tokenizer, model, prompt: str, choices_ids) -> Tuple[str, str]:
     input_ids = tokenizer.encode(prompt, return_tensors="pt").to(model.device)
 
     with torch.no_grad():
@@ -73,14 +70,22 @@ def generate_answers(
     logger.info(f"Generating answers for model {model}")
 
     logger.info(f"Loading model into GPU")
-    tokenizer, model = load_model(config.base.models_dir_path, model)
+    tokenizer, model = load_model(config.base.models_dir, config.models[model].dir_path)
 
     for dataset_name, dataset_conf in config.datasets.items():
-        for prompt_version, _ in config.format_dataset.prompts:
+        # Allow for space-aware variations of the answer map
+        choices_ids = [
+            tokenizer.encode(choice, add_special_tokens=False)[0]
+            for choice in dataset_conf.answer_map
+            + [f" {c}" for c in dataset_conf.answer_map]
+        ]
+
+        for prompt_version, _ in config.format_dataset.prompts.items():
             if dataset_name == "mmlu":
                 for subset in dataset_conf.subsets:
                     formatted_path = os.path.join(
-                        config.base.formatted_datasets_dir_path,
+                        config.base.datasets_dir,
+                        config.format_dataset.dir_path,
                         dataset_name,
                         prompt_version,
                         f"{subset}.csv",
@@ -94,7 +99,7 @@ def generate_answers(
                     statements = load_statements(formatted_path)
 
                     save_dir = os.path.join(
-                        config.base.datasets_dir_path,
+                        config.base.datasets_dir,
                         "generations",
                         dataset_name,
                         prompt_version,
@@ -109,8 +114,8 @@ def generate_answers(
 
                     generations_data = []
                     for statement in statements:
-                        const_answer, unconst_answer = generate_const_answer(
-                            tokenizer, model, statement, dataset_conf.answer_map
+                        const_answer, unconst_answer = generate(
+                            tokenizer, model, statement, choices_ids
                         )
                         generations_data.append(
                             {
@@ -125,10 +130,11 @@ def generate_answers(
 
                     logger.info(f"Saved generation results to {save_file}")
 
-    if __name__ == "__main__":
 
-        args_parser = argparse.ArgumentParser()
-        args_parser.add_argument("--config", dest="config", required=True)
-        args_parser.add_argument("--model", dest="model", required=True)
-        args = args_parser.parse_args()
-        generate_answers(args.config, model)
+if __name__ == "__main__":
+
+    args_parser = argparse.ArgumentParser()
+    args_parser.add_argument("--config", dest="config", required=True)
+    args_parser.add_argument("--model", dest="model", required=True)
+    args = args_parser.parse_args()
+    generate_answers(args.config, args.model)
