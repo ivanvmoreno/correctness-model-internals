@@ -68,7 +68,7 @@ def generate_answers(
         model (str): Model to use for generation
     """
     config = load_config(config_path)
-    logger = get_logger("DATA_PREPROCESS", config.base.log_level)
+    logger = get_logger("GENERATE_ANSWERS", config.base.log_level)
 
     logger.info(f"Generating answers for model {model}")
 
