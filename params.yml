@@ -6,23 +6,30 @@ base:
 
 datasets:
   mmlu:
+    answer_type: multiple_choice
     answer_map: ["A", "B", "C", "D"]
     subsets:
-      - "high_school_mathematics"
-      - "college_mathematics"
-      - "abstract_algebra"
+      - high_school_mathematics
+      - college_mathematics
+      - abstract_algebra
+    prompts:
+      base: "The following is a multiple choice question (with answers) about {topic}."  
+  gsm8k:
+    answer_type: open_ended
+    answer_delim: "####"
+    subsets:
+      - main
+    prompts:
+      cot: |-
+        Think step by step about the problem. Place your answer at the end following the format.
+        Reasoning:
+        Answer:
 
 models:
   llama3_8b_chat:
     dir_path: "llama3_8b_chat_hf"
-    family: "Llama3"
-    size: "8B"
-    type: "chat"
+  llama3_80b_chat:
+    dir_path: "llama3_80b_chat_hf"
 
 format_dataset:
   dir_path: "formatted"
-  prompts:
-    base: "The following is a multiple choice question (with answers) about {topic}."
-    # cot: |-
-    #   The following is a multiple choice question (with answers) about {topic}.
-    #   Think step by step about the problem. Display your choice at the end.
