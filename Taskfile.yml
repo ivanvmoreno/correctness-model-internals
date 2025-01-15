@@ -1,0 +1,22 @@
+version: '3'
+
+vars:
+  PYTHON: '{{.ROOT_DIR}}/venv/bin/python'
+  CONFIG: '{{.ROOT_DIR}}/params.yml'
+
+tasks:
+  format-datasets:
+    desc: Prepare benchmark datasets for question-answering
+    cmds:
+      - '{{.PYTHON}} -m src.stages.format_datasets --config={{.CONFIG}}'
+  dep-lock:
+    desc: Update the project's lockfiles from the requirements-<env>.in files
+    cmds:
+      - 'pip-compile'
+      - 'pip-compile requirements-dev.in'
+      - 'pip-compile requirements-pred.in'
+  format:
+    desc: Format the code using black and isort
+    cmds:
+      - '{{.PYTHON}} -m black src'
+      - '{{.PYTHON}} -m isort src'
