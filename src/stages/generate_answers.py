@@ -91,7 +91,6 @@ def generate_unconst(
     generated_ids = model.generate(
         input_ids,
         max_new_tokens=max_new_tokens,
-        do_sample=False,
         pad_token_id=tokenizer.eos_token_id,
         eos_token_id=eos_token_id,
     )
