@@ -163,8 +163,8 @@ def generate_answers(
                         f"Sampling {max_dataset_size} examples from dataset {dataset_name}, subset {subset}"
                     )
                     statements = sample_list(statements, max_dataset_size)
-                for idx in range(0, len(statements), 25):
-                    chunk = statements[idx : idx + 25]
+                for idx in range(0, len(statements), batch_size):
+                    chunk = statements[idx : idx + batch_size]
                     for statement in tqdm(chunk):
                         save_file = os.path.join(
                             save_dir, f"{subset}_generations_{idx}.csv"
@@ -204,5 +204,6 @@ if __name__ == "__main__":
     args_parser = argparse.ArgumentParser()
     args_parser.add_argument("--config", dest="config", required=True)
     args_parser.add_argument("--model", dest="model", required=True)
+    args_parser.add_argument("--batch-size", dest="batch_size", default=25)
     args = args_parser.parse_args()
-    generate_answers(args.config, args.model)
+    generate_answers(args.config, args.model, args.batch_size)
