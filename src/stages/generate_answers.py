@@ -56,21 +56,23 @@ def generate(tokenizer, model, prompt: str, choices_ids) -> Tuple[str, str]:
 
 def generate_answers(
     config_path: str,
-    model: str,
+    model_id: str,
 ) -> None:
     """Format datasets for question-answering tasks
 
     Args:
         config_path (str): Path to configuration file
-        model (str): Model to use for generation
+        model_id (str): Model to use for generation
     """
     config = load_config(config_path)
     logger = get_logger("GENERATE_ANSWERS", config.base.log_level)
 
-    logger.info(f"Generating answers for model {model}")
+    logger.info(f"Generating answers for model {model_id}")
 
     logger.info(f"Loading model into GPU")
-    tokenizer, model = load_model(config.base.models_dir, config.models[model].dir_path)
+    tokenizer, model = load_model(
+        config.base.models_dir, config.models[model_id].dir_path
+    )
 
     for dataset_name, dataset_conf in config.datasets.items():
         # Allow for space-aware variations of the answer map
@@ -101,6 +103,7 @@ def generate_answers(
                     save_dir = os.path.join(
                         config.base.datasets_dir,
                         "generations",
+                        model_id,
                         dataset_name,
                         prompt_version,
                     )
