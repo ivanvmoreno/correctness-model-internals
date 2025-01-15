@@ -13,7 +13,7 @@ datasets:
       - college_mathematics
       - abstract_algebra
     prompts:
-      base: "The following is a multiple choice question (with answers) about {topic}."  
+      base: "The following is a multiple choice question (with answers) about."
   gsm8k:
     answer_type: open_ended
     answer_delim: "####"
@@ -21,15 +21,14 @@ datasets:
       - main
     prompts:
       cot: |-
-        Think step by step about the problem. Place your answer at the end following the format.
-        Reasoning:
-        Answer:
+        Think step by step about the problem. Place your answer at the end.
 
 models:
   llama3_8b_chat:
     dir_path: "llama3_8b_chat_hf"
-  llama3_80b_chat:
-    dir_path: "llama3_80b_chat_hf"
+  llama3_3b_chat:
+    dir_path: "llama3_3b_chat_hf"
 
 format_dataset:
   dir_path: "formatted"
+  max_dataset_size: 10
