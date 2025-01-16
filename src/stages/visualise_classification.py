@@ -261,8 +261,8 @@ def evaluate_logistic_regression_classifier(
     model.fit(X_train, train_label_df["correct"])
 
     # Step 4: Make predictions
-    train_label_df["correctness"] = model.predict_proba(X_train)
-    test_label_df["correctness"] = model.predict_proba(X_test)
+    train_label_df["correctness"] = 1-model.predict_proba(X_train)
+    test_label_df["correctness"] = 1-model.predict_proba(X_test)
 
     correctness_direction_path = experiment_path / "logistic_regression_classifier"
     correctness_direction_path.mkdir(parents=True, exist_ok=True)
