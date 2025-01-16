@@ -1,75 +1,9 @@
 import os
 import argparse
 
-import pandas as pd
-
+from src.data import format_mmlu, format_gsm8k
 from src.utils.config import load_config
 from src.utils.logging import get_logger
-
-
-def format_multi_prompt(
-    question, answers, sys_prompt: str, choices=["A", "B", "C", "D"]
-) -> str:
-    formatted_question = (
-        f"{question}\n"
-        + "\n".join([f"{choice}. {answer}" for choice, answer in zip(choices, answers)])
-        + "\nAnswer:"
-    )
-    return f"{sys_prompt}\n{formatted_question}"
-
-
-def format_open_prompt(question, sys_prompt: str) -> str:
-    return f"{sys_prompt}\n{question}\nAnswer:"
-
-
-def format_mmlu(
-    path: str,
-    sys_prompt: str,
-    answer_map: list[str],
-) -> pd.DataFrame:
-    dataset_df = pd.read_parquet(path)
-    prompts = dataset_df.apply(
-        lambda row: format_multi_prompt(
-            row["question"],
-            row["choices"],
-            sys_prompt,
-        ),
-        axis=1,
-    )
-    answers = dataset_df["answer"].apply(lambda a: answer_map[a])
-    formatted = pd.DataFrame(
-        {
-            "prompt": prompts,
-            "answer": answers,
-            "subject": dataset_df["subject"],
-        }
-    )
-    return formatted
-
-
-def format_gsm8k(
-    path: str,
-    sys_prompt: str,
-    answer_delim="####",
-) -> pd.DataFrame:
-    dataset_df = pd.read_parquet(path)
-    prompts = dataset_df.apply(
-        lambda row: format_open_prompt(
-            row["question"],
-            sys_prompt,
-        ),
-        axis=1,
-    )
-    dataset_df["parsed_answers"] = dataset_df["answer"].apply(
-        lambda a: a.split(answer_delim)[-1].strip()
-    )
-    formatted = pd.DataFrame(
-        {
-            "prompt": prompts,
-            "answer": dataset_df["answer"],
-        }
-    )
-    return formatted
 
 
 def format_dataset(

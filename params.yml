@@ -1,34 +1,42 @@
 base:
   project_name: correctness-model-internals
   log_level: DEBUG
-  models_dir: "../models"
-  datasets_dir: "../datasets"
+  models_dir: ../models
+  datasets_dir: ../datasets
 
 datasets:
   mmlu:
     answer_type: multiple_choice
-    answer_map: ["A", "B", "C", "D"]
+    answer_map: [A, B, C, D]
     subsets:
       - high_school_mathematics
       - college_mathematics
       - abstract_algebra
     prompts:
-      base: "The following is a multiple choice question (with answers) about."
+      base: The following is a multiple choice question (with answers). Choose the correct answer.
   gsm8k:
     answer_type: open_ended
     answer_delim: "####"
     subsets:
       - main
     prompts:
+      base: "Give your answer in this format: $\boxed{<answer>}$"
       cot: |-
-        Think step by step about the problem. Place your answer at the end.
+        Think step by step about the following problem. Give your answer in this format: $\boxed{<answer>}$
 
 models:
   llama3_8b_chat:
-    dir_path: "llama3_8b_chat_hf"
+    dir_path: llama3_8b_chat_hf
+  llama3_8b_cot:
+    dir_path: llama3_8b_cot_numina_hf
   llama3_3b_chat:
-    dir_path: "llama3_3b_chat_hf"
+    dir_path: llama3_3b_chat_hf
 
 format_dataset:
-  dir_path: "formatted"
+  dir_path: formatted
+  generation_delimiter: false  # Answer:
+
+generate_answers:
   max_dataset_size: 10
+  max_new_tokens: 512
+  stop_word: "}$"
