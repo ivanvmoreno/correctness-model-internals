@@ -2,13 +2,11 @@ from typing import Optional
 import pandas as pd
 
 
-def load_statements(dataset_path: str):
-    """
-    Load statements from csv file, return list of strings.
-    """
+def load_statements(dataset_path: str) -> list[tuple[str, str]]:
     dataset = pd.read_csv(dataset_path)
     statements = dataset["prompt"].tolist()
-    return statements
+    answers = dataset["answer"].tolist()
+    return list(zip(statements, answers))
 
 
 def format_multi_prompt(
@@ -23,7 +21,7 @@ def format_multi_prompt(
     )
     if generation_delimiter:
         formatted_question += f"\n{generation_delimiter}"
-    return f"{sys_prompt}\n{formatted_question}"
+    return f"{sys_prompt}\n{formatted_question}".strip()
 
 
 def format_open_prompt(
@@ -32,7 +30,7 @@ def format_open_prompt(
     formatted_question = f"{question}"
     if generation_delimiter:
         formatted_question += f"\n{generation_delimiter}"
-    return f"{sys_prompt}\n{formatted_question}"
+    return f"{sys_prompt}\n{formatted_question}".strip()
 
 
 def format_mmlu(

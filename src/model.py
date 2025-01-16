@@ -1,6 +1,7 @@
 from typing import Tuple, Optional
 
 import torch
+from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 
@@ -33,7 +34,7 @@ def generate_const(tokenizer, model, prompt: str, choices_ids) -> Tuple[str, str
         top_const_token = tokenizer.decode([top_const_token_id])
         top_unconst_token = tokenizer.decode([top_unconst_token_id])
 
-    return top_const_token, top_unconst_token
+    return top_const_token.strip(), top_unconst_token.strip()
 
 
 from typing import Optional
@@ -59,4 +60,42 @@ def generate_unconst(
         stop_index = new_text.find(stop_word)
         if stop_index != -1:
             new_text = new_text[: stop_index + len(stop_word)]
-    return new_text
+    return new_text.strip()
+
+
+class Hook:
+    def __init__(self):
+        self.out = None
+
+    def __call__(self, module, module_inputs, module_outputs):
+        self.out, _ = module_outputs
+
+
+def get_acts(statements, tokenizer, model, layers, device="cuda:0"):
+    """
+    Get given layer activations for the statements.
+    Return dictionary of stacked activations.
+    """
+    # attach hooks
+    hooks, handles = [], []
+    for layer in layers:
+        hook = Hook()
+        handle = model.model.layers[layer].register_forward_hook(hook)
+        hooks.append(hook), handles.append(handle)
+
+    # get activations
+    acts = {layer: [] for layer in layers}
+    for statement in tqdm(statements):
+        input_ids = tokenizer.encode(statement, return_tensors="pt").to(device)
+        model(input_ids)
+        for layer, hook in zip(layers, hooks):
+            acts[layer].append(hook.out[0, -1])
+
+    for layer, act in acts.items():
+        acts[layer] = torch.stack(act).float()
+
+    # remove hooks
+    for handle in handles:
+        handle.remove()
+
+    return acts

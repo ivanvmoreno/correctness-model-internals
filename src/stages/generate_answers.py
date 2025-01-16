@@ -47,8 +47,7 @@ def generate_answers(
             ]
         for prompt_version, _ in dataset_conf.prompts.items():
             save_dir = os.path.join(
-                config.base.datasets_dir,
-                "generations",
+                config.base.generations_dir,
                 model_id,
                 dataset_name,
                 prompt_version,
@@ -68,14 +67,15 @@ def generate_answers(
                     config.format_dataset.dir_path,
                     dataset_name,
                     prompt_version,
-                    f"{subset}.csv",
                 )
                 if not os.path.exists(formatted_path):
                     raise FileNotFoundError(
                         f"Formatted file not found: {formatted_path}"
                     )
                 logger.info(f"Loading statements from {formatted_path}")
-                statements = load_statements(formatted_path)
+                statements = load_statements(
+                    os.path.join(formatted_path, f"{subset}.csv")
+                )
                 if (
                     config.generate_answers.max_dataset_size
                     and config.generate_answers.max_dataset_size < len(statements)
@@ -95,6 +95,14 @@ def generate_answers(
                         raise ValueError(
                             f"Sample strategy {config.generate_answers.sample_strategy} not supported"
                         )
+                    # Store the sampled subset in a separate file
+                    sampled_file = os.path.join(formatted_path, f"{subset}_sampled.csv")
+                    logger.info(f"Saving sampled subset to {sampled_file}")
+                    pd.DataFrame(statements, columns=["prompt", "answer"]).to_csv(
+                        sampled_file, index=False
+                    )
+                # We only need the prompts for generation
+                statements = [s[0] for s in statements]
                 for idx in range(0, len(statements), min(batch_size, len(statements))):
                     chunk = statements[idx : idx + batch_size]
                     save_file = os.path.join(
@@ -103,14 +111,13 @@ def generate_answers(
                     generations_data = []
                     for statement in tqdm(chunk):
                         if dataset_name == "mmlu":
-                            const_answer, unconst_answer = generate_const(
+                            const_answer, _ = generate_const(
                                 tokenizer, model, statement, choices_ids
                             )
                             generations_data.append(
                                 {
-                                    "statement": statement,
-                                    "const_answer": const_answer,
-                                    "unconst_answer": unconst_answer,
+                                    "prompt": statement,
+                                    "answer": const_answer,
                                 }
                             )
 
@@ -124,7 +131,7 @@ def generate_answers(
                             )
                             generations_data.append(
                                 {
-                                    "statement": statement,
+                                    "prompt": statement,
                                     "answer": generation,
                                 }
                             )
@@ -142,11 +149,16 @@ def generate_answers(
                 partial_files.sort(
                     key=lambda f: int(f.split("_")[-1].replace(".csv", ""))
                 )
+
                 joined_file = os.path.join(save_dir, f"{subset}_generations.csv")
-                with open(joined_file, "w") as out_file:
-                    for f in partial_files:
-                        with open(os.path.join(save_dir, f), "r") as in_file:
-                            out_file.write(in_file.read())
+
+                # Load each partial CSV and concatenate
+                df_list = []
+                for f in partial_files:
+                    df_list.append(pd.read_csv(os.path.join(save_dir, f)))
+                df_joined = pd.concat(df_list, ignore_index=True)
+                df_joined.to_csv(joined_file, index=False)
+
                 logger.info(f"Joined all partial files into {joined_file}")
 
                 logger.info(f"Removing partial files")

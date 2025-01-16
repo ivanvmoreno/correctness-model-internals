@@ -14,7 +14,7 @@ def label_to_index(label, answer_map=["A", "B", "C", "D"]):
     Return the index of a valid label in answer_map.
     If the label is out of the map, return -1 (i.e., "incorrect").
     """
-    label_stripped = label.strip()
+    label_stripped = str(label).strip()
     if label_stripped in answer_map:
         return answer_map.index(label_stripped)
     else:
@@ -33,7 +33,7 @@ def extract_answer_open_ended(generation: str, regex: str):
     """
     match = re.search(regex, generation)
     if match:
-        return match.group(1)
+        return match.group()
     else:
         return None
 
@@ -58,69 +58,69 @@ def generate_answers(
 
         for prompt_version, _ in dataset_conf.prompts.items():
             logger.info(f"Evaluating answers for prompt version {prompt_version}")
-
-            if dataset_name == "mmlu":
-                logger.info(f"Evaluting answers for mmlu")
-
+            for subset in dataset_conf.subsets:
                 generations_path = os.path.join(
-                    config.base.datasets_dir,
-                    "generations",
+                    config.base.generations_dir,
                     model,
                     dataset_name,
                     prompt_version,
+                    f"{subset}_generations.csv",
                 )
+                logger.info(f"Evaluting answers for subset '{subset}'")
                 ground_truth_path = os.path.join(
                     config.base.datasets_dir,
                     config.format_dataset.dir_path,
                     dataset_name,
                     prompt_version,
+                    (
+                        f"{subset}_sampled.csv"
+                        if config.generate_answers.sample_strategy
+                        else f"{subset}.csv"
+                    ),
                 )
-
-                for subset in dataset_conf.subsets:
-                    logger.info(f"Evaluting answers for mmlu subset '{subset}'")
-                    logger.info(f"Loading generations from {generations_path}")
-                    ground_truth_df = pd.read_csv(
-                        os.path.join(ground_truth_path, f"{subset}.csv")
-                    )
-                    generations_df = pd.read_csv(
-                        os.path.join(generations_path, f"{subset}_generations.csv")
-                    )
-
+                logger.info(f"Loading ground truth from {ground_truth_path}")
+                ground_truth_df = pd.read_csv(ground_truth_path)
+                logger.info(f"Loading generations from {generations_path}")
+                generations_df = pd.read_csv(generations_path)
+                if dataset_name == "mmlu":
                     # Convert from string label to index
                     y_true = ground_truth_df["answer"].apply(label_to_index)
-                    y_const_pred = generations_df["const_answer"].apply(label_to_index)
-                    y_unconst_pred = generations_df["unconst_answer"].apply(
-                        label_to_index
-                    )
-
+                    y_pred = generations_df["answer"].apply(label_to_index)
                     # Compute metrics
-                    const_metrics = {
-                        metric: EVAL_METRICS[metric](y_true, y_const_pred)
+                    metrics = {
+                        metric: EVAL_METRICS[metric](y_true, y_pred)
                         for metric in EVAL_METRICS
                     }
-                    unconst_metrics = {
-                        metric: EVAL_METRICS[metric](y_true, y_unconst_pred)
-                        for metric in EVAL_METRICS
-                    }
-
                     # Prepare evaluation dataframe
                     metrics_rows = []
                     for metric_name in EVAL_METRICS.keys():
                         metrics_rows.append(
                             {
                                 "metric": metric_name,
-                                "const": const_metrics[metric_name],
-                                "unconst": unconst_metrics[metric_name],
+                                "value": metrics[metric_name],
                             }
                         )
-                    metrics_df = pd.DataFrame(metrics_rows)
-
-                    # Save metrics
-                    metrics_csv_path = os.path.join(
-                        generations_path, f"{subset}_metrics.csv"
+                elif dataset_name == "gsm8k":
+                    # Extract answers from open-ended generations
+                    y_true = ground_truth_df["answer"].astype(str)
+                    y_pred = generations_df["answer"].apply(
+                        extract_answer_open_ended, regex=dataset_conf.answer_regex
                     )
-                    metrics_df.to_csv(metrics_csv_path, index=False)
-                    logger.info(f"Saved metrics to {metrics_csv_path}")
+                    y_correct = y_true == y_pred
+                    metrics_rows = [
+                        {
+                            "metric": "accuracy",
+                            "value": y_correct.mean(),
+                        }
+                    ]
+
+                metrics_df = pd.DataFrame(metrics_rows)
+                metrics_csv_path = os.path.join(
+                    os.path.dirname(generations_path),
+                    f"{subset}_metrics.csv",
+                )
+                metrics_df.to_csv(metrics_csv_path, index=False)
+                logger.info(f"Saved metrics to {metrics_csv_path}")
 
 
 if __name__ == "__main__":
