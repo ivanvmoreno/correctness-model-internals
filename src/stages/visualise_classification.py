@@ -11,7 +11,7 @@ import torch as pt
 import torch.nn as nn
 import torch.optim as optim
 from sklearn.decomposition import PCA
-from sklearn.metrics import accuracy_score, auc, roc_curve
+from sklearn.metrics import accuracy_score, auc, roc_curve, f1_score
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -40,15 +40,16 @@ def calculate_correctness_direction(activations, label_df):
     )  # From algebra should be /s, but x/1=x*1 and x/-1=x*-1 so can just multiply by s
 
 
-def evaluate_classification(labels, correctness, experiment_path, extra_info=None):
+def evaluate_classification(labels, correctness, experiment_path, optimal_threshold, extra_info=None):
     df = pd.DataFrame({"label": labels, "correctness": correctness})
 
     fpr, tpr, thresholds = roc_curve(df["label"], df["correctness"])
-    youden_index = tpr - fpr
-    optimal_idx = np.argmax(youden_index)
-    optimal_threshold = thresholds[optimal_idx]
+    # youden_index = tpr - fpr
+    # optimal_idx = np.argmax(youden_index)
+    # optimal_threshold = thresholds[optimal_idx]
 
     acc = accuracy_score(df["label"], df["correctness"] >= optimal_threshold)
+    f1 = f1_score(df["label"], df["correctness"] >= optimal_threshold)
     roc_auc = auc(fpr, tpr)
 
     # ax = sns.histplot(
@@ -67,7 +68,7 @@ def evaluate_classification(labels, correctness, experiment_path, extra_info=Non
         optimal_threshold,
         color="red",
         linestyle="--",
-        label=f"Optimal Threshold {optimal_threshold:.3f}, Accuracy {acc:.3f}",
+        label=f"Optimal Threshold {optimal_threshold:.3f}, Accuracy={acc:.3f}, F1={f1:.3f}",
     )
     ax.legend()
     plt.tight_layout()
@@ -79,12 +80,12 @@ def evaluate_classification(labels, correctness, experiment_path, extra_info=Non
     plt.figure(figsize=(8, 6))
     plt.plot(fpr, tpr, label=f"ROC curve (AUC = {roc_auc:.4f})")
 
-    plt.scatter(
-        fpr[optimal_idx],
-        tpr[optimal_idx],
-        color="red",
-        label=f"Optimal Threshold = {optimal_threshold:.2f}",
-    )
+    # plt.scatter(
+    #     fpr[optimal_idx],
+    #     tpr[optimal_idx],
+    #     color="red",
+    #     label=f"Optimal Threshold = {optimal_threshold:.2f}",
+    # )
     plt.plot([0, 1], [0, 1], color="gray", linestyle="--")
     plt.xlabel("False Positive Rate")
     plt.ylabel("True Positive Rate")
@@ -97,6 +98,7 @@ def evaluate_classification(labels, correctness, experiment_path, extra_info=Non
     logging_config = {
         **{
             "accuracy": float(acc),
+            "f1": float(f1),
             "roc_auc": float(roc_auc),
             "optimal_threshold": float(optimal_threshold),
         },
@@ -159,6 +161,11 @@ def load_labels_df_and_activations(
 
     return labels_df.reset_index(drop=True), activations
 
+def find_optimal_cut(labels, classifications):
+    fpr, tpr, thresholds = roc_curve(labels, classifications)
+    youden_index = tpr - fpr
+    optimal_idx = np.argmax(youden_index)
+    return thresholds[optimal_idx]
 
 def evaluate_correctness_direction_and_classifier(
     X_train,
@@ -180,6 +187,7 @@ def evaluate_correctness_direction_and_classifier(
 
     correctness_direction, mu = calculate_correctness_direction(X_train, train_label_df)
     test_label_df["correctness"] = (X_test - mu) @ correctness_direction
+    train_label_df["correctness"] = (X_train - mu) @ correctness_direction
 
     # labels_df["correctness"]
 
@@ -195,7 +203,7 @@ def evaluate_correctness_direction_and_classifier(
     ax = sns.scatterplot(
         x=pca_activations_test[:, 0],
         y=pca_activations_test[:, 1],
-        hue=test_label_df["correct"],
+        hue=test_label_df["correct"].map({True: "Correct", False: "Incorrect"}),
     )
     ax.quiver(
         0,
@@ -215,10 +223,12 @@ def evaluate_correctness_direction_and_classifier(
 
     correctness_direction_path = experiment_path / "correctness_direction"
     correctness_direction_path.mkdir(parents=True, exist_ok=True)
+
     evaluate_classification(
         test_label_df["correct"],
         test_label_df["correctness"],
         correctness_direction_path,
+        optimal_threshold=find_optimal_cut(train_label_df["correct"], train_label_df["correctness"]),
     )
 
 
@@ -247,6 +257,7 @@ def evaluate_logistic_regression_classifier(
     model.fit(X_train, train_label_df["correct"])
 
     # Step 4: Make predictions
+    train_label_df["correctness"] = model.predict(X_train)
     test_label_df["correctness"] = model.predict(X_test)
 
     correctness_direction_path = experiment_path / "logistic_regression_classifier"
@@ -255,6 +266,7 @@ def evaluate_logistic_regression_classifier(
         test_label_df["correct"],
         test_label_df["correctness"],
         correctness_direction_path,
+        optimal_threshold=find_optimal_cut(train_label_df["correct"], train_label_df["correctness"]),
         extra_info={
             "model": str(model),
         },
@@ -368,6 +380,7 @@ def classifier_experiment_run(
     notes: str = "",
     _experiment_id: int = None,  # careful, only use this to overwrite existing experiments
 ) -> None:
+    train_frac = float(train_frac)
     # todo: update to save plots and stats to file.
 
     labels_df, activations = load_labels_df_and_activations(
@@ -382,6 +395,21 @@ def classifier_experiment_run(
         raise ValueError(
             "At least one of check_correctness_classifier or check_logistic_regression_classifier must be True"
         )
+
+    ############# DATASET SPECIFIC ###################
+    labels_df["correct"] = labels_df["is_correct"]    
+    labels_df.loc[labels_df["correct"] == "UK", "correct"] = "True"
+
+
+    labels_df.loc[labels_df["correct"] == "IDK", "correct"] = "False"
+    # labels_df = labels_df[labels_df["correct"] != "IDK"]
+    # activations = activations[list(labels_df.index)]
+    # labels_df = labels_df.reset_index(drop=True)
+
+
+    labels_df["correct"] = labels_df["correct"].map({"True": True, "False": False})
+
+    ############# DATASET SPECIFIC ###################
 
     experiment_path = get_experiment_path(output_path, _experiment_id=_experiment_id)
 
@@ -408,6 +436,9 @@ def classifier_experiment_run(
     test_label_df = labels_df.iloc[test_indices]
     X_train = activations[train_indices]
     X_test = activations[test_indices]
+
+    print(f"{len(X_train)=}")
+    print(f"{len(X_test)=}")
 
     if check_correctness_classifier:
         evaluate_correctness_direction_and_classifier(
@@ -437,6 +468,7 @@ if __name__ == "__main__":
     args_parser.add_argument("--n-batches", dest="n_batches", default=None)
     args_parser.add_argument("--notes", dest="notes", default=None)
     args_parser.add_argument("--random-seed", dest="random_seed", default=42)
+    args_parser.add_argument("--train-frac", dest="train_frac", default=0.8)
     args = args_parser.parse_args()
 
     np.random.seed(args.random_seed)
@@ -448,6 +480,7 @@ if __name__ == "__main__":
         question_answer_file=args.question_answer_file,
         first_batch=int(args.first_batch) if args.first_batch is not None else None,
         n_batches=int(args.n_batches) if args.first_batch is not None else None,
+        train_frac=args.train_frac,
         notes=args.notes,
     )
     print("\n\n\nFinished.")
