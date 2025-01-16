@@ -34,9 +34,10 @@ models:
 
 format_dataset:
   dir_path: formatted
-  generation_delimiter: false  # Answer:
+  generation_delimiter: false  # e.g., Answer:
 
 generate_answers:
   max_dataset_size: 10
+  sample_strategy: first_n # {first_n, random}
   max_new_tokens: 512
   stop_word: "}$"

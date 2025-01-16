@@ -10,7 +10,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from src.data import load_statements
-from src.utils.utils import sample_list
+from src.utils.utils import sample_list_random, sample_list_first_n
 from src.model import load_model, generate_const, generate_unconst
 from src.utils.config import load_config
 from src.utils.logging import get_logger
@@ -82,11 +82,20 @@ def generate_answers(
                     and config.generate_answers.max_dataset_size < len(statements)
                 ):
                     logger.info(
-                        f"Sampling {config.generate_answers.max_dataset_size} examples from dataset {dataset_name}, subset {subset}"
+                        f"Sampling {config.generate_answers.max_dataset_size} examples from dataset `{dataset_name}`, subset `{subset}` with strategy `{config.generate_answers.sample_strategy}`"
                     )
-                    statements = sample_list(
-                        statements, config.generate_answers.max_dataset_size
-                    )
+                    if config.generate_answers.sample_strategy == "first_n":
+                        statements = sample_list_first_n(
+                            statements, config.generate_answers.max_dataset_size
+                        )
+                    elif config.generate_answers.sample_strategy == "random":
+                        statements = sample_list_random(
+                            statements, config.generate_answers.max_dataset_size
+                        )
+                    else:
+                        raise ValueError(
+                            f"Sample strategy {config.generate_answers.sample_strategy} not supported"
+                        )
                 for idx in range(0, len(statements), min(batch_size, len(statements))):
                     chunk = statements[idx : idx + batch_size]
                     save_file = os.path.join(
