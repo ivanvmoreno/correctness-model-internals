@@ -13,6 +13,10 @@ tasks:
     desc: Generate answers for the benchmark datasets
     cmds:
       - '{{.PYTHON}} -m src.stages.generate_answers --config={{.CONFIG}} --model={{.CLI_ARGS}}'
+  eval-answers:
+    desc: Evaluate answers for the benchmark datasets
+    cmds:
+      - '{{.PYTHON}} -m src.stages.evaluate_answers --config={{.CONFIG}} --model={{.CLI_ARGS}}'
   dep-lock:
     desc: Update the project's lockfiles from the requirements-<env>.in files
     cmds:

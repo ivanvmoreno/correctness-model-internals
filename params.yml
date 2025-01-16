@@ -13,10 +13,11 @@ datasets:
       - college_mathematics
       - abstract_algebra
     prompts:
-      base: The following is a multiple choice question (with answers). Choose the correct answer.
+      base: The following is a multiple choice question (with answers). Give your answer with a single letter corresponding to the correct answer.
   gsm8k:
     answer_type: open_ended
     answer_delim: "####"
+    answer_regex: \\boxed\{([^}]*)\}
     subsets:
       - main
     prompts:

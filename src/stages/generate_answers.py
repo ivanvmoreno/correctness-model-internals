@@ -1,6 +1,5 @@
 import os
 import shutil
-from typing import Optional
 
 import pandas as pd
 import os
@@ -133,6 +132,27 @@ def generate_answers(
                     generations_df = pd.DataFrame(generations_data)
                     generations_df.to_csv(save_file, index=False)
                     logger.info(f"Saved generation results to {save_file}")
+
+                logger.info(f"Joining all partial generation files")
+                partial_files = [
+                    f
+                    for f in os.listdir(save_dir)
+                    if f.endswith(".csv") and f.startswith(f"{subset}_generations_")
+                ]
+                partial_files.sort(
+                    key=lambda f: int(f.split("_")[-1].replace(".csv", ""))
+                )
+                joined_file = os.path.join(save_dir, f"{subset}_generations.csv")
+                with open(joined_file, "w") as out_file:
+                    for f in partial_files:
+                        with open(os.path.join(save_dir, f), "r") as in_file:
+                            out_file.write(in_file.read())
+                logger.info(f"Joined all partial files into {joined_file}")
+
+                logger.info(f"Removing partial files")
+                for f in partial_files:
+                    os.remove(os.path.join(save_dir, f))
+                logger.info(f"Removed partial files")
 
 
 if __name__ == "__main__":

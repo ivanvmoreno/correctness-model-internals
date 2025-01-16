@@ -46,22 +46,17 @@ def generate_unconst(
     max_new_tokens: int = 64,
     stop_word: Optional[str] = None,
 ) -> str:
-    """
-    Supports multi-token stop sequences, only checking for the stop word in newly generated tokens.
-    """
     input_ids = tokenizer.encode(prompt, return_tensors="pt").to(model.device)
     generated_ids = model.generate(
         input_ids,
         max_new_tokens=max_new_tokens,
         pad_token_id=tokenizer.eos_token_id,
     )
-    # Separate the newly generated tokens
+    # Exclude prompt
     new_tokens = generated_ids[0][input_ids.size(1) :]
-    generated_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
+    new_text = tokenizer.decode(new_tokens, skip_special_tokens=True)
     if stop_word is not None:
-        # Decode only the newly generated tokens
-        new_text = tokenizer.decode(new_tokens, skip_special_tokens=True)
         stop_index = new_text.find(stop_word)
         if stop_index != -1:
-            generated_text = generated_text[: len(prompt) + stop_index + len(stop_word)]
-    return generated_text
+            new_text = new_text[: stop_index + len(stop_word)]
+    return new_text

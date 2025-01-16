@@ -1,8 +1,6 @@
-import os
-
-import pandas as pd
-import os
 import argparse
+import os
+import re
 
 import pandas as pd
 
@@ -24,6 +22,22 @@ def label_to_index(label, answer_map=["A", "B", "C", "D"]):
         return -1
 
 
+def extract_answer_open_ended(generation: str, regex: str):
+    """
+    Extract the answer from an open-ended generation.
+
+    Args:
+        generation (str): The generated text.
+        regex (str): The regex to extract the answer.
+        skip_prompt (bool): Whether regex is included in the prompt.
+    """
+    match = re.search(regex, generation)
+    if match:
+        return match.group(1)
+    else:
+        return None
+
+
 def generate_answers(
     config_path: str,
     model: str,
@@ -42,7 +56,7 @@ def generate_answers(
     for dataset_name, dataset_conf in config.datasets.items():
         logger.info(f"Evaluating answers for dataset {dataset_name}")
 
-        for prompt_version, _ in config.format_dataset.prompts.items():
+        for prompt_version, _ in dataset_conf.prompts.items():
             logger.info(f"Evaluating answers for prompt version {prompt_version}")
 
             if dataset_name == "mmlu":
