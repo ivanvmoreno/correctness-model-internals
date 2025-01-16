@@ -1,14 +1,14 @@
 {
     "model": "llama3_8b",
     "layer": "12",
-    "activations_dir": "../acts/llama3_8b/cities_questions_augmented_for_activations/",
+    "activations_dir": "../acts/llama3_8b/cities_questions_augmented_for_activations",
     "question_answer_file": "../datasets/cities_questions_augmented/labels.csv",
     "first_batch": null,
     "n_batches": null,
     "batch_size": 25,
     "check_correctness_classifier": true,
     "check_logistic_regression_classifier": true,
-    "train_frac": 0.8,
-    "timestamp": "2025-01-16 19:18:23.143873",
-    "notes": "marking england instead of UK as true. If the model said IDK then it is false."
+    "train_frac": 0.5,
+    "timestamp": "2025-01-16 21:25:08.603012",
+    "notes": "running on cities where I don't know is marked as False"
 }

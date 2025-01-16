@@ -71,7 +71,7 @@ format_dataset:
   generation_delimiter: false  # e.g., Answer:
 
 generate_answers:
-  max_dataset_size: 50
+  max_dataset_size: 1000
   sample_strategy: first_n # {first_n, random}
   max_new_tokens: 1024
   stop_word: "}$"

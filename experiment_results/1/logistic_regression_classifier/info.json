@@ -1,7 +1,7 @@
 {
-    "accuracy": 0.8098591549295775,
-    "f1": 0.8608247422680413,
-    "roc_auc": 0.7758824522884649,
-    "optimal_threshold": 1.0,
+    "accuracy": 0.6512968299711815,
+    "f1": 0.7888307155322862,
+    "roc_auc": 0.16117062853464525,
+    "optimal_threshold": 7.577938276881468e-12,
     "model": "LogisticRegression(max_iter=1000, random_state=42)"
 }
