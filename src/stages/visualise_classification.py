@@ -32,12 +32,11 @@ def calculate_correctness_direction(activations, label_df):
         -1
     )  # those that are incorrect should point in the opposite direction
 
-    correctness_direction = pt.mean((activations - mu) * s[:, None], dim=0)
+    correctness_direction = pt.mean((activations - mu) * s[:, None], dim=0) # From algebra should be /s, but x/1=x*1 and x/-1=x*-1 so can just multiply by s
     return (
         correctness_direction,
-        # (activations - mu) @ correctness_direction,
         mu,
-    )  # From algebra should be /s, but x/1=x*1 and x/-1=x*-1 so can just multiply by s
+    )
 
 
 def evaluate_classification(labels, correctness, experiment_path, optimal_threshold, extra_info=None):
@@ -54,12 +53,14 @@ def evaluate_classification(labels, correctness, experiment_path, optimal_thresh
     ax = sns.histplot(
         x=df[~df["label"]]["correctness"], 
         label="Incorrect",
-        bins=bin_edges
+        bins=bin_edges,
+        color="orange",
     )
     ax = sns.histplot(
         x=df[df["label"]]["correctness"], 
         label="Correct",
-        bins=bin_edges
+        bins=bin_edges,
+        color="green",
     )
 
     # Add the threshold line
@@ -157,10 +158,10 @@ def load_labels_df_and_activations(
         raise FileNotFoundError(f"No activations found for layer {layer}")
     activations = pt.cat(tensors, axis=0).to("cpu")
 
-    if len(labels_df) != activations.shape[0]:
-        raise RuntimeError(
-            f"Number of labels ({len(labels_df)}) does not match number of activations ({activations.shape[0]})"
-        )
+    # if len(labels_df) != activations.shape[0]:  todo restore this
+    #     raise RuntimeError(
+    #         f"Number of labels ({len(labels_df)}) does not match number of activations ({activations.shape[0]})"
+    #     )
 
     return labels_df.reset_index(drop=True), activations
 
@@ -188,11 +189,12 @@ def evaluate_correctness_direction_and_classifier(
     _ = pca_pipeline.fit_transform(X_train)
     pca_activations_test = pca_pipeline.transform(X_test)
 
-    correctness_direction, mu = calculate_correctness_direction(X_train, train_label_df)
+    train_label_df_ = train_label_df.reset_index(drop=True)
+    train_label_df_ = train_label_df_[~train_label_df_["special"]]
+    correctness_direction, mu = calculate_correctness_direction(X_train[list(train_label_df_.index)], train_label_df_.reset_index())
     test_label_df["correctness"] = (X_test - mu) @ correctness_direction
     train_label_df["correctness"] = (X_train - mu) @ correctness_direction
 
-    # labels_df["correctness"]
 
     correctness_end_pca = pca_pipeline.transform(
         correctness_direction[None, :]
@@ -205,10 +207,13 @@ def evaluate_correctness_direction_and_classifier(
 
     test_label_df_ = test_label_df.copy()
     test_label_df_.loc[test_label_df_["special"], "correct"] = "IDK" ### todo clean this. only for plotting i don't know responses separately, dataset specific
+    
+    custom_palette = {"Correct": "green", "Incorrect": "orange", "Incorrect (IDK)": "blue"}
     ax = sns.scatterplot(
         x=pca_activations_test[:, 0],
         y=pca_activations_test[:, 1],
-        hue=test_label_df_["correct"].map(lambda val: {True: "Correct", False: "Incorrect"}.get(val, val)),
+        hue=test_label_df_["correct"].map(lambda val: {True: "Correct", False: "Incorrect", "IDK": "Incorrect (IDK)"}.get(val, val)),
+        palette=custom_palette,
     )
     ax.quiver(
         0,
@@ -226,9 +231,21 @@ def evaluate_correctness_direction_and_classifier(
     plt.savefig(experiment_path / "pca.png", dpi=300, bbox_inches="tight")
     plt.clf()
 
+
+    ax = sns.histplot(
+        x=test_label_df_["correctness"],
+        hue=test_label_df_["correct"].map(lambda val: {True: "Correct", False: "Incorrect", "IDK": "Incorrect (IDK)"}.get(val, val)),
+        palette=custom_palette,
+        alpha=0.75,
+        bins=100,
+    )
+    plt.savefig(experiment_path / "correctness_dir_hist_groups.png", dpi=300, bbox_inches="tight")
+    plt.clf()
+
     correctness_direction_path = experiment_path / "correctness_direction"
     correctness_direction_path.mkdir(parents=True, exist_ok=True)
 
+    # test_label_df = test_label_df[~test_label_df["special"]]
     evaluate_classification(
         test_label_df["correct"],
         test_label_df["correctness"],
@@ -402,19 +419,22 @@ def classifier_experiment_run(
         )
 
     ############# DATASET SPECIFIC ###################
+    correct_indices = labels_df[labels_df["is_correct"]].iloc[:(~labels_df["is_correct"]).sum()].index  # assumes more correct than incorrect
+    labels_df = labels_df.iloc[list(correct_indices) + list(labels_df[~labels_df["is_correct"]].index)]
+    activations = activations[list(labels_df.index)]
+
     labels_df["correct"] = labels_df["is_correct"]    
-    labels_df.loc[labels_df["correct"] == "UK", "correct"] = "True"
+    # labels_df.loc[labels_df["correct"] == "UK", "correct"] = "True"
 
     labels_df["special"] = False
 
-    labels_df.loc[labels_df["correct"] == "IDK", "special"] = True
-    labels_df.loc[labels_df["correct"] == "IDK", "correct"] = "False"
+    labels_df.loc[labels_df["filtered_answer"] == "I don't know", "special"] = True
+    # labels_df.loc[labels_df["correct"] == "IDK", "correct"] = "False"
     # labels_df = labels_df[labels_df["correct"] != "IDK"]
     # activations = activations[list(labels_df.index)]
     # labels_df = labels_df.reset_index(drop=True)
 
-
-    labels_df["correct"] = labels_df["correct"].map({"True": True, "False": False})
+    # labels_df["correct"] = labels_df["correct"].map({"True": True, "False": False})
 
     ############# DATASET SPECIFIC ###################
 

@@ -1,0 +1,14 @@
+{
+    "model": "llama3_8b",
+    "layer": "12",
+    "activations_dir": "../acts/llama3_8b/cities_questions_augmented_2_for_activations",
+    "question_answer_file": "../datasets/cities_questions_augmented/labels.csv",
+    "first_batch": null,
+    "n_batches": null,
+    "batch_size": 25,
+    "check_correctness_classifier": true,
+    "check_logistic_regression_classifier": true,
+    "train_frac": 0.5,
+    "timestamp": "2025-01-17 13:16:54.645837",
+    "notes": "running on more samples"
+}
