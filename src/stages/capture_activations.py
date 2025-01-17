@@ -121,6 +121,6 @@ if __name__ == "__main__":
     args_parser.add_argument(
         "--layers", dest="layers", nargs="+", default=[-1], type=int
     )
-    args_parser.add_argument("--batch-size", dest="batch_size", default=25)
+    args_parser.add_argument("--batch-size", dest="batch_size", default=25, type=int)
     args = args_parser.parse_args()
     capture_activations(args.config, args.model, args.batch_size)

@@ -172,6 +172,6 @@ if __name__ == "__main__":
     args_parser = argparse.ArgumentParser()
     args_parser.add_argument("--config", dest="config", required=True)
     args_parser.add_argument("--model", dest="model", required=True)
-    args_parser.add_argument("--batch-size", dest="batch_size", default=25)
+    args_parser.add_argument("--batch-size", dest="batch_size", default=25, type=int)
     args = args_parser.parse_args()
     generate_answers(args.config, args.model, args.batch_size)
