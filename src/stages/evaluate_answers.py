@@ -59,6 +59,7 @@ def generate_answers(
         for prompt_version, _ in dataset_conf.prompts.items():
             logger.info(f"Evaluating answers for prompt version {prompt_version}")
             for subset in dataset_conf.subsets:
+                logger.info(f"Evaluting answers for subset '{subset}'")
                 generations_path = os.path.join(
                     config.base.generations_dir,
                     model,
@@ -66,22 +67,28 @@ def generate_answers(
                     prompt_version,
                     f"{subset}_generations.csv",
                 )
-                logger.info(f"Evaluting answers for subset '{subset}'")
                 ground_truth_path = os.path.join(
                     config.base.datasets_dir,
                     config.format_dataset.dir_path,
                     dataset_name,
                     prompt_version,
-                    (
-                        f"{subset}_sampled.csv"
-                        if config.generate_answers.sample_strategy
-                        else f"{subset}.csv"
-                    ),
                 )
-                logger.info(f"Loading ground truth from {ground_truth_path}")
-                ground_truth_df = pd.read_csv(ground_truth_path)
                 logger.info(f"Loading generations from {generations_path}")
                 generations_df = pd.read_csv(generations_path)
+                if config.generate_answers.max_dataset_size:
+                    try:
+                        ground_truth_sampled = (
+                            f"{ground_truth_path}/{subset}_sampled.csv"
+                        )
+                        logger.info(f"Loading ground truth from {ground_truth_sampled}")
+                        ground_truth_df = pd.read_csv(ground_truth_sampled)
+                    except FileNotFoundError:
+                        logger.warning(
+                            f"Subset `{subset}` was not sampled. Loading full dataset."
+                        )
+                        ground_truth_full = f"{ground_truth_path}/{subset}.csv"
+                        logger.info(f"Loading ground truth from {ground_truth_full}")
+                        ground_truth_df = pd.read_csv(ground_truth_full)
                 if dataset_name == "mmlu":
                     # Convert from string label to index
                     y_true = ground_truth_df["answer"].apply(label_to_index)
