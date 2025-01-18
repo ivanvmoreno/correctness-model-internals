@@ -33,14 +33,18 @@ def calculate_correctness_direction(activations, label_df):
         -1
     )  # those that are incorrect should point in the opposite direction
 
-    correctness_direction = pt.mean((activations - mu) * s[:, None], dim=0) # From algebra should be /s, but x/1=x*1 and x/-1=x*-1 so can just multiply by s
+    correctness_direction = pt.mean(
+        (activations - mu) * s[:, None], dim=0
+    )  # From algebra should be /s, but x/1=x*1 and x/-1=x*-1 so can just multiply by s
     return (
         correctness_direction,
         mu,
     )
 
 
-def evaluate_classification(labels, correctness, experiment_path, optimal_threshold, extra_info=None):
+def evaluate_classification(
+    labels, correctness, experiment_path, optimal_threshold, extra_info=None
+):
     df = pd.DataFrame({"label": labels, "correctness": correctness})
 
     fpr, tpr, thresholds = roc_curve(df["label"], df["correctness"])
@@ -52,13 +56,13 @@ def evaluate_classification(labels, correctness, experiment_path, optimal_thresh
     # Create the plot with multiple categories but shared bins
     bin_edges = np.histogram_bin_edges(df["correctness"], bins=100)
     ax = sns.histplot(
-        x=df[~df["label"]]["correctness"], 
+        x=df[~df["label"]]["correctness"],
         label="Incorrect",
         bins=bin_edges,
         color="orange",
     )
     ax = sns.histplot(
-        x=df[df["label"]]["correctness"], 
+        x=df[df["label"]]["correctness"],
         label="Correct",
         bins=bin_edges,
         color="green",
@@ -67,10 +71,7 @@ def evaluate_classification(labels, correctness, experiment_path, optimal_thresh
     # Add the threshold line
     optimal_threshold_label = f"Optimal Threshold {optimal_threshold:.3f}"
     ax.axvline(
-        optimal_threshold,
-        color="red",
-        linestyle="--",
-        label=optimal_threshold_label
+        optimal_threshold, color="red", linestyle="--", label=optimal_threshold_label
     )
 
     # Create the new legend with all elements
@@ -166,11 +167,13 @@ def load_labels_df_and_activations(
 
     return labels_df.reset_index(drop=True), activations
 
+
 def find_optimal_cut(labels, classifications):
     fpr, tpr, thresholds = roc_curve(labels, classifications)
     youden_index = tpr - fpr
     optimal_idx = np.argmax(youden_index[1:]) + 1
     return thresholds[optimal_idx]
+
 
 def evaluate_correctness_direction_and_classifier(
     X_train,
@@ -192,10 +195,11 @@ def evaluate_correctness_direction_and_classifier(
 
     train_label_df_ = train_label_df.reset_index(drop=True)
     train_label_df_ = train_label_df_[~train_label_df_["special"]]
-    correctness_direction, mu = calculate_correctness_direction(X_train[list(train_label_df_.index)], train_label_df_.reset_index())
+    correctness_direction, mu = calculate_correctness_direction(
+        X_train[list(train_label_df_.index)], train_label_df_.reset_index()
+    )
     test_label_df["correctness"] = (X_test - mu) @ correctness_direction
     train_label_df["correctness"] = (X_train - mu) @ correctness_direction
-
 
     correctness_end_pca = pca_pipeline.transform(
         correctness_direction[None, :]
@@ -207,13 +211,25 @@ def evaluate_correctness_direction_and_classifier(
     )  # need to transform the begining and end of the vector so that we transform the vector so that we can get the difference in pca space.
 
     test_label_df_ = test_label_df.copy()
-    test_label_df_.loc[test_label_df_["special"], "correct"] = "IDK" ### todo clean this. only for plotting i don't know responses separately, dataset specific
-    
-    custom_palette = {"Correct": "green", "Incorrect": "orange", "Incorrect (IDK)": "blue"}
+    test_label_df_.loc[test_label_df_["special"], "correct"] = (
+        "IDK"  ### todo clean this. only for plotting i don't know responses separately, dataset specific
+    )
+
+    custom_palette = {
+        "Correct": "green",
+        "Incorrect": "orange",
+        "Incorrect (IDK)": "blue",
+    }
     ax = sns.scatterplot(
         x=pca_activations_test[:, 0],
         y=pca_activations_test[:, 1],
-        hue=test_label_df_["correct"].map(lambda val: {True: "Correct", False: "Incorrect", "IDK": "Incorrect (IDK)"}.get(val, val)),
+        hue=test_label_df_["correct"].map(
+            lambda val: {
+                True: "Correct",
+                False: "Incorrect",
+                "IDK": "Incorrect (IDK)",
+            }.get(val, val)
+        ),
         palette=custom_palette,
     )
     ax.quiver(
@@ -232,15 +248,24 @@ def evaluate_correctness_direction_and_classifier(
     plt.savefig(experiment_path / "pca.png", dpi=300, bbox_inches="tight")
     plt.clf()
 
-
     ax = sns.histplot(
         x=test_label_df_["correctness"],
-        hue=test_label_df_["correct"].map(lambda val: {True: "Correct", False: "Incorrect", "IDK": "Incorrect (IDK)"}.get(val, val)),
+        hue=test_label_df_["correct"].map(
+            lambda val: {
+                True: "Correct",
+                False: "Incorrect",
+                "IDK": "Incorrect (IDK)",
+            }.get(val, val)
+        ),
         palette=custom_palette,
         alpha=0.75,
         bins=100,
     )
-    plt.savefig(experiment_path / "correctness_dir_hist_groups.png", dpi=300, bbox_inches="tight")
+    plt.savefig(
+        experiment_path / "correctness_dir_hist_groups.png",
+        dpi=300,
+        bbox_inches="tight",
+    )
     plt.clf()
 
     correctness_direction_path = experiment_path / "correctness_direction"
@@ -251,7 +276,9 @@ def evaluate_correctness_direction_and_classifier(
         test_label_df["correct"],
         test_label_df["correctness"],
         correctness_direction_path,
-        optimal_threshold=find_optimal_cut(train_label_df["correct"], train_label_df["correctness"]),
+        optimal_threshold=find_optimal_cut(
+            train_label_df["correct"], train_label_df["correctness"]
+        ),
     )
 
 
@@ -274,13 +301,12 @@ def evaluate_logistic_regression_classifier(
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-
     model = LogisticRegression(random_state=42, solver="lbfgs", max_iter=1000)
     model.fit(X_train, train_label_df["correct"])
 
     # Step 4: Make predictions
-    train_label_df["correctness"] = 1-model.predict_proba(X_train)
-    test_label_df["correctness"] = 1-model.predict_proba(X_test)
+    train_label_df["correctness"] = 1 - model.predict_proba(X_train)
+    test_label_df["correctness"] = 1 - model.predict_proba(X_test)
 
     correctness_direction_path = experiment_path / "logistic_regression_classifier"
     correctness_direction_path.mkdir(parents=True, exist_ok=True)
@@ -289,7 +315,9 @@ def evaluate_logistic_regression_classifier(
         test_label_df["correct"],
         test_label_df["correctness"],
         correctness_direction_path,
-        optimal_threshold=find_optimal_cut(train_label_df["correct"], train_label_df["correctness"]),
+        optimal_threshold=find_optimal_cut(
+            train_label_df["correct"], train_label_df["correctness"]
+        ),
         extra_info={
             "model": str(model),
         },
@@ -420,11 +448,17 @@ def classifier_experiment_run(
         )
 
     ############# DATASET SPECIFIC ###################
-    correct_indices = labels_df[labels_df["is_correct"]].iloc[:(~labels_df["is_correct"]).sum()].index  # assumes more correct than incorrect
-    labels_df = labels_df.iloc[list(correct_indices) + list(labels_df[~labels_df["is_correct"]].index)]
+    correct_indices = (
+        labels_df[labels_df["is_correct"]]
+        .iloc[: (~labels_df["is_correct"]).sum()]
+        .index
+    )  # assumes more correct than incorrect
+    labels_df = labels_df.iloc[
+        list(correct_indices) + list(labels_df[~labels_df["is_correct"]].index)
+    ]
     activations = activations[list(labels_df.index)]
 
-    labels_df["correct"] = labels_df["is_correct"]    
+    labels_df["correct"] = labels_df["is_correct"]
     # labels_df.loc[labels_df["correct"] == "UK", "correct"] = "True"
 
     labels_df["special"] = False
