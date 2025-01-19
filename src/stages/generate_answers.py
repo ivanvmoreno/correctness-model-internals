@@ -1,18 +1,15 @@
+import argparse
 import os
 import shutil
-
-import pandas as pd
-import os
-import argparse
 
 import pandas as pd
 from tqdm import tqdm
 
 from src.data import load_statements
-from src.utils.utils import sample_list_random, sample_list_first_n
-from src.model import load_model, generate_const, generate_unconst
+from src.model import generate_const, generate_unconst, load_model
 from src.utils.config import load_config
 from src.utils.logging import get_logger
+from src.utils.utils import sample_list_first_n, sample_list_random
 
 
 def generate_answers(

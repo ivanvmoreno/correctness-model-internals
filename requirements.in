@@ -12,3 +12,5 @@ evaluate
 umap-learn
 pyarrow
 python-box
+black
+isort

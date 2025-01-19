@@ -11,10 +11,11 @@ import torch as pt
 import torch.nn as nn
 import torch.optim as optim
 from sklearn.decomposition import PCA
-from sklearn.metrics import accuracy_score, auc, roc_curve, f1_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, auc, f1_score, roc_curve
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
+
 
 def _act_file_to_batch_idx(file: Path) -> int:
     return int(str(file).split("_")[-1].split(".")[0])

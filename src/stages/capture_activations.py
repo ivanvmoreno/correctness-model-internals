@@ -1,11 +1,11 @@
+import argparse
 import os
 import shutil
-import argparse
 
 import torch
 
 from src.data import load_statements
-from src.model import load_model, get_acts
+from src.model import get_acts, load_model
 from src.utils.config import load_config
 from src.utils.logging import get_logger
 
