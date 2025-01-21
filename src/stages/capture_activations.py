@@ -96,21 +96,30 @@ def capture_activations(
                             elif input_type == "prompt_answer":
                                 batch_inputs.append(" ".join(statement))
 
-                        acts = get_acts(
-                            batch_inputs, tokenizer, model, layers, device=device
-                        )
+                        with torch.no_grad():
+                            acts = get_acts(
+                                batch_inputs,
+                                tokenizer,
+                                model,
+                                layers,
+                                device=device,
+                            )
+                            save_file = os.path.join(
+                                save_dir,
+                                subset,
+                                input_type,
+                                f"activations_{idx}.pt",
+                            )
+                            os.makedirs(
+                                os.path.dirname(save_file), exist_ok=True
+                            )
+                            torch.save(acts, save_file)
+                            logger.info(
+                                f"Saved activations for subset `{subset}`, batch `{idx}` to `{save_file}`"
+                            )
 
-                        save_file = os.path.join(
-                            save_dir, subset, input_type, f"activations_{idx}.pt"
-                        )
-                        os.makedirs(os.path.dirname(save_file), exist_ok=True)
-                        torch.save(acts, save_file)
-                        logger.info(
-                            f"Saved activations for subset `{subset}`, batch `{idx}` to `{save_file}`"
-                        )
-
-                        logger.info("Emptying CUDA cache")
-                        torch.cuda.empty_cache()
+                            logger.info("Emptying CUDA cache")
+                            torch.cuda.empty_cache()
 
 
 if __name__ == "__main__":
@@ -121,6 +130,8 @@ if __name__ == "__main__":
     args_parser.add_argument(
         "--layers", dest="layers", nargs="+", default=[-1], type=int
     )
-    args_parser.add_argument("--batch-size", dest="batch_size", default=1, type=int)
+    args_parser.add_argument(
+        "--batch-size", dest="batch_size", default=1, type=int
+    )
     args = args_parser.parse_args()
     capture_activations(args.config, args.model, args.batch_size)

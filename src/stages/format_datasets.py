@@ -24,18 +24,18 @@ def format_dataset(
             for subset in dataset_conf.subsets:
                 if dataset_name == "mmlu":
                     dataset_f = format_mmlu(
-                        f"{config.base.datasets_dir}/{dataset_name}/{subset}",
+                        f"{config.base.datasets_dir}/{config.format_datasets.raw_dir_path}/{dataset_name}/{subset}",
                         prompt,
                         dataset_conf.answer_map,
                     )
                 elif dataset_name == "gsm8k":
                     dataset_f = format_gsm8k(
-                        f"{config.base.datasets_dir}/{dataset_name}/{subset}",
+                        f"{config.base.datasets_dir}/{config.format_datasets.raw_dir_path}/{dataset_name}/{subset}",
                         prompt,
                     )
                 else:
                     raise ValueError(f"Dataset {dataset_name} not supported")
-                formatted_dir = f"{config.base.datasets_dir}/{config.format_dataset.dir_path}/{dataset_name}/{prompt_version}"
+                formatted_dir = f"{config.base.datasets_dir}/{config.format_datasets.formatted_dir_path}/{dataset_name}/{prompt_version}"
                 formatted_path = f"{formatted_dir}/{subset}.csv"
 
                 if not os.path.exists(formatted_dir):

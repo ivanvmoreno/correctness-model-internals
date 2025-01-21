@@ -61,7 +61,7 @@ def generate_answers(
             for subset in dataset_conf.subsets:
                 formatted_path = os.path.join(
                     config.base.datasets_dir,
-                    config.format_dataset.dir_path,
+                    config.format_datasets.formatted_dir_path,
                     dataset_name,
                     prompt_version,
                 )
@@ -75,7 +75,8 @@ def generate_answers(
                 )
                 if (
                     config.generate_answers.max_dataset_size
-                    and config.generate_answers.max_dataset_size < len(statements)
+                    and config.generate_answers.max_dataset_size
+                    < len(statements)
                 ):
                     logger.info(
                         f"Sampling {config.generate_answers.max_dataset_size} examples from dataset `{dataset_name}`, subset `{subset}` with strategy `{config.generate_answers.sample_strategy}`"
@@ -93,14 +94,18 @@ def generate_answers(
                             f"Sample strategy {config.generate_answers.sample_strategy} not supported"
                         )
                     # Store the sampled subset in a separate file
-                    sampled_file = os.path.join(formatted_path, f"{subset}_sampled.csv")
-                    logger.info(f"Saving sampled subset to {sampled_file}")
-                    pd.DataFrame(statements, columns=["prompt", "answer"]).to_csv(
-                        sampled_file, index=False
+                    sampled_file = os.path.join(
+                        formatted_path, f"{subset}_sampled.csv"
                     )
+                    logger.info(f"Saving sampled subset to {sampled_file}")
+                    pd.DataFrame(
+                        statements, columns=["prompt", "answer"]
+                    ).to_csv(sampled_file, index=False)
                 # We only need the prompts for generation
                 statements = [s[0] for s in statements]
-                for idx in range(0, len(statements), min(batch_size, len(statements))):
+                for idx in range(
+                    0, len(statements), min(batch_size, len(statements))
+                ):
                     chunk = statements[idx : idx + batch_size]
                     save_file = os.path.join(
                         save_dir, f"{subset}_generations_{idx}.csv"
@@ -141,13 +146,16 @@ def generate_answers(
                 partial_files = [
                     f
                     for f in os.listdir(save_dir)
-                    if f.endswith(".csv") and f.startswith(f"{subset}_generations_")
+                    if f.endswith(".csv")
+                    and f.startswith(f"{subset}_generations_")
                 ]
                 partial_files.sort(
                     key=lambda f: int(f.split("_")[-1].replace(".csv", ""))
                 )
 
-                joined_file = os.path.join(save_dir, f"{subset}_generations.csv")
+                joined_file = os.path.join(
+                    save_dir, f"{subset}_generations.csv"
+                )
 
                 # Load each partial CSV and concatenate
                 df_list = []
@@ -169,6 +177,8 @@ if __name__ == "__main__":
     args_parser = argparse.ArgumentParser()
     args_parser.add_argument("--config", dest="config", required=True)
     args_parser.add_argument("--model", dest="model", required=True)
-    args_parser.add_argument("--batch-size", dest="batch_size", default=25, type=int)
+    args_parser.add_argument(
+        "--batch-size", dest="batch_size", default=25, type=int
+    )
     args = args_parser.parse_args()
     generate_answers(args.config, args.model, args.batch_size)

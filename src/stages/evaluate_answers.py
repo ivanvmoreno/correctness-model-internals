@@ -1,6 +1,7 @@
 import argparse
 import os
 import re
+import json
 
 import pandas as pd
 
@@ -38,7 +39,7 @@ def extract_answer_open_ended(generation: str, regex: str):
         return None
 
 
-def generate_answers(
+def evaluate_answers(
     config_path: str,
     model: str,
 ) -> None:
@@ -49,7 +50,7 @@ def generate_answers(
         model (str): Model to use for generation
     """
     config = load_config(config_path)
-    logger = get_logger("GENERATE_ANSWERS", config.base.log_level)
+    logger = get_logger("EVALUATE_ANSWERS", config.base.log_level)
 
     logger.info(f"Evaluating answers from model {model}")
 
@@ -57,7 +58,9 @@ def generate_answers(
         logger.info(f"Evaluating answers for dataset {dataset_name}")
 
         for prompt_version, _ in dataset_conf.prompts.items():
-            logger.info(f"Evaluating answers for prompt version {prompt_version}")
+            logger.info(
+                f"Evaluating answers for prompt version {prompt_version}"
+            )
             for subset in dataset_conf.subsets:
                 logger.info(f"Evaluting answers for subset '{subset}'")
                 generations_path = os.path.join(
@@ -69,7 +72,7 @@ def generate_answers(
                 )
                 ground_truth_path = os.path.join(
                     config.base.datasets_dir,
-                    config.format_dataset.dir_path,
+                    config.format_datasets.formatted_dir_path,
                     dataset_name,
                     prompt_version,
                 )
@@ -80,54 +83,92 @@ def generate_answers(
                         ground_truth_sampled = (
                             f"{ground_truth_path}/{subset}_sampled.csv"
                         )
-                        logger.info(f"Loading ground truth from {ground_truth_sampled}")
+                        logger.info(
+                            f"Loading ground truth from {ground_truth_sampled}"
+                        )
                         ground_truth_df = pd.read_csv(ground_truth_sampled)
                     except FileNotFoundError:
                         logger.warning(
                             f"Subset `{subset}` was not sampled. Loading full dataset."
                         )
                         ground_truth_full = f"{ground_truth_path}/{subset}.csv"
-                        logger.info(f"Loading ground truth from {ground_truth_full}")
+                        logger.info(
+                            f"Loading ground truth from {ground_truth_full}"
+                        )
                         ground_truth_df = pd.read_csv(ground_truth_full)
                 if dataset_name == "mmlu":
                     # Convert from string label to index
                     y_true = ground_truth_df["answer"].apply(label_to_index)
                     y_pred = generations_df["answer"].apply(label_to_index)
+                    y_correct = y_true == y_pred
                     # Compute metrics
                     metrics = {
                         metric: EVAL_METRICS[metric](y_true, y_pred)
                         for metric in EVAL_METRICS
                     }
-                    # Prepare evaluation dataframe
-                    metrics_rows = []
-                    for metric_name in EVAL_METRICS.keys():
-                        metrics_rows.append(
-                            {
-                                "metric": metric_name,
-                                "value": metrics[metric_name],
-                            }
-                        )
                 elif dataset_name == "gsm8k":
                     # Extract answers from open-ended generations
                     y_true = ground_truth_df["answer"].astype(str)
                     y_pred = generations_df["answer"].apply(
-                        extract_answer_open_ended, regex=dataset_conf.answer_regex
+                        extract_answer_open_ended,
+                        regex=dataset_conf.answer_regex,
                     )
                     y_correct = y_true == y_pred
-                    metrics_rows = [
-                        {
-                            "metric": "accuracy",
-                            "value": y_correct.mean(),
-                        }
-                    ]
-
-                metrics_df = pd.DataFrame(metrics_rows)
-                metrics_csv_path = os.path.join(
-                    os.path.dirname(generations_path),
-                    f"{subset}_metrics.csv",
+                    metrics = {
+                        "accuracy": y_correct.mean(),
+                    }
+                evaluations_path = os.path.join(
+                    config.base.evaluations_dir,
+                    model,
+                    dataset_name,
+                    prompt_version,
                 )
-                metrics_df.to_csv(metrics_csv_path, index=False)
-                logger.info(f"Saved metrics to {metrics_csv_path}")
+                generations_eval_csv_path = os.path.join(
+                    evaluations_path,
+                    f"{subset}_generations_evaluated.csv",
+                )
+                os.makedirs(evaluations_path, exist_ok=True)
+                generations_df["ground_truth"] = y_true
+                generations_df["correct"] = y_correct
+                generations_df.to_csv(
+                    generations_eval_csv_path,
+                    index=False,
+                )
+                logger.info(
+                    f"Saved evaluated generations to {generations_eval_csv_path}"
+                )
+                metrics_path = os.path.join(
+                    evaluations_path,
+                    f"{subset}_metrics.json",
+                )
+                with open(metrics_path, "w") as f:
+                    json.dump(metrics, f, indent=4)
+                logger.info(f"Saved metrics to {metrics_path}")
+
+    # Join all metrics (dataset, prompt_version, subset) into a single file
+    metrics = {}
+    for dataset_name, dataset_conf in config.datasets.items():
+        metrics[dataset_name] = {}
+        for prompt_version, _ in dataset_conf.prompts.items():
+            metrics[dataset_name][prompt_version] = {}
+            for subset in dataset_conf.subsets:
+                metrics_path = os.path.join(
+                    config.base.evaluations_dir,
+                    model,
+                    dataset_name,
+                    prompt_version,
+                    f"{subset}_metrics.json",
+                )
+                with open(metrics_path, "r") as f:
+                    metrics[dataset_name][prompt_version][subset] = json.load(f)
+    metrics_joined_path = os.path.join(
+        config.base.evaluations_dir,
+        model,
+        "metrics.json",
+    )
+    with open(metrics_joined_path, "w") as f:
+        json.dump(metrics, f, indent=4)
+    logger.info(f"Joined metrics saved to {metrics_joined_path}")
 
 
 if __name__ == "__main__":
@@ -136,4 +177,4 @@ if __name__ == "__main__":
     args_parser.add_argument("--config", dest="config", required=True)
     args_parser.add_argument("--model", dest="model", required=True)
     args = args_parser.parse_args()
-    generate_answers(args.config, args.model)
+    evaluate_answers(args.config, args.model)
