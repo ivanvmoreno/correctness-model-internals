@@ -56,23 +56,7 @@ A first PCA of the activations in layer 12 of Llama3 8B already shows some inter
 
 We have run the activations and generations for 200 analysis but not yet performed the correctness analysis
 
-## Using the repo
-
-### Taskfile
-
-The `Taskfile.yml` contains a list of tasks that can be run using the `task` command.
-
-To see a list of available tasks, run the following command:
-
-```bash
-task --list
-task: Available tasks for this project:
-* dep-lock:              Update the project's lockfiles from the requirements-<env>.in files
-* format:                Format the code using black and isort
-* format-datasets:       Prepare benchmark datasets for question-answering
-```
-
-The `task` binary is already available in the DevContainer. To install it on your local machine, follow the instructions [here](https://taskfile.dev/installation).
+## Using the repository
 
 ### Downloading HF resources
 
@@ -100,5 +84,3 @@ Sample number: 1000 samples?
     - Single parameter: answer correctness
 
 Evaluation: compare model generations against ground truth to obtain labels. 
-
-

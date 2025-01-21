@@ -2,9 +2,10 @@ base:
   project_name: correctness-model-internals
   log_level: DEBUG
   models_dir: ../models
-  datasets_dir: ../datasets
-  activations_dir: ../activations
-  generations_dir: ../generations
+  datasets_dir: ./datasets
+  generations_dir: ./generations
+  evaluations_dir: ./evaluations
+  activations_dir: ./activations
 
 datasets:
   mmlu:
@@ -57,7 +58,6 @@ datasets:
         ---
         Question:
 
-
 models:
   llama3_8b_chat:
     dir_path: llama3_8b_chat_hf
@@ -66,15 +66,17 @@ models:
   llama3_3b_chat:
     dir_path: llama3_3b_chat_hf
 
-format_dataset:
-  dir_path: formatted
-  generation_delimiter: false  # e.g., Answer:
+format_datasets:
+  raw_dir_path: raw
+  formatted_dir_path: formatted
+  generation_delimiter: false  # e.g., "Answer:"
 
 generate_answers:
-  max_dataset_size: 200
+  model: llama3_3b_chat
+  max_dataset_size: 10
   sample_strategy: first_n # {first_n, random}
   max_new_tokens: 1024
   stop_word: "}$"
 
 capture_activations:
-  input_type: [prompt_only, prompt_answer]
+  input_type: [prompt_only, prompt_answer] # {prompt_only, prompt_answer}
