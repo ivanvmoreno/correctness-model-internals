@@ -53,4 +53,4 @@ stages:
       - generate_answers
       - capture_activations
 metrics:
-  - ${base.evaluations_dir}/metrics.json
+  - ${base.evaluations_dir}/${generate_answers.model}/metrics.json
