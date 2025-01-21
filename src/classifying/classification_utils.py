@@ -1,76 +1,10 @@
-import argparse
-import json
-from datetime import datetime
-from pathlib import Path
-from typing import Any
-
-import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-import seaborn as sns
-import torch as pt
-import torch.nn as nn
-import torch.optim as optim
-from activations import Activations
-from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, auc, f1_score, roc_curve
-from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-
-class DirectionCalculator:
-    def __init__(
-        self, activations: Activations, from_group: Any, to_group: Any, balance=True
-    ):
-        self.from_activations = activations.get_activations(subset=from_group)
-        self.to_activations = activations.get_activations(subset=to_group)
-        self.balance = balance
-
-    @property
-    def mean_activations(self):
-        if self.balance:
-            return 0.5 * (
-                self.from_activations.mean(axis=0) + self.to_activations.mean(axis=0)
-            )
-        return pt.cat([self.from_activations, self.to_activations], axis=0).mean(axis=0)
-
-    @classmethod
-    def calculate_direction_for_group(activations_group, mean, sign):
-        return pt.mean(
-            sign * (activations_group - mean),
-            dim=0,
-        )
-
-    @property
-    def classifying_direction(self):
-        # activation = mu + sign * correctness_direction where mu is the mean of all activations (the centroid) and sign is -1 if incorrect and 1 if correct
-        # Basically the centroid over the data + the correctness direction (or it flipped) should take you to the centroid of the class.
-
-        if self.balance:
-            return 0.5 * (
-                self.calculate_direction_for_group(
-                    self.to_activations, mean=self.mean_activations, sign=1
-                )
-                + self.calculate_direction_for_group(
-                    self.from_activations, mean=self.mean_activations, sign=-1
-                )
-            )
-
-        sign = pt.cat(
-            [
-                np.ones(self.from_activations.shape[0]),
-                -1 * np.ones(self.to_activations.shape[0]),
-            ]
-        )
-        return self.calculate_direction_for_group(
-            pt.cat([self.from_activations, self.to_activations], axis=0),
-            mean=self.mean_activations,
-            sign=sign,
-        )
-
-    def get_distance_along_classifying_direction(self, tensor: pt.Tensor):
-        return (tensor - self.mean_activations) @ self.classifying_direction
+from classifying.activations_handler import ActivationsHandler
+from classifying.direction_calculator import DirectionCalculator
 
 
 class BinaryClassifier:
@@ -81,27 +15,20 @@ class BinaryClassifier:
         test_labels,
         test_classification_score,
         classification_metric_funcs=(accuracy_score, f1_score),
-        classification_cut=None,
+        classification_cut=None,  # set this if you know the cut e.g. for LR want 0.5 don't want to get this from train set
     ):
         """
         Build a classifier by slicing along a continuous variable on the train set
         """
-        if not isinstance(train_labels[0], bool) or not isinstance(
-            test_labels[0], bool
-        ):
+        if not all(
+            isinstance(train_label, bool) for train_label in train_labels
+        ) or not all(isinstance(test_label, bool) for test_label in test_labels):
             raise TypeError("Labels must be boolean")
 
         self.train_labels = train_labels
         self.train_classification_score = train_classification_score
         self.test_labels = test_labels
         self.test_classification_score = test_classification_score
-
-        self.classification_cut = classification_cut
-        self.test_pred_class = self.test_classification_score >= (
-            self.classification_cut
-            if self.classification_cut is not None
-            else self.optimal_cut
-        )
 
         (
             self.train_false_positive_rate,
@@ -111,11 +38,21 @@ class BinaryClassifier:
         self.test_false_positive_rate, self.test_true_positive_rate, _ = roc_curve(
             self.test_labels, self.test_classification_score
         )
-        self.roc_auc = auc(self.test_false_positive_rate, self.test_true_positive_rate)
+        self.roc_auc = float(
+            auc(self.test_false_positive_rate, self.test_true_positive_rate)
+        )
         self.classification_metric_funcs = classification_metric_funcs
+
+        self.optimal_cut = (
+            classification_cut
+            if classification_cut is not None
+            else self.optimal_train_set_cut
+        )
+        self.test_pred_class = self.test_classification_score >= (self.optimal_cut)
 
         self.classification_metrics = {
             "optimal_cut": self.optimal_cut,
+            "optimal_train_set_cut": self.optimal_train_set_cut,
             "roc_auc": float(self.roc_auc),
         }
         for classification_metric in self.classification_metric_funcs:
@@ -124,7 +61,53 @@ class BinaryClassifier:
             )
 
     @property
-    def optimal_cut(self):
+    def optimal_train_set_cut(self):
         youden_index = self.train_true_positive_rate - self.train_false_positive_rate
         optimal_idx = np.argmax(youden_index[1:]) + 1
         return float(self.train_thresholds[optimal_idx])
+
+
+def get_correctness_direction_classifier(
+    activations_handler_train: ActivationsHandler,
+    activations_handler_test: ActivationsHandler,
+):
+    direction_calculator = DirectionCalculator(
+        activations_handler=activations_handler_train,
+        from_group=False,
+        to_group=True,
+    )
+    direction_classifier = BinaryClassifier(
+        train_labels=activations_handler_train.labels,
+        train_classification_score=direction_calculator.get_distance_along_classifying_direction(
+            activations_handler_train.activations
+        ),
+        test_labels=activations_handler_test.labels,
+        test_classification_score=direction_calculator.get_distance_along_classifying_direction(
+            activations_handler_test.activations
+        ),
+    )
+    return direction_classifier, direction_calculator
+
+
+def get_logistic_regression_classifier(
+    activations_handler_train: ActivationsHandler,
+    activations_handler_test: ActivationsHandler,
+    classification_cut=0.5,
+):
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(activations_handler_train.activations)
+    X_test = scaler.transform(activations_handler_test.activations)
+
+    model = LogisticRegression(
+        random_state=42, solver="lbfgs", max_iter=1000, class_weight="balanced"
+    )
+    model.fit(X_train, activations_handler_train.labels)
+
+    logistic_regression_classifier = BinaryClassifier(
+        train_labels=activations_handler_train.labels,
+        train_classification_score=model.predict_proba(X_train)[:, 1],
+        test_labels=activations_handler_test.labels,
+        test_classification_score=model.predict_proba(X_test)[:, 1],
+        classification_cut=classification_cut,
+    )
+    return logistic_regression_classifier, model
