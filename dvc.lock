@@ -187,8 +187,8 @@ stages:
     outs:
     - path: ./generations
       hash: md5
-      md5: 84cf5826a56774f2c292356b976ffa15.dir
-      size: 45803
+      md5: 4c73df621c0357598893c33369c352a0.dir
+      size: 44963
       nfiles: 5
   evaluate_answers:
     cmd: python -m src.stages.evaluate_answers --config=params.yaml --model=llama3_3b_chat
@@ -200,8 +200,8 @@ stages:
       nfiles: 10
     - path: ./generations
       hash: md5
-      md5: 84cf5826a56774f2c292356b976ffa15.dir
-      size: 45803
+      md5: 4c73df621c0357598893c33369c352a0.dir
+      size: 44963
       nfiles: 5
     - path: src/stages/evaluate_answers.py
       hash: md5
@@ -290,16 +290,16 @@ stages:
     outs:
     - path: ./evaluations
       hash: md5
-      md5: 449a8c2855580488aa359e6684652830.dir
-      size: 47719
+      md5: 88d63a1316da755ea8e8902683c13119.dir
+      size: 46880
       nfiles: 11
   capture_activations:
     cmd: python -m src.stages.capture_activations --config=params.yaml --model=llama3_3b_chat
     deps:
     - path: ./generations
       hash: md5
-      md5: 84cf5826a56774f2c292356b976ffa15.dir
-      size: 45803
+      md5: 4c73df621c0357598893c33369c352a0.dir
+      size: 44963
       nfiles: 5
     - path: src/stages/capture_activations.py
       hash: md5
@@ -395,6 +395,6 @@ stages:
     outs:
     - path: ./activations
       hash: md5
-      md5: af36c2dc0dd5eb040d233f7cad7aaa5a.dir
+      md5: b7958e2597f290d08664f44b410d7b48.dir
       size: 1240900
       nfiles: 10
