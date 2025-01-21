@@ -11,15 +11,17 @@ def load_model(
     """
     Load model from local weights.
     """
-    model = AutoModelForCausalLM.from_pretrained(f"{models_path}/{model_dir}").to(
-        device
-    )
+    model = AutoModelForCausalLM.from_pretrained(
+        f"{models_path}/{model_dir}"
+    ).to(device)
     model.eval()
     tokenizer = AutoTokenizer.from_pretrained(f"{models_path}/{model_dir}")
     return tokenizer, model
 
 
-def generate_const(tokenizer, model, prompt: str, choices_ids) -> Tuple[str, str]:
+def generate_const(
+    tokenizer, model, prompt: str, choices_ids
+) -> Tuple[str, str]:
     input_ids = tokenizer.encode(prompt, return_tensors="pt").to(model.device)
 
     with torch.no_grad():
