@@ -28,7 +28,7 @@ def deleteme_dummy_file_loader():
                 key=lambda p: int(str(p).split("_")[-1].split(".")[0]),
             )
         ],
-        axis=0,
+        dim=0,
     )
 
 
@@ -57,7 +57,9 @@ def classifier_experiment_run(
     }
 
     for model_name, dataset_name, layer in run_config:
-        labels_df, activations = model_data_loaders[(model_name, dataset_name)]()
+        labels_df, activations = model_data_loaders[
+            (model_name, dataset_name)
+        ]()
         if (
             not check_correctness_direction_classifier
             and not check_logistic_regression_classifier
@@ -70,12 +72,19 @@ def classifier_experiment_run(
             activations=activations, labels=labels_df["correct"]
         )
         if sample_equally:
-            activation_handler = activation_handler.sample_equally_across_groups(
-                group_labels=[False, True]
+            activation_handler = (
+                activation_handler.sample_equally_across_groups(
+                    group_labels=[False, True]
+                )
             )
 
+        print(f"{activation_handler.activations=}")
+        print(f"{activation_handler.labels=}")
+        print(
+            f"{list(activation_handler.split_dataset(split_sizes=[0.8, 0.2]))=}"
+        )
         activations_handler_train, activations_handler_test = (
-            activation_handler.split_dataset(splits=[0.8, 0.2])
+            activation_handler.split_dataset(split_sizes=[0.8, 0.2])
         )
 
         stats_dict = {
@@ -84,12 +93,28 @@ def classifier_experiment_run(
         }
 
         if check_correctness_direction_classifier:
-            stats_dict["correctness_direction_classifier"] = (
+            direction_classifier, direction_calculator = (
                 get_correctness_direction_classifier(
                     activations_handler_train=activations_handler_train,
                     activations_handler_test=activations_handler_test,
-                )[0].classification_metrics
+                )
             )
+            stats_dict["correctness_direction_classifier"] = (
+                direction_classifier.classification_metrics
+            )
+            stats_dict["activation_space_directions"] = {
+                name: getattr(direction_calculator, value).to_list()
+                for name, value in [
+                    "classifying_direction",
+                    "mean_activations",
+                    "centroid_from",
+                    "centroid_to",
+                    "max_activations_from",
+                    "min_activations_from",
+                    "max_activations_to",
+                    "min_activations_to",
+                ]
+            }
 
         if check_logistic_regression_classifier:
             stats_dict["logistic_regression_classifier"] = (
@@ -99,7 +124,9 @@ def classifier_experiment_run(
                 )[0].classification_metrics
             )
 
-        overall_stats_dict[(model_name, dataset_name, f"layer_{layer}")] = stats_dict
+        overall_stats_dict[(model_name, dataset_name, f"layer_{layer}")] = (
+            stats_dict
+        )
     return stats_dict
 
 

@@ -1,76 +1,186 @@
-from typing import Any
+from __future__ import annotations
+
+from typing import Any, Generator
 
 import numpy as np
 import pandas as pd
 import torch as pt
 
+from .typing import BatchActivationsVector
+
 
 class ActivationsHandler:
-    def __init__(self, activations: pt.Tensor, labels: Any):
+    """
+    Utility class for handling activations and labels.
+
+    Attributes
+    ----------
+    activations: BatchActivationsVector
+        Activations, rows are entries (datapoints), columns are activations from nodes
+        from the MLP
+    labels: pd.Series
+        Labels (i.e. True/False or anything else), the index of the series should
+        correspond to the row in activations.
+    """
+
+    def __init__(
+        self, activations: BatchActivationsVector, labels: np.typing.ArrayLike
+    ):
+        """
+        Setup
+
+        Parameters
+        ----------
+        activations: BatchActivationsVector
+            The activations to set
+        labels: np.typing.ArrayLike
+            Must align with activations
+        """
         self.activations = activations
-        self.labels = pd.Series(labels).reset_index(drop=True)
+        self.labels = pd.Series(labels).copy().reset_index(drop=True)
 
-        # self.groups = {
-        #     label: list(self.labels[self.labels == label].index)
-        #     for label in self.labels
-        # }
+    def get_groups(
+        self, labels: list | set | tuple | Any
+    ) -> ActivationsHandler:
+        """
+        Get a new ActivationsHandler instance depending on the label(s)
 
-    def get_activation_groups(
-        self, groups: None | list | set | tuple | Any = None
-    ) -> pt.Tensor:
-        if groups is None:
-            return self.activations
+        Parameters
+        ----------
+        labels: list | set | tuple | Any
+            The label (or group of labels) to create ActivationsHandlers for.
 
-        if not isinstance(groups, (list, set, tuple, pt.Tensor)):
-            if groups not in self.labels.unique():
-                raise ValueError(f"{groups} is not a valid label")
-            labels = self.labels[self.labels == groups]
-            return ActivationsHandler(
-                activations=self.activations[labels.index],
-                labels=labels.reset_index(drop=True),
+        Returns
+        -------
+        ActivationsHandler
+            A single ActivationsHandler with only the defined activations and
+            labels for the given split(s)
+        """
+        if not isinstance(labels, (list, set, tuple)):
+            # if just a single label
+            if labels not in self.labels.unique():
+                raise ValueError(f"{labels} is not a valid label")
+            labels_ = self.labels[self.labels == labels]
+            return self.__class__(
+                activations=self.activations[labels_.index],
+                labels=labels_,
             )
 
-        groups_handlers = [self.get_activation_groups(groups=group) for group in groups]
-        return ActivationsHandler(
+        groups_handlers = [self.get_groups(labels=group) for group in labels]
+        return self.__class__(
             activations=pt.cat(
-                [group_handler.activations for group_handler in groups_handlers],
-                axis=0,
+                [
+                    group_handler.activations
+                    for group_handler in groups_handlers
+                ],
+                dim=0,
             ),
             labels=pd.concat(
                 [group_handler.labels for group_handler in groups_handlers]
-            ).reset_index(drop=True),
+            ),
         )
 
-    def split_dataset(self, splits: list | tuple):
+    def shuffle(self) -> ActivationsHandler:
+        """
+        Shuffle the dataset.
+
+        Returns
+        -------
+        ActivationsHandler
+            A shuffled ActivationsHandler
+        """
+        indices = list(self.labels.sample(frac=1, replace=False).index)
+        return self.__class__(
+            activations=self.activations[indices],
+            labels=self.labels[indices],
+        )
+
+    def split_dataset(
+        self, split_sizes: list | tuple, random: bool = True
+    ) -> Generator[ActivationsHandler, None, None]:
+        """
+        A generator of ActivationsHandlers depending on the split.
+
+        Parameters
+        ----------
+        split_sizes: list | tuple
+            To define the new set sizes.
+            The sum is normalised so you can do for example:
+            - [0.8, 0.2] for an 80, 20 split
+            - [50, 50] for a 50/50 split,
+            - [1, 2, 1, 6] for a split of 10%, 20%, 10%, 60%
+        random: bool
+            Whether to shuffle the dataset before splitting
+
+        Returns
+        -------
+        Generator[ActivationsHandler, None, None]
+            Yields an ActivationsHandler for each of the split sizes
+        """
+        if len(split_sizes) < 1:
+            raise ValueError("Must define more than one split_sizes")
+
+        if random:
+            yield from self.shuffle().split_dataset(
+                split_sizes=split_sizes, random=False
+            )
+            return
+
         n_entries = len(self.labels)
 
-        splits = np.array(splits)
-        splits = splits / np.sum(splits)
+        split_sizes = np.array(split_sizes)
+        if np.any(split_sizes <= 0):
+            raise ValueError("Splits must be positive numbers.")
+
+        split_sizes = split_sizes / np.sum(split_sizes)
+
         loc_splits = [0] + list(
-            int(x) for x in n_entries * np.cumsum(splits)
-        )  # get the splits as row numbers
+            np.round(n_entries * np.cumsum(split_sizes)).astype(int)
+        )
 
         indices = list(range(n_entries))
-        np.random.shuffle(indices)
 
-        for prev_loc_split, next_loc_split in zip(loc_splits[:-1], loc_splits[1:]):
+        for prev_loc_split, next_loc_split in zip(
+            loc_splits[:-1], loc_splits[1:]
+        ):
             indices_ = indices[prev_loc_split:next_loc_split]
-            yield ActivationsHandler(
+            yield self.__class__(
                 activations=self.activations[indices_],
-                labels=self.labels[indices_],
+                labels=self.labels.iloc[indices_].reset_index(drop=True),
             )
 
-    def sample_equally_across_groups(self, group_labels: list | set | tuple):
-        labels = pd.Series(self.labels).reset_index(
-            drop=True
-        )  # index of series aligns with activations
-        labels = labels[labels.isin(group_labels)]
+    def sample_equally_across_groups(
+        self,
+        group_labels: list | set | tuple,
+        random: bool = True,
+    ) -> ActivationsHandler:
+        """
+        Get an ActivationsHandler with an equal number of samples from each group.
+
+        Parameters
+        ----------
+        group_labels: list | set | tuple
+            The labels to sample equally from.
+        random: bool
+            Whether to shuffle the dataset before splitting
+
+        Returns
+        -------
+        ActivationsHandler
+            An ActivationsHandler with an equal number of samples from each group
+        """
+        if random:
+            return self.shuffle().sample_equally_across_groups(
+                group_labels=group_labels, random=False
+            )
 
         group_handlers = [
-            self.get_activation_groups(group_label) for group_label in group_labels
+            self.get_groups(group_label) for group_label in group_labels
         ]
-        n_per_group = min(len(group_handler.labels) for group_handler in group_handlers)
-        return ActivationsHandler(
+        n_per_group = min(
+            len(group_handler.labels) for group_handler in group_handlers
+        )
+        return self.__class__(
             activations=pt.cat(
                 [
                     group_handler.activations[:n_per_group]

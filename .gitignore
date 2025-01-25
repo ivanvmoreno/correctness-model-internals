@@ -173,3 +173,5 @@ cython_debug/
 /generations
 /evaluations
 /activations
+
+.vscode/

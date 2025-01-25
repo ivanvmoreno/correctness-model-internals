@@ -1,4 +1,7 @@
+from typing import Callable
+
 import numpy as np
+import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, auc, f1_score, roc_curve
 from sklearn.preprocessing import StandardScaler
@@ -6,23 +9,61 @@ from sklearn.preprocessing import StandardScaler
 from classifying.activations_handler import ActivationsHandler
 from classifying.direction_calculator import DirectionCalculator
 
+from .typing import BatchValues
+
 
 class BinaryClassifier:
+    """
+    A binary classifier that can be used to classify data into two classes based on
+    a classification score.
+
+    Parameters
+    ----------
+    classification_metrics : dict[str, float]
+        Classification metrics for test data. This is the main purpose of this class.
+    train_labels : pd.Series
+        Boolean labels for training data
+    train_classification_score : BatchValues
+        Classification scores for training data
+    test_labels : pd.Series
+        Boolean labels for test data
+    test_classification_score : BatchValues
+        Classification scores for test data
+    train_roc_fprs : np.ndarray
+        False positive rates for training data given thresholds
+    train_roc_tprs : np.ndarray
+        True positive rates for training data given thresholds
+    train_roc_thresholds : np.ndarray
+        Thresholds for training data roc curve
+    test_roc_fprs : np.ndarray
+        False positive rates for test data given thresholds
+    test_roc_tprs : np.ndarray
+        True positive rates for test data given thresholds
+    test_roc_thresholds : np.ndarray
+        Thresholds for test data roc curve
+    test_roc_auc : float
+        Area under the ROC curve for test data
+    classification_metric_funcs : tuple[Callable, ...]
+        Functions to calculate classification metrics
+    optimal_cut : float
+        Optimal cut based on training data (or classification_cut if provided)
+    test_pred_class : np.ndarray
+        Predicted classes for test data
+    """
+
     def __init__(
         self,
-        train_labels,
-        train_classification_score,
-        test_labels,
-        test_classification_score,
-        classification_metric_funcs=(accuracy_score, f1_score),
-        classification_cut=None,  # set this if you know the cut e.g. for LR want 0.5 don't want to get this from train set
+        train_labels: pd.Series,
+        train_classification_score: BatchValues,
+        test_labels: pd.Series,
+        test_classification_score: BatchValues,
+        classification_metric_funcs: tuple[Callable, ...] = (
+            accuracy_score,
+            f1_score,
+        ),
+        classification_cut: None | float = None,
     ):
-        """
-        Build a classifier by slicing along a continuous variable on the train set
-        """
-        if not all(
-            isinstance(train_label, bool) for train_label in train_labels
-        ) or not all(isinstance(test_label, bool) for test_label in test_labels):
+        if not train_labels.dtype == "bool" or not test_labels.dtype == "bool":
             raise TypeError("Labels must be boolean")
 
         self.train_labels = train_labels
@@ -31,15 +72,15 @@ class BinaryClassifier:
         self.test_classification_score = test_classification_score
 
         (
-            self.train_false_positive_rate,
-            self.train_true_positive_rate,
-            self.train_thresholds,
+            self.train_roc_fprs,
+            self.train_roc_tprs,
+            self.train_roc_thresholds,
         ) = roc_curve(self.train_labels, self.train_classification_score)
-        self.test_false_positive_rate, self.test_true_positive_rate, _ = roc_curve(
+        self.test_roc_fprs, self.test_roc_tprs, _, _ = roc_curve(
             self.test_labels, self.test_classification_score
         )
-        self.roc_auc = float(
-            auc(self.test_false_positive_rate, self.test_true_positive_rate)
+        self.test_roc_auc = float(
+            auc(self.test_roc_fprs, self.test_true_positive_rate)
         )
         self.classification_metric_funcs = classification_metric_funcs
 
@@ -48,12 +89,14 @@ class BinaryClassifier:
             if classification_cut is not None
             else self.optimal_train_set_cut
         )
-        self.test_pred_class = self.test_classification_score >= (self.optimal_cut)
+        self.test_pred_class = self.test_classification_score >= (
+            self.optimal_cut
+        )
 
         self.classification_metrics = {
             "optimal_cut": self.optimal_cut,
             "optimal_train_set_cut": self.optimal_train_set_cut,
-            "roc_auc": float(self.roc_auc),
+            "test_roc_auc": float(self.test_roc_auc),
         }
         for classification_metric in self.classification_metric_funcs:
             self.classification_metrics[classification_metric.__name__] = float(
@@ -61,20 +104,45 @@ class BinaryClassifier:
             )
 
     @property
-    def optimal_train_set_cut(self):
-        youden_index = self.train_true_positive_rate - self.train_false_positive_rate
+    def optimal_train_set_cut(self) -> float:
+        """
+        Calculate the optimal cut along the classification scores.
+        Done on the training set by maximizing the difference between the true positive
+        rate and false positive rate.
+
+        Returns
+        -------
+        float
+            The optimal cut on the training set
+        """
+        youden_index = self.train_roc_tprs - self.train_roc_fprs
         optimal_idx = np.argmax(youden_index[1:]) + 1
-        return float(self.train_thresholds[optimal_idx])
+        return float(self.train_roc_thresholds[optimal_idx])
 
 
 def get_correctness_direction_classifier(
     activations_handler_train: ActivationsHandler,
     activations_handler_test: ActivationsHandler,
-):
+) -> tuple[BinaryClassifier, DirectionCalculator]:
+    """
+    Build a classifier that uses the directions in activation space between groups
+    of activations.
+
+    Parameters
+    ----------
+    activations_handler_train : ActivationsHandler
+        Activations handler for training data
+    activations_handler_test : ActivationsHandler
+        Activations handler for test data
+
+    Returns
+    -------
+    tuple[BinaryClassifier, DirectionCalculator]
+        The classifier and direction calculator
+    """
     direction_calculator = DirectionCalculator(
-        activations_handler=activations_handler_train,
-        from_group=False,
-        to_group=True,
+        features_from=activations_handler_train.get_groups(False).activations,
+        features_to=activations_handler_train.get_groups(True).activations,
     )
     direction_classifier = BinaryClassifier(
         train_labels=activations_handler_train.labels,
@@ -93,7 +161,24 @@ def get_logistic_regression_classifier(
     activations_handler_train: ActivationsHandler,
     activations_handler_test: ActivationsHandler,
     classification_cut=0.5,
-):
+) -> tuple[BinaryClassifier, LogisticRegression]:
+    """
+    Build a logistic regression classifier that uses the activations as features.
+
+    Parameters
+    ----------
+    activations_handler_train : ActivationsHandler
+        Activations handler for training data
+    activations_handler_test : ActivationsHandler
+        Activations handler for test data
+    classification_cut : float
+        The cut to use for classification, defaults to 0.5
+
+    Returns
+    -------
+    tuple[BinaryClassifier, LogisticRegression]
+        The logistic regression classifier and LR model
+    """
     scaler = StandardScaler()
     X_train = scaler.fit_transform(activations_handler_train.activations)
     X_test = scaler.transform(activations_handler_test.activations)

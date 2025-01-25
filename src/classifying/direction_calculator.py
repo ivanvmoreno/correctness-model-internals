@@ -1,67 +1,177 @@
-from typing import Any
+import torch as pt
 
-import numpy as np
-
-from classifying.activations_handler import ActivationsHandler
+from .typing import ActivationsVector, BatchActivationsVector, BatchValues
 
 
 class DirectionCalculator:
+    """
+    Utilities for calculating the direction between two groups of activations.
+
+    Attributes
+    ----------
+    activations_from: BatchActivationsVector
+        Activations from the first group
+    activations_to: BatchActivationsVector
+        Activations from the second group
+    balance: bool
+        Whether to weight the two groups equally
+    centroid_from: ActivationsVector
+        The centroid of the first group
+    centroid_to: ActivationsVector
+        The centroid of the second group
+    max_activations_from: ActivationsVector
+        The maximum of each activation dimension for the first group
+    min_activations_from: ActivationsVector
+        The minimum of each activation dimension for the first group
+    max_activations_to: ActivationsVector
+        The maximum of each activation dimension for the second group
+    min_activations_to: ActivationsVector
+        The minimum of each activation dimension for the second group
+    mean_activations: ActivationsVector
+        The mean of all activations
+    classifying_direction: ActivationsVector
+        The classifying direction
+    """
+
     def __init__(
         self,
-        activations_handler: ActivationsHandler,
-        from_group: Any,
-        to_group: Any,
-        balance=True,
+        activations_from: BatchActivationsVector,
+        activations_to: BatchActivationsVector,
+        balance: bool = True,
     ):
-        self.from_activations = activations_handler.get_activation_groups(
-            groups=from_group
-        ).activations
-        self.to_activations = activations_handler.get_activation_groups(
-            groups=to_group
-        ).activations
+        """
+        Initialize the DirectionCalculator.
+
+        Parameters
+        ----------
+        activations_from: BatchActivationsVector
+            Activations from the first group
+        activations_to: BatchActivationsVector
+            Activations from the second group
+        balance: bool, default=True
+            Whether to weight the two groups equally
+        """
+        self.activations_from = activations_from
+        self.activations_to = activations_to
         self.balance = balance
 
+        self.centroid_from = self.activations_from.mean(dim=0)
+        self.centroid_to = self.activations_to.mean(dim=0)
+        self.max_activations_from = self.activations_from.max(dim=0).values
+        self.min_activations_from = self.activations_from.min(dim=0).values
+        self.max_activations_to = self.activations_to.max(dim=0).values
+        self.min_activations_to = self.activations_to.min(dim=0).values
+
     @property
-    def mean_activations(self):
+    def mean_activations(self) -> ActivationsVector:
+        """
+        Calculate the mean of all activations.
+
+        If balance is True, returns the mean of the two group centroids.
+        If balance is False, returns the mean of all activations combined.
+
+        Returns
+        -------
+        ActivationsVector
+            The mean activations vector
+        """
         if self.balance:
-            return 0.5 * (
-                self.from_activations.mean(axis=0) + self.to_activations.mean(axis=0)
-            )
-        return pt.cat([self.from_activations, self.to_activations], axis=0).mean(axis=0)
+            return 0.5 * (self.centroid_from + self.centroid_to)
+        return pt.cat([self.activations_from, self.activations_to], dim=0).mean(
+            dim=0
+        )
 
     @staticmethod
-    def _calculate_direction_for_group(activations_group, mean, sign):
+    def _calculate_direction_for_group(
+        activations_group: BatchActivationsVector,
+        mean: ActivationsVector,
+        sign: BatchValues | float,
+    ) -> ActivationsVector:
+        """
+        Calculate the direction for a group of activations.
+
+        Parameters
+        ----------
+        activations_group: BatchActivationsVector
+            Activations from the group
+        mean: ActivationsVector
+            The mean of all activations
+        sign: BatchValues | float
+            The sign of the direction.
+            -1 for the "from" group and 1 for the "to" group.
+            Can be either a float or a tensor of batch size.
+
+        Returns
+        -------
+        ActivationsVector
+            The direction vector
+        """
+        if isinstance(sign, pt.Tensor):
+            sign = sign.unsqueeze(1)
         return pt.mean(
             sign * (activations_group - mean),
             dim=0,
         )
 
     @property
-    def classifying_direction(self):
-        # activation = mu + sign * correctness_direction where mu is the mean of all activations (the centroid) and sign is -1 if incorrect and 1 if correct
-        # Basically the centroid over the data + the correctness direction (or it flipped) should take you to the centroid of the class.
+    def classifying_direction(self) -> ActivationsVector:
+        """
+        Calculate the classifying direction, the vector that points from one group to
+        the other.
 
+        Note that this has a magnitude which is half distance between the two groups
+        (in the balanced case).
+
+        If balance is True, weights the two groups equally, otherwise it will be biased
+        by the number of datapoints in each group.
+
+        Returns
+        -------
+        ActivationsVector
+            The classifying direction vector
+        """
         if self.balance:
             return 0.5 * (
                 self._calculate_direction_for_group(
-                    self.to_activations, mean=self.mean_activations, sign=1
+                    self.activations_to, mean=self.mean_activations, sign=1
                 )
                 + self._calculate_direction_for_group(
-                    self.from_activations, mean=self.mean_activations, sign=-1
+                    self.activations_from, mean=self.mean_activations, sign=-1
                 )
             )
 
         sign = pt.cat(
             [
-                np.ones(self.from_activations.shape[0]),
-                -1 * np.ones(self.to_activations.shape[0]),
+                -1 * pt.ones(self.activations_from.shape[0]),
+                pt.ones(self.activations_to.shape[0]),
             ]
         )
         return self._calculate_direction_for_group(
-            pt.cat([self.from_activations, self.to_activations], axis=0),
+            pt.cat([self.activations_from, self.activations_to], dim=0),
             mean=self.mean_activations,
             sign=sign,
         )
 
-    def get_distance_along_classifying_direction(self, tensor: pt.Tensor):
-        return (tensor - self.mean_activations) @ self.classifying_direction
+    def get_distance_along_classifying_direction(
+        self, batch_activations: BatchActivationsVector
+    ) -> BatchValues:
+        """
+        Calculate the distance of each activation along the classifying direction.
+        This is the magnitude of the projection onto the normalized classifying
+        direction.
+
+        Parameters
+        ----------
+        batch_activations: BatchActivationsVector
+            The activations to calculate the distance along the classifying direction
+
+        Returns
+        -------
+        BatchValues
+            The signed magnitude of the projection along the classifying direction
+        """
+        direction = self.classifying_direction
+        normalized_direction = direction / pt.norm(direction)
+        return (
+            batch_activations - self.mean_activations
+        ) @ normalized_direction
