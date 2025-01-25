@@ -39,6 +39,25 @@ class ActivationsHandler:
         self.activations = activations
         self.labels = pd.Series(labels).copy().reset_index(drop=True)
 
+    def __add__(self, other: ActivationsHandler) -> ActivationsHandler:
+        """
+        Add two ActivationsHandlers together.
+
+        Parameters
+        ----------
+        other: ActivationsHandler
+            The other ActivationsHandler to add
+
+        Returns
+        -------
+        ActivationsHandler
+            The combined ActivationsHandler
+        """
+        return self.__class__(
+            activations=pt.cat([self.activations, other.activations], dim=0),
+            labels=pd.concat([self.labels, other.labels]),
+        )
+
     def get_groups(
         self, labels: list | set | tuple | Any
     ) -> ActivationsHandler:
@@ -66,18 +85,8 @@ class ActivationsHandler:
                 labels=labels_,
             )
 
-        groups_handlers = [self.get_groups(labels=group) for group in labels]
-        return self.__class__(
-            activations=pt.cat(
-                [
-                    group_handler.activations
-                    for group_handler in groups_handlers
-                ],
-                dim=0,
-            ),
-            labels=pd.concat(
-                [group_handler.labels for group_handler in groups_handlers]
-            ),
+        return combine_activations_handlers(
+            [self.get_groups(labels=group) for group in labels]
         )
 
     def shuffle(self) -> ActivationsHandler:
@@ -194,3 +203,27 @@ class ActivationsHandler:
                 ]
             ),
         )
+
+
+def combine_activations_handlers(
+    activations_handlers: list[ActivationsHandler],
+) -> ActivationsHandler:
+    """
+    Combine a list of ActivationsHandlers into a single ActivationsHandler.
+
+    Parameters
+    ----------
+    activations_handlers: list[ActivationsHandler]
+        The list of ActivationsHandlers to combine
+
+    Returns
+    -------
+    ActivationsHandler
+        The combined ActivationsHandler
+    """
+    return sum(
+        activations_handlers,
+        start=ActivationsHandler(
+            activations=pt.tensor([]), labels=pd.Series([])
+        ),
+    )

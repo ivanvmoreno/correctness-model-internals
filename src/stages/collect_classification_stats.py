@@ -2,6 +2,7 @@ from datetime import datetime
 
 from classifying import (
     ActivationsHandler,
+    combine_activations_handlers,
     get_correctness_direction_classifier,
     get_logistic_regression_classifier,
 )
@@ -42,18 +43,16 @@ def classifier_experiment_run(
     run_config: list[tuple[str, str, str]],
     check_correctness_direction_classifier: bool = True,
     check_logistic_regression_classifier: bool = True,
-    train_frac=0.8,
     sample_equally=True,
     notes: str = "",
 ) -> None:
-    train_frac = float(train_frac)
 
     overall_stats_dict = {
         "check_correctness_classifier": check_correctness_direction_classifier,
         "check_logistic_regression_classifier": check_logistic_regression_classifier,
-        "train_frac": train_frac,
         "timestamp": str(datetime.now()),
         "notes": notes,
+        "results": {},
     }
 
     for model_name, dataset_name, layer in run_config:
@@ -78,56 +77,57 @@ def classifier_experiment_run(
                 )
             )
 
-        print(f"{activation_handler.activations=}")
-        print(f"{activation_handler.labels=}")
-        print(
-            f"{list(activation_handler.split_dataset(split_sizes=[0.8, 0.2]))=}"
-        )
-        activations_handler_train, activations_handler_test = (
-            activation_handler.split_dataset(split_sizes=[0.8, 0.2])
+        activations_handler_folds = list(
+            activation_handler.split_dataset(split_sizes=[0.2] * 5)
         )
 
-        stats_dict = {
-            "n_train": activations_handler_train.activations.shape[0],
-            "n_test": activations_handler_test.activations.shape[0],
-        }
-
-        if check_correctness_direction_classifier:
-            direction_classifier, direction_calculator = (
-                get_correctness_direction_classifier(
-                    activations_handler_train=activations_handler_train,
-                    activations_handler_test=activations_handler_test,
-                )
+        fold_stats = {}
+        for i, activations_handler_test in enumerate(activations_handler_folds):
+            activations_handler_train = combine_activations_handlers(
+                [ah for j, ah in enumerate(activations_handler_folds) if j != i]
             )
-            stats_dict["correctness_direction_classifier"] = (
-                direction_classifier.classification_metrics
-            )
-            stats_dict["activation_space_directions"] = {
-                name: getattr(direction_calculator, value).to_list()
-                for name, value in [
-                    "classifying_direction",
-                    "mean_activations",
-                    "centroid_from",
-                    "centroid_to",
-                    "max_activations_from",
-                    "min_activations_from",
-                    "max_activations_to",
-                    "min_activations_to",
-                ]
+            stats_dict = {
+                "n_train": activations_handler_train.activations.shape[0],
+                "n_test": activations_handler_test.activations.shape[0],
             }
 
-        if check_logistic_regression_classifier:
-            stats_dict["logistic_regression_classifier"] = (
-                get_logistic_regression_classifier(
-                    activations_handler_train=activations_handler_train,
-                    activations_handler_test=activations_handler_test,
-                )[0].classification_metrics
-            )
+            if check_correctness_direction_classifier:
+                direction_classifier, direction_calculator = (
+                    get_correctness_direction_classifier(
+                        activations_handler_train=activations_handler_train,
+                        activations_handler_test=activations_handler_test,
+                    )
+                )
+                stats_dict["correctness_direction_classifier"] = (
+                    direction_classifier.classification_metrics
+                )
+                stats_dict["activation_space_directions"] = {
+                    name: getattr(direction_calculator, name).tolist()
+                    for name in [
+                        "classifying_direction",
+                        "mean_activations",
+                        "centroid_from",
+                        "centroid_to",
+                        "max_activations_from",
+                        "min_activations_from",
+                        "max_activations_to",
+                        "min_activations_to",
+                    ]
+                }
 
-        overall_stats_dict[(model_name, dataset_name, f"layer_{layer}")] = (
-            stats_dict
-        )
-    return stats_dict
+            if check_logistic_regression_classifier:
+                stats_dict["logistic_regression_classifier"] = (
+                    get_logistic_regression_classifier(
+                        activations_handler_train=activations_handler_train,
+                        activations_handler_test=activations_handler_test,
+                    )[0].classification_metrics
+                )
+            fold_stats[f"fold_{i}"] = stats_dict
+
+        overall_stats_dict["results"][
+            (model_name, dataset_name, f"layer_{layer}")
+        ] = fold_stats
+    return overall_stats_dict
 
 
 # todo update this so it loads from config
