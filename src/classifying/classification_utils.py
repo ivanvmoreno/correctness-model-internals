@@ -76,12 +76,10 @@ class BinaryClassifier:
             self.train_roc_tprs,
             self.train_roc_thresholds,
         ) = roc_curve(self.train_labels, self.train_classification_score)
-        self.test_roc_fprs, self.test_roc_tprs, _, _ = roc_curve(
+        self.test_roc_fprs, self.test_roc_tprs, _ = roc_curve(
             self.test_labels, self.test_classification_score
         )
-        self.test_roc_auc = float(
-            auc(self.test_roc_fprs, self.test_true_positive_rate)
-        )
+        self.test_roc_auc = float(auc(self.test_roc_fprs, self.test_roc_tprs))
         self.classification_metric_funcs = classification_metric_funcs
 
         self.optimal_cut = (
@@ -141,8 +139,10 @@ def get_correctness_direction_classifier(
         The classifier and direction calculator
     """
     direction_calculator = DirectionCalculator(
-        features_from=activations_handler_train.get_groups(False).activations,
-        features_to=activations_handler_train.get_groups(True).activations,
+        activations_from=activations_handler_train.get_groups(
+            False
+        ).activations,
+        activations_to=activations_handler_train.get_groups(True).activations,
     )
     direction_classifier = BinaryClassifier(
         train_labels=activations_handler_train.labels,
