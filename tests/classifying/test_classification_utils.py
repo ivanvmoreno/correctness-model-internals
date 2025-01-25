@@ -133,7 +133,8 @@ def test_binary_classifier_optimal_cut(sample_classification_data):
 
     assert np.isclose(classifier.optimal_train_set_cut, 0.7)
 
-    # Without explicit classification_cut, optimal_cut should equal optimal_train_set_cut
+    # Without explicit classification_cut, optimal_cut should equal
+    # optimal_train_set_cut
     assert np.isclose(classifier.optimal_cut, classifier.optimal_train_set_cut)
 
     # Test with explicit classification cut
