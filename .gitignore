@@ -175,3 +175,5 @@ cython_debug/
 /activations
 
 .vscode/
+.dvc/config
+.dvc/config.local
