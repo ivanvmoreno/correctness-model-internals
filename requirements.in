@@ -14,4 +14,4 @@ pyarrow
 python-box
 black
 isort
-dvc[webdav]
+dvc[gs]
