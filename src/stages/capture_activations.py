@@ -104,18 +104,24 @@ def capture_activations(
                                 layers,
                                 device=device,
                             )
-                            save_file = os.path.join(
-                                save_dir,
-                                subset,
-                                input_type,
-                                f"activations_{idx}.pt",
-                            )
-                            os.makedirs(
-                                os.path.dirname(save_file), exist_ok=True
-                            )
-                            torch.save(acts, save_file)
+
+                            for l in layers:
+                                save_path = os.path.join(
+                                    save_dir,
+                                    subset,
+                                    input_type,
+                                    f"layer_{l}",
+                                )
+                                os.makedirs(save_path, exist_ok=True)
+                                torch.save(
+                                    acts[l],
+                                    os.path.join(
+                                        save_path, f"activations_batch_{idx}.pt"
+                                    ),
+                                )
+
                             logger.info(
-                                f"Saved activations for subset `{subset}`, batch `{idx}` to `{save_file}`"
+                                f"Saved activations for subset `{subset}`, batch `{idx}`"
                             )
 
                             logger.info("Emptying CUDA cache")
