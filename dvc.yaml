@@ -52,5 +52,18 @@ stages:
       - datasets
       - generate_answers
       - capture_activations
+  collect_classification_stats:
+    desc: Collect classification statistics for the activations
+    cmd: python -m src.stages.collect_classification_stats --config=params.yaml --model=${generate_answers.model}
+    deps:
+      - ${base.activations_dir}
+      - src/classifying/*
+      - src/stages/collect_classification_stats.py
+    outs:
+      - ${base.classification_stats_dir}
+    params:
+      - base
+      - datasets
+      - capture_activations
 metrics:
   - ${base.evaluations_dir}/${generate_answers.model}/metrics.json

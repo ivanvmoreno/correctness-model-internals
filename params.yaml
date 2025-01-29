@@ -6,6 +6,7 @@ base:
   generations_dir: ./generations
   evaluations_dir: ./evaluations
   activations_dir: ./activations
+  classification_stats_dir: ./classification_stats
 
 datasets:
   mmlu:

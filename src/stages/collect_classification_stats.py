@@ -1,3 +1,7 @@
+import argparse
+import json
+import os
+import shutil
 from datetime import datetime
 from pathlib import Path
 
@@ -10,6 +14,9 @@ from src.classifying import (
     get_correctness_direction_classifier,
     get_logistic_regression_classifier,
 )
+from src.model import load_model
+from src.utils.config import load_config
+from src.utils.logging import get_logger
 
 
 def load_activations(
@@ -190,54 +197,93 @@ def classifier_experiment_run(
     return overall_stats_dict
 
 
+def collect_classification_stats(
+    config_path: str,
+    model_id: str,
+    layers: list[int],
+) -> None:
+    config = load_config(config_path)
+    logger = get_logger("COLLECT_CLASSIFICATION_STATS", config.base.log_level)
+
+    for dataset_name, dataset_conf in config.datasets.items():
+        for prompt_version, _ in dataset_conf.prompts.items():
+            for subset in dataset_conf.subsets:
+                for input_type in config.capture_activations.input_type:
+                    if isinstance(layers, int):
+                        layers = [layers]
+                    layers = [int(layer) for layer in layers]
+
+                    # Capture activations for all layers
+                    if layers == [-1]:
+                        # Check directory for layer activations
+                        layers = [
+                            int(layer_dir.stem.split("_")[-1])
+                            for layer_dir in list(
+                                Path(
+                                    f"{config.base.activations_dir}/{model_id}/{dataset_name}/{prompt_version}/{subset}/{input_type}"
+                                ).iterdir()
+                            )
+                        ]
+
+                    logger.info(f"Extracting activations from layers {layers}")
+
+                    for l in layers:
+                        save_dir = os.path.join(
+                            config.base.classification_stats_dir,
+                            model_id,
+                            dataset_name,
+                            prompt_version,
+                            subset,
+                            input_type,
+                            f"layer_{l}",
+                        )
+
+                        if os.path.exists(save_dir):
+                            logger.info(
+                                f"Directory {save_dir} exists. Clearing previous activations."
+                            )
+                            shutil.rmtree(save_dir, ignore_errors=True)
+                        else:
+                            logger.info(
+                                f"Directory {save_dir} does not exist. Creating."
+                            )
+                        os.makedirs(save_dir, exist_ok=True)
+
+                        experiment_id = f"{model_id}_{dataset_name}_{prompt_version}_{subset}_{input_type}_{l}"
+
+                        logger.info(f"Running experiment {experiment_id}")
+
+                        res = classifier_experiment_run(
+                            run_configs=[
+                                {
+                                    "model_id": model_id,
+                                    "dataset_id": dataset_name,
+                                    "prompt_id": prompt_version,
+                                    "subset_id": subset,
+                                    "input_type": input_type,
+                                    "layer": l,
+                                },
+                            ],
+                            check_correctness_direction_classifier=True,
+                            check_logistic_regression_classifier=True,
+                            sample_equally=True,
+                        )
+
+                        with open(
+                            f"{save_dir}/classification_stats.json", "w"
+                        ) as f:
+                            json.dump(res, f, indent=4)
+                        logger.info(
+                            f"Saved classification stats for experiment {experiment_id} to {save_dir}/classification_stats.json"
+                        )
+
+
 if __name__ == "__main__":
-    print("Run this from the command line at the base level of the repo")
-
-    # args_parser = argparse.ArgumentParser()
-    # # args_parser.add_argument("--config", dest="config", required=True) # is this needed?
-    # args_parser.add_argument("--model", dest="model", required=True)
-    # args_parser.add_argument("--layer", dest="layer", required=True)
-    # args_parser.add_argument(
-    #     "--activations-dir", dest="activations_dir", required=True
-    # )
-    # args_parser.add_argument(
-    #     "--question-answer-file", dest="question_answer_file", required=True
-    # )
-    # args_parser.add_argument("--first-batch", dest="first_batch", default=None)
-    # args_parser.add_argument("--n-batches", dest="n_batches", default=None)
-    # args_parser.add_argument("--notes", dest="notes", default=None)
-    # args_parser.add_argument("--random-seed", dest="random_seed", default=42)
-    # args_parser.add_argument("--train-frac", dest="train_frac", default=0.8)
-    # args = args_parser.parse_args()
-
-    # np.random.seed(args.random_seed)
-
-    # classifier_experiment_run(
-    #     model=args.model,
-    #     layer=args.layer,
-    #     activations_dir=args.activations_dir,
-    #     question_answer_file=args.question_answer_file,
-    #     first_batch=int(args.first_batch) if args.first_batch is not None else None,
-    #     n_batches=int(args.n_batches) if args.first_batch is not None else None,
-    #     train_frac=args.train_frac,
-    #     notes=args.notes,
-    # )
-
-    res = classifier_experiment_run(
-        run_configs=[
-            {
-                "model_id": "llama3_3b_chat",
-                "dataset_id": "gsm8k",
-                "prompt_id": "base_3_shot",
-                "subset_id": "main",
-                "input_type": "prompt_answer",
-                "layer": 1,
-            },
-        ],
-        check_correctness_direction_classifier=True,
-        check_logistic_regression_classifier=True,
-        sample_equally=True,
+    args_parser = argparse.ArgumentParser()
+    args_parser.add_argument("--config", dest="config", required=True)
+    args_parser.add_argument("--model", dest="model", required=True)
+    args_parser.add_argument(
+        "--layers", dest="layers", nargs="+", default=[-1], type=int
     )
-    print(res)
-    # with Path("./classification_outputs.json").open("w") as f:
-    print("\n\n\nFinished.")
+    args = args_parser.parse_args()
+    collect_classification_stats(args.config, args.model, args.layers)
