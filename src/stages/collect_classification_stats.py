@@ -1,6 +1,10 @@
 from datetime import datetime
+from pathlib import Path
 
-from classifying import (
+import pandas as pd
+import torch as pt
+
+from src.classifying import (
     ActivationsHandler,
     combine_activations_handlers,
     get_correctness_direction_classifier,
@@ -8,39 +12,72 @@ from classifying import (
 )
 
 
-def deleteme_dummy_file_loader():
-    from pathlib import Path
+def load_activations(
+    model_id,
+    dataset_id,
+    prompt_id,
+    subset_id,
+    input_type,
+    layer,
+    batch_ids=None,
+):
+    if batch_ids:
+        batch_ids = [int(batch_id) for batch_id in batch_ids]
 
-    import pandas as pd
-    import torch as pt
+    paths = sorted(
+        list(
+            Path(
+                f"./activations/{model_id}/{dataset_id}/{prompt_id}/{subset_id}/{input_type}"
+            ).iterdir()
+        ),
+        key=lambda p: int(p.stem.split("_")[-1]),
+    )
 
-    return pd.read_csv(
-        "/Users/anton/dev/MARS/correctness-model-internals/deleteme/labels/labels.csv"
-    ), pt.cat(
-        [
-            pt.load(p)
-            for p in sorted(
-                [
-                    p
-                    for p in Path(
-                        "/Users/anton/dev/MARS/correctness-model-internals/deleteme/acts/llama3_8b/dummy_dataset/"
-                    ).iterdir()
-                ],
-                key=lambda p: int(str(p).split("_")[-1].split(".")[0]),
-            )
-        ],
-        dim=0,
+    activations_list, indices = [], []
+    batch_size = None
+    for batch_file in paths:
+        batch_id = int(batch_file.stem.split("_")[-1])
+        if batch_ids and batch_id not in batch_ids:
+            continue
+
+        activations = pt.load(batch_file, map_location=pt.device("cpu"))[layer]
+        activations_list.append(activations)
+
+        batch_size = activations.shape[0]
+
+        if batch_size is None:
+            batch_size = activations.shape[0]
+        else:
+            assert batch_size == activations.shape[0]
+
+        indices.append(
+            pd.Series(range(batch_size), name="index") + batch_id * batch_size
+        )
+    return (
+        pt.cat(activations_list, dim=0),
+        pd.concat(indices).reset_index(drop=True),
     )
 
 
-# todo put this in a config.
-model_data_loaders = {
-    ("llama3_8b", "cities_augmented"): deleteme_dummy_file_loader,
-}
+def load_labels(model_id, dataset_id, prompt_id, subset_id, indices=None):
+    paths = list(
+        Path(f"./evaluations/{model_id}/{dataset_id}/{prompt_id}/").iterdir()
+    )
+    for path in paths:
+        filename = path.stem
+        if subset_id != filename.split("_generations_evaluated")[0]:
+            continue
+        df = pd.read_csv(path)
+        if indices is not None:
+            df = df.iloc[indices].reset_index(drop=True)
+        return df
+    raise ValueError(
+        f"No labels found for {model_id} {dataset_id} {prompt_id} {subset_id}"
+    )
 
 
 def classifier_experiment_run(
-    run_config: list[tuple[str, str, str]],
+    run_configs,
     check_correctness_direction_classifier: bool = True,
     check_logistic_regression_classifier: bool = True,
     sample_equally=True,
@@ -52,13 +89,30 @@ def classifier_experiment_run(
         "check_logistic_regression_classifier": check_logistic_regression_classifier,
         "timestamp": str(datetime.now()),
         "notes": notes,
-        "results": {},
+        "results": [],
     }
 
-    for model_name, dataset_name, layer in run_config:
-        labels_df, activations = model_data_loaders[
-            (model_name, dataset_name)
-        ]()
+    for run_config in run_configs:
+        activations, indices = load_activations(
+            model_id=run_config["model_id"],
+            dataset_id=run_config["dataset_id"],
+            prompt_id=run_config["prompt_id"],
+            subset_id=run_config["subset_id"],
+            input_type=run_config["input_type"],
+            layer=run_config["layer"],
+        )
+        labels_df = load_labels(
+            model_id=run_config["model_id"],
+            dataset_id=run_config["dataset_id"],
+            prompt_id=run_config["prompt_id"],
+            subset_id=run_config["subset_id"],
+            indices=indices,
+        )
+
+        activations = pt.cat([activations] * 100)  # TODO DELETEME!!!!!
+        labels_df = pd.concat([labels_df] * 100)  # TODO DELETEME!!!!!
+        print(f"\n\n\n{activations.shape}\n\n\n")
+
         if (
             not check_correctness_direction_classifier
             and not check_logistic_regression_classifier
@@ -68,7 +122,7 @@ def classifier_experiment_run(
             )
 
         activation_handler = ActivationsHandler(
-            activations=activations, labels=labels_df["correct"]
+            activations=activations, labels=labels_df["correct"].astype(bool)
         )
         if sample_equally:
             activation_handler = (
@@ -76,6 +130,9 @@ def classifier_experiment_run(
                     group_labels=[False, True]
                 )
             )
+
+        print(f"\n\n\n{activation_handler.labels.value_counts()}\n\n\n")
+        print(f"\n\n\n{activation_handler.activations.shape}\n\n\n")
 
         activations_handler_folds = list(
             activation_handler.split_dataset(split_sizes=[0.2] * 5)
@@ -124,41 +181,63 @@ def classifier_experiment_run(
                 )
             fold_stats[f"fold_{i}"] = stats_dict
 
-        overall_stats_dict["results"][
-            (model_name, dataset_name, f"layer_{layer}")
-        ] = fold_stats
+        overall_stats_dict["results"].append(
+            {
+                **run_config,
+                **fold_stats,
+            }
+        )
     return overall_stats_dict
 
 
-# todo update this so it loads from config
-# if __name__ == "__main__":
-#     print("Run this from the command line at the base level of the repo")
+if __name__ == "__main__":
+    print("Run this from the command line at the base level of the repo")
 
-#     args_parser = argparse.ArgumentParser()
-#     # args_parser.add_argument("--config", dest="config", required=True) # is this needed?
-#     args_parser.add_argument("--model", dest="model", required=True)
-#     args_parser.add_argument("--layer", dest="layer", required=True)
-#     args_parser.add_argument("--activations-dir", dest="activations_dir", required=True)
-#     args_parser.add_argument(
-#         "--question-answer-file", dest="question_answer_file", required=True
-#     )
-#     args_parser.add_argument("--first-batch", dest="first_batch", default=None)
-#     args_parser.add_argument("--n-batches", dest="n_batches", default=None)
-#     args_parser.add_argument("--notes", dest="notes", default=None)
-#     args_parser.add_argument("--random-seed", dest="random_seed", default=42)
-#     args_parser.add_argument("--train-frac", dest="train_frac", default=0.8)
-#     args = args_parser.parse_args()
+    # args_parser = argparse.ArgumentParser()
+    # # args_parser.add_argument("--config", dest="config", required=True) # is this needed?
+    # args_parser.add_argument("--model", dest="model", required=True)
+    # args_parser.add_argument("--layer", dest="layer", required=True)
+    # args_parser.add_argument(
+    #     "--activations-dir", dest="activations_dir", required=True
+    # )
+    # args_parser.add_argument(
+    #     "--question-answer-file", dest="question_answer_file", required=True
+    # )
+    # args_parser.add_argument("--first-batch", dest="first_batch", default=None)
+    # args_parser.add_argument("--n-batches", dest="n_batches", default=None)
+    # args_parser.add_argument("--notes", dest="notes", default=None)
+    # args_parser.add_argument("--random-seed", dest="random_seed", default=42)
+    # args_parser.add_argument("--train-frac", dest="train_frac", default=0.8)
+    # args = args_parser.parse_args()
 
-#     np.random.seed(args.random_seed)
+    # np.random.seed(args.random_seed)
 
-#     classifier_experiment_run(
-#         model=args.model,
-#         layer=args.layer,
-#         activations_dir=args.activations_dir,
-#         question_answer_file=args.question_answer_file,
-#         first_batch=int(args.first_batch) if args.first_batch is not None else None,
-#         n_batches=int(args.n_batches) if args.first_batch is not None else None,
-#         train_frac=args.train_frac,
-#         notes=args.notes,
-#     )
-#     print("\n\n\nFinished.")
+    # classifier_experiment_run(
+    #     model=args.model,
+    #     layer=args.layer,
+    #     activations_dir=args.activations_dir,
+    #     question_answer_file=args.question_answer_file,
+    #     first_batch=int(args.first_batch) if args.first_batch is not None else None,
+    #     n_batches=int(args.n_batches) if args.first_batch is not None else None,
+    #     train_frac=args.train_frac,
+    #     notes=args.notes,
+    # )
+
+    res = classifier_experiment_run(
+        run_configs=[
+            {
+                "model_id": "llama3_3b_chat",
+                "dataset_id": "gsm8k",
+                "prompt_id": "base_3_shot",
+                "subset_id": "main",
+                "input_type": "prompt_answer",
+                "layer": 1,
+            },
+        ],
+        check_correctness_direction_classifier=True,
+        check_logistic_regression_classifier=True,
+        sample_equally=True,
+    )
+    print(res)
+    # with Path("./classification_outputs.json").open("w") as f:
+    print("\n\n\nFinished.")

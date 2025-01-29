@@ -6,9 +6,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, auc, f1_score, roc_curve
 from sklearn.preprocessing import StandardScaler
 
-from classifying.activations_handler import ActivationsHandler
-from classifying.direction_calculator import DirectionCalculator
-
+from .activations_handler import ActivationsHandler
+from .direction_calculator import DirectionCalculator
 from .typing import BatchValues
 
 
@@ -65,6 +64,15 @@ class BinaryClassifier:
     ):
         if not train_labels.dtype == "bool" or not test_labels.dtype == "bool":
             raise TypeError("Labels must be boolean")
+
+        assert len(train_labels), "can't be empty"
+        assert len(test_labels), "can't be empty"
+        assert (
+            len(train_labels) == train_classification_score.shape[0]
+        ), "must have the same size"
+        assert (
+            len(test_labels) == test_classification_score.shape[0]
+        ), "must have the same size"
 
         self.train_labels = train_labels
         self.train_classification_score = train_classification_score
