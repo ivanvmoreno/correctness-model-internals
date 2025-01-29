@@ -173,3 +173,7 @@ cython_debug/
 /generations
 /evaluations
 /activations
+
+.vscode/
+.dvc/config
+.dvc/config.local
