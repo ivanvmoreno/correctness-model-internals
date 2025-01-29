@@ -116,8 +116,6 @@ def classifier_experiment_run(
             indices=indices,
         )
 
-        activations = pt.cat([activations] * 100)  # TODO DELETEME!!!!!
-        labels_df = pd.concat([labels_df] * 100)  # TODO DELETEME!!!!!
         print(f"\n\n\n{activations.shape}\n\n\n")
 
         if (
