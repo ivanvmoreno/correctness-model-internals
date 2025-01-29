@@ -116,10 +116,6 @@ def classifier_experiment_run(
             indices=indices,
         )
 
-        activations = pt.cat([activations] * 100)  # TODO DELETEME!!!!!
-        labels_df = pd.concat([labels_df] * 100)  # TODO DELETEME!!!!!
-        print(f"\n\n\n{activations.shape}\n\n\n")
-
         if (
             not check_correctness_direction_classifier
             and not check_logistic_regression_classifier
@@ -137,9 +133,6 @@ def classifier_experiment_run(
                     group_labels=[False, True]
                 )
             )
-
-        print(f"\n\n\n{activation_handler.labels.value_counts()}\n\n\n")
-        print(f"\n\n\n{activation_handler.activations.shape}\n\n\n")
 
         activations_handler_folds = list(
             activation_handler.split_dataset(split_sizes=[0.2] * 5)
