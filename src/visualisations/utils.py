@@ -9,7 +9,11 @@ from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-from classifying import ActivationsHandler, BinaryClassifier, DirectionCalculator
+from classifying import (
+    ActivationsHandler,
+    BinaryClassifier,
+    DirectionCalculator,
+)
 
 
 def visualise_clusters_dimenstionality_reduction(
@@ -20,7 +24,9 @@ def visualise_clusters_dimenstionality_reduction(
 ):
     pca_pipeline = make_pipeline(StandardScaler(), PCA(n_components=2))
     pca_pipeline.fit(activations_handler_train.activations)
-    pca_activations_test = pca_pipeline.transform(activations_handler_test.activations)
+    pca_activations_test = pca_pipeline.transform(
+        activations_handler_test.activations
+    )
 
     ax = sns.scatterplot(
         x=pca_activations_test[:, 0],
@@ -74,7 +80,8 @@ def visualise_score(
     )
     if extra_groups:
         if any(
-            extra_group in df["label"].unique() for extra_group in extra_groups.keys()
+            extra_group in df["label"].unique()
+            for extra_group in extra_groups.keys()
         ):
             raise ValueError(
                 "extra_groups can't have names of labels that already exist"
@@ -103,7 +110,9 @@ def visualise_score(
 
     # Add the threshold line
     optimal_cut_label = f"Optimal Threshold {optimal_cut:.3f}"
-    ax.axvline(optimal_cut, color="red", linestyle="--", label=optimal_cut_label)
+    ax.axvline(
+        optimal_cut, color="red", linestyle="--", label=optimal_cut_label
+    )
 
     # Create the new legend with all elements
     ax.legend()
@@ -111,7 +120,9 @@ def visualise_score(
     plt.tight_layout()
     if experiment_path:
         plt.savefig(
-            experiment_path / "classifier_separation.png", dpi=300, bbox_inches="tight"
+            experiment_path / "classifier_separation.png",
+            dpi=300,
+            bbox_inches="tight",
         )
     else:
         plt.show()

@@ -119,7 +119,11 @@ dvc-task==0.40.2
 entrypoints==0.4
     # via gto
 filelock==3.17.0
-    # via iterative-telemetry
+    # via
+    #   huggingface-hub
+    #   iterative-telemetry
+    #   torch
+    #   transformers
 flatten-dict==0.4.2
     # via dvc
 flufl-lock==8.1.0
@@ -137,7 +141,9 @@ fsspec[http,tqdm]==2024.12.0
     #   dvc-http
     #   dvc-objects
     #   gcsfs
+    #   huggingface-hub
     #   scmrepo
+    #   torch
 funcy==2.0
     # via
     #   dvc
@@ -181,6 +187,10 @@ grandalf==0.8
     # via dvc
 gto==1.7.2
     # via dvc
+huggingface-hub==0.28.0
+    # via
+    #   tokenizers
+    #   transformers
 hydra-core==1.3.2
     # via dvc
 idna==3.10
@@ -191,6 +201,8 @@ isort==6.0.0
     # via -r requirements-cpu.in
 iterative-telemetry==0.0.9
     # via dvc
+jinja2==3.1.5
+    # via torch
 joblib==1.4.2
     # via
     #   pynndescent
@@ -208,10 +220,14 @@ llvmlite==0.44.0
     #   pynndescent
 markdown-it-py==3.0.0
     # via rich
+markupsafe==3.0.2
+    # via jinja2
 matplotlib==3.8.3
     # via -r requirements-cpu.in
 mdurl==0.1.2
     # via markdown-it-py
+mpmath==1.3.0
+    # via sympy
 multidict==6.1.0
     # via
     #   aiohttp
@@ -219,7 +235,9 @@ multidict==6.1.0
 mypy-extensions==1.0.0
     # via black
 networkx==3.4.2
-    # via dvc
+    # via
+    #   dvc
+    #   torch
 numba==0.61.0
     # via
     #   pynndescent
@@ -233,6 +251,7 @@ numpy==1.26.3
     #   pandas
     #   scikit-learn
     #   scipy
+    #   transformers
     #   umap-learn
 oauthlib==3.2.2
     # via requests-oauthlib
@@ -248,8 +267,10 @@ packaging==24.2
     # via
     #   black
     #   dvc
+    #   huggingface-hub
     #   hydra-core
     #   matplotlib
+    #   transformers
 pandas==2.2.0
     # via -r requirements-cpu.in
 pathspec==0.12.1
@@ -324,7 +345,12 @@ python-dateutil==2.9.0.post0
 pytz==2024.2
     # via pandas
 pyyaml==6.0.2
-    # via omegaconf
+    # via
+    #   huggingface-hub
+    #   omegaconf
+    #   transformers
+regex==2024.11.6
+    # via transformers
 requests==2.32.3
     # via
     #   dvc
@@ -332,8 +358,10 @@ requests==2.32.3
     #   gcsfs
     #   google-api-core
     #   google-cloud-storage
+    #   huggingface-hub
     #   iterative-telemetry
     #   requests-oauthlib
+    #   transformers
 requests-oauthlib==2.0.0
     # via google-auth-oauthlib
 rich==13.9.4
@@ -349,6 +377,8 @@ ruamel-yaml==0.18.10
     #   gto
 ruamel-yaml-clib==0.2.12
     # via ruamel-yaml
+safetensors==0.5.2
+    # via transformers
 scikit-learn==1.4.1.post1
     # via
     #   -r requirements-cpu.in
@@ -383,29 +413,41 @@ smmap==5.0.2
     # via gitdb
 sqltrie==0.11.1
     # via dvc-data
+sympy==1.13.3
+    # via torch
 tabulate==0.9.0
     # via
     #   dvc
     #   gto
 threadpoolctl==3.5.0
     # via scikit-learn
+tokenizers==0.19.1
+    # via transformers
 tomlkit==0.13.2
     # via dvc
+torch==2.1.2
+    # via -r requirements-cpu.in
 tqdm==4.65.0
     # via
     #   -r requirements-cpu.in
     #   dvc
     #   dvc-data
     #   fsspec
+    #   huggingface-hub
     #   scmrepo
+    #   transformers
     #   umap-learn
+transformers==4.44.2
+    # via -r requirements-cpu.in
 typer==0.15.1
     # via gto
 typing-extensions==4.12.2
     # via
     #   asyncssh
+    #   huggingface-hub
     #   pydantic
     #   pydantic-core
+    #   torch
     #   typer
 tzdata==2025.1
     # via
