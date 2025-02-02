@@ -22,6 +22,12 @@ datasets:
     answer_type: open_ended
     subsets:
       - main
+    format: csv
+    eval_type: answers_map
+    answers_map_path: eval_map.json
+    col_map:
+      prompt: question
+      answer: correct_answer
     prompts:
       base: |-
         I am going to ask you a question about cities. End your sentence with <|eot_id|>.
@@ -41,6 +47,11 @@ datasets:
     answer_type: open_ended
     subsets:
       - main
+    format: csv
+    eval_type: exact_match
+    col_map:
+      prompt: question
+      answer: correct_answer
     prompts:
       base: |-
         I am going to ask you what year a person was born. End your sentence with <|eot_id|>.
@@ -60,6 +71,12 @@ datasets:
     answer_type: open_ended
     subsets:
       - main
+    format: csv
+    eval_type: answers_map
+    answers_map_path: eval_map.json
+    col_map:
+      prompt: question
+      answer: correct_answer
     prompts:
       base: |-
         I am going to ask you a question about the olympics. End your sentence with <|eot_id|>.
@@ -78,6 +95,12 @@ datasets:
     answer_type: open_ended
     subsets:
       - main
+    format: csv
+    eval_type: answers_map
+    answers_map_path: eval_map.json
+    col_map:
+      prompt: question
+      answer: correct_answer
     prompts:
       base: |-
         I am going to ask you a question about football. End your sentence with <|eot_id|>.
@@ -97,6 +120,7 @@ datasets:
     answer_type: open_ended
     answer_delim: "####"
     answer_regex: (?<=\$\\boxed\{)\d+(?=\}\$)
+    eval_type: regex_match
     subsets:
       - main
     prompts:

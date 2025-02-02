@@ -1,7 +1,7 @@
 import argparse
 import os
 
-from src.data import format_gsm8k, format_mmlu
+from src.data import format_gsm8k, format_mmlu, format_generic
 from src.utils.config import load_config
 from src.utils.logging import get_logger
 
@@ -34,7 +34,12 @@ def format_dataset(
                         prompt,
                     )
                 else:
-                    raise ValueError(f"Dataset {dataset_name} not supported")
+                    dataset_f = format_generic(
+                        f"{config.base.datasets_dir}/{config.format_datasets.raw_dir_path}/{dataset_name}/{subset}/{subset}.{dataset_conf.format}",
+                        prompt,
+                        dataset_conf.col_map,
+                        format=dataset_conf.format,
+                    )
                 formatted_dir = f"{config.base.datasets_dir}/{config.format_datasets.formatted_dir_path}/{dataset_name}/{prompt_version}"
                 formatted_path = f"{formatted_dir}/{subset}.csv"
 
