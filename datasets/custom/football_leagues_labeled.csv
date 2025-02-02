@@ -1,0 +1,1079 @@
+question,answer,filtered_answer,correct_answer,is_correct
+Which team finished in position 1 in the 2010-2011 Premier League?,Manchester United.<|eot_id|>,Manchester United,Manchester Utd,True
+Which team finished in position 2 in the 2010-2011 Premier League?,Manchester United.<|eot_id|>,Manchester United,Chelsea,False
+Which team finished in position 3 in the 2010-2011 Premier League?,Manchester.<|eot_id|>,Manchester,Manchester City,False
+Which team finished in position 4 in the 2010-2011 Premier League?,Tottenham.<|eot_id|>,Tottenham,Arsenal,False
+Which team finished in position 5 in the 2010-2011 Premier League?,Tottenham.<|eot_id|>,Tottenham,Tottenham,True
+Which team finished in position 6 in the 2010-2011 Premier League?,Tottenham.<|eot_id|>,Tottenham,Liverpool,False
+Which team finished in position 7 in the 2010-2011 Premier League?,Blackpool.<|eot_id|>,Blackpool,Everton,False
+Which team finished in position 8 in the 2010-2011 Premier League?,Liverpool.<|eot_id|>,Liverpool,Fulham,False
+Which team finished in position 9 in the 2010-2011 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,Aston Villa,False
+Which team finished in position 10 in the 2010-2011 Premier League?,Sunderland.<|eot_id|>,Sunderland,Sunderland,True
+Which team finished in position 11 in the 2010-2011 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,West Brom,True
+Which team finished in position 12 in the 2010-2011 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,Newcastle Utd,False
+Which team finished in position 13 in the 2010-2011 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,Stoke City,False
+Which team finished in position 14 in the 2010-2011 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,Bolton,False
+Which team finished in position 15 in the 2010-2011 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,Blackburn,False
+Which team finished in position 16 in the 2010-2011 Premier League?,West Ham.<|eot_id|>,West Ham,Wigan Athletic,False
+Which team finished in position 17 in the 2010-2011 Premier League?,West Ham.<|eot_id|>,West Ham,Wolves,False
+Which team finished in position 18 in the 2010-2011 Premier League?,West Ham.<|eot_id|>,West Ham,Birmingham City,False
+Which team finished in position 19 in the 2010-2011 Premier League?,West Ham.<|eot_id|>,West Ham,Blackpool,False
+Which team finished in position 20 in the 2010-2011 Premier League?,West Ham.<|eot_id|>,West Ham,West Ham,True
+Which team finished in position 1 in the 2011-2012 Premier League?,Manchester City.<|eot_id|>,Manchester City,Manchester City,True
+Which team finished in position 2 in the 2011-2012 Premier League?,Manchester City.<|eot_id|>,Manchester City,Manchester Utd,False
+Which team finished in position 3 in the 2011-2012 Premier League?,Manchester City.<|eot_id|>,Manchester City,Arsenal,False
+Which team finished in position 4 in the 2011-2012 Premier League?,Arsenal.<|eot_id|>,Arsenal,Tottenham,False
+Which team finished in position 5 in the 2011-2012 Premier League?,Arsenal.<|eot_id|>,Arsenal,Newcastle Utd,False
+Which team finished in position 6 in the 2011-2012 Premier League?,Tottenham.<|eot_id|>,Tottenham,Chelsea,False
+Which team finished in position 7 in the 2011-2012 Premier League?,Blackburn.<|eot_id|>,Blackburn,Everton,False
+Which team finished in position 8 in the 2011-2012 Premier League?,Newcastle United.<|eot_id|>,Newcastle United,Liverpool,False
+Which team finished in position 9 in the 2011-2012 Premier League?,Newcastle.<|eot_id|>,Newcastle,Fulham,False
+Which team finished in position 10 in the 2011-2012 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,West Brom,True
+Which team finished in position 11 in the 2011-2012 Premier League?,Norwich City.<|eot_id|>,Norwich City,Swansea City,False
+Which team finished in position 12 in the 2011-2012 Premier League?,Newcastle United.<|eot_id|>,Newcastle United,Norwich City,False
+Which team finished in position 13 in the 2011-2012 Premier League?,Norwich City.<|eot_id|>,Norwich City,Sunderland,False
+Which team finished in position 14 in the 2011-2012 Premier League?,Newcastle United.<|eot_id|>,Newcastle United,Stoke City,False
+Which team finished in position 15 in the 2011-2012 Premier League?,Norwich City.<|eot_id|>,Norwich City,Wigan Athletic,False
+Which team finished in position 16 in the 2011-2012 Premier League?,Wigan Athletic.<|eot_id|>,Wigan Athletic,Aston Villa,False
+Which team finished in position 17 in the 2011-2012 Premier League?,Wigan Athletic.<|eot_id|>,Wigan Athletic,QPR,False
+Which team finished in position 18 in the 2011-2012 Premier League?,Wigan Athletic.<|eot_id|>,Wigan Athletic,Bolton,False
+Which team finished in position 19 in the 2011-2012 Premier League?,Wigan Athletic.<|eot_id|>,Wigan Athletic,Blackburn,False
+Which team finished in position 20 in the 2011-2012 Premier League?,Wolverhampton Wanderers.<|eot_id|>,Wolverhampton Wanderers,Wolves,True
+Which team finished in position 1 in the 2012-2013 Premier League?,Manchester United.<|eot_id|>,Manchester United,Manchester Utd,True
+Which team finished in position 2 in the 2012-2013 Premier League?,Manchester United.<|eot_id|>,Manchester United,Manchester City,False
+Which team finished in position 3 in the 2012-2013 Premier League?,Tottenham.<|eot_id|>,Tottenham,Chelsea,False
+Which team finished in position 4 in the 2012-2013 Premier League?,Tottenham.<|eot_id|>,Tottenham,Arsenal,False
+Which team finished in position 5 in the 2012-2013 Premier League?,Arsenal.<|eot_id|>,Arsenal,Tottenham,False
+Which team finished in position 6 in the 2012-2013 Premier League?,Tottenham.<|eot_id|>,Tottenham,Everton,False
+Which team finished in position 7 in the 2012-2013 Premier League?,Swansea.<|eot_id|>,Swansea,Liverpool,False
+Which team finished in position 8 in the 2012-2013 Premier League?,Everton.<|eot_id|>,Everton,West Brom,False
+Which team finished in position 9 in the 2012-2013 Premier League?,Everton.<|eot_id|>,Everton,Swansea City,False
+Which team finished in position 10 in the 2012-2013 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,West Ham,False
+Which team finished in position 11 in the 2012-2013 Premier League?,Norwich City.<|eot_id|>,Norwich City,Norwich City,True
+Which team finished in position 12 in the 2012-2013 Premier League?,Newcastle United.<|eot_id|>,Newcastle United,Fulham,False
+Which team finished in position 13 in the 2012-2013 Premier League?,Newcastle United.<|eot_id|>,Newcastle United,Stoke City,False
+Which team finished in position 14 in the 2012-2013 Premier League?,Newcastle United.<|eot_id|>,Newcastle United,Southampton,False
+Which team finished in position 15 in the 2012-2013 Premier League?,Norwich City.<|eot_id|>,Norwich City,Aston Villa,False
+Which team finished in position 16 in the 2012-2013 Premier League?,QPR.<|eot_id|>,QPR,Newcastle Utd,False
+Which team finished in position 17 in the 2012-2013 Premier League?,Wigan Athletic.<|eot_id|>,Wigan Athletic,Sunderland,False
+Which team finished in position 18 in the 2012-2013 Premier League?,Reading.<|eot_id|>,Reading,Wigan Athletic,False
+Which team finished in position 19 in the 2012-2013 Premier League?,Reading.<|eot_id|>,Reading,Reading,True
+Which team finished in position 20 in the 2012-2013 Premier League?,Reading.<|eot_id|>,Reading,QPR,False
+Which team finished in position 1 in the 2013-2014 Premier League?,Manchester City.<|eot_id|>,Manchester City,Manchester City,True
+Which team finished in position 2 in the 2013-2014 Premier League?,Liverpool.<|eot_id|>,Liverpool,Liverpool,True
+Which team finished in position 3 in the 2013-2014 Premier League?,Manchester City.<|eot_id|>,Manchester City,Chelsea,False
+Which team finished in position 4 in the 2013-2014 Premier League?,Liverpool.<|eot_id|>,Liverpool,Arsenal,False
+Which team finished in position 5 in the 2013-2014 Premier League?,Liverpool.<|eot_id|>,Liverpool,Everton,False
+Which team finished in position 6 in the 2013-2014 Premier League?,Everton.<|eot_id|>,Everton,Tottenham,False
+Which team finished in position 7 in the 2013-2014 Premier League?,Liverpool.<|eot_id|>,Liverpool,Manchester Utd,False
+Which team finished in position 8 in the 2013-2014 Premier League?,Everton.<|eot_id|>,Everton,Southampton,False
+Which team finished in position 9 in the 2013-2014 Premier League?,Arsenal.<|eot_id|>,Arsenal,Stoke City,False
+Which team finished in position 10 in the 2013-2014 Premier League?,Chelsea.<|eot_id|>,Chelsea,Newcastle Utd,False
+Which team finished in position 11 in the 2013-2014 Premier League?,Everton.<|eot_id|>,Everton,Crystal Palace,False
+Which team finished in position 12 in the 2013-2014 Premier League?,West Ham.<|eot_id|>,West Ham,Swansea City,False
+Which team finished in position 13 in the 2013-2014 Premier League?,Everton.<|eot_id|>,Everton,West Ham,False
+Which team finished in position 14 in the 2013-2014 Premier League?,West Ham.<|eot_id|>,West Ham,Sunderland,False
+Which team finished in position 15 in the 2013-2014 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,Aston Villa,False
+Which team finished in position 16 in the 2013-2014 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,Hull City,False
+Which team finished in position 17 in the 2013-2014 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,West Brom,True
+Which team finished in position 18 in the 2013-2014 Premier League?,Fulham.<|eot_id|>,Fulham,Norwich City,False
+Which team finished in position 19 in the 2013-2014 Premier League?,Fulham.<|eot_id|>,Fulham,Fulham,True
+Which team finished in position 20 in the 2013-2014 Premier League?,Cardiff City.<|eot_id|>,Cardiff City,Cardiff City,True
+Which team finished in position 1 in the 2014-2015 Premier League?,Chelsea.<|eot_id|>,Chelsea,Chelsea,True
+Which team finished in position 2 in the 2014-2015 Premier League?,Manchester City.<|eot_id|>,Manchester City,Manchester City,True
+Which team finished in position 3 in the 2014-2015 Premier League?,Manchester City.<|eot_id|>,Manchester City,Arsenal,False
+Which team finished in position 4 in the 2014-2015 Premier League?,Liverpool.<|eot_id|>,Liverpool,Manchester Utd,False
+Which team finished in position 5 in the 2014-2015 Premier League?,Arsenal.<|eot_id|>,Arsenal,Tottenham,False
+Which team finished in position 6 in the 2014-2015 Premier League?,Manchester United.<|eot_id|>,Manchester United,Liverpool,False
+Which team finished in position 7 in the 2014-2015 Premier League?,Southampton.<|eot_id|>,Southampton,Southampton,True
+Which team finished in position 8 in the 2014-2015 Premier League?,Manchester United.<|eot_id|>,Manchester United,Swansea City,False
+Which team finished in position 9 in the 2014-2015 Premier League?,Southampton.<|eot_id|>,Southampton,Stoke City,False
+Which team finished in position 10 in the 2014-2015 Premier League?,Tottenham.<|eot_id|>,Tottenham,Crystal Palace,False
+Which team finished in position 11 in the 2014-2015 Premier League?,Southampton.<|eot_id|>,Southampton,Everton,False
+Which team finished in position 12 in the 2014-2015 Premier League?,West Ham.<|eot_id|>,West Ham,West Ham,True
+Which team finished in position 13 in the 2014-2015 Premier League?,Southampton.<|eot_id|>,Southampton,West Brom,False
+Which team finished in position 14 in the 2014-2015 Premier League?,West Ham.<|eot_id|>,West Ham,Leicester City,False
+Which team finished in position 15 in the 2014-2015 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,Newcastle Utd,False
+Which team finished in position 16 in the 2014-2015 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,Sunderland,False
+Which team finished in position 17 in the 2014-2015 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,Aston Villa,False
+Which team finished in position 18 in the 2014-2015 Premier League?,Hull City.<|eot_id|>,Hull City,Hull City,True
+Which team finished in position 19 in the 2014-2015 Premier League?,Hull City.<|eot_id|>,Hull City,Burnley,False
+Which team finished in position 20 in the 2014-2015 Premier League?,Burnley.<|eot_id|>,Burnley,QPR,False
+Which team finished in position 1 in the 2015-2016 Premier League?,Leicester City.<|eot_id|>,Leicester City,Leicester City,True
+Which team finished in position 2 in the 2015-2016 Premier League?,Manchester City.<|eot_id|>,Manchester City,Arsenal,False
+Which team finished in position 3 in the 2015-2016 Premier League?,Arsenal.<|eot_id|>,Arsenal,Tottenham,False
+Which team finished in position 4 in the 2015-2016 Premier League?,Manchester City.<|eot_id|>,Manchester City,Manchester City,True
+Which team finished in position 5 in the 2015-2016 Premier League?,Arsenal.<|eot_id|>,Arsenal,Manchester Utd,False
+Which team finished in position 6 in the 2015-2016 Premier League?,Manchester United.<|eot_id|>,Manchester United,Southampton,False
+Which team finished in position 7 in the 2015-2016 Premier League?,Southampton.<|eot_id|>,Southampton,West Ham,False
+Which team finished in position 8 in the 2015-2016 Premier League?,Southampton.<|eot_id|>,Southampton,Liverpool,False
+Which team finished in position 9 in the 2015-2016 Premier League?,Tottenham.<|eot_id|>,Tottenham,Stoke City,False
+Which team finished in position 10 in the 2015-2016 Premier League?,Tottenham.<|eot_id|>,Tottenham,Chelsea,False
+Which team finished in position 11 in the 2015-2016 Premier League?,Southampton.<|eot_id|>,Southampton,Everton,False
+Which team finished in position 12 in the 2015-2016 Premier League?,Southampton.<|eot_id|>,Southampton,Swansea City,False
+Which team finished in position 13 in the 2015-2016 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,Watford,False
+Which team finished in position 14 in the 2015-2016 Premier League?,West Ham.<|eot_id|>,West Ham,West Brom,False
+Which team finished in position 15 in the 2015-2016 Premier League?,Newcastle United.<|eot_id|>,Newcastle United,Crystal Palace,False
+Which team finished in position 16 in the 2015-2016 Premier League?,Newcastle United.<|eot_id|>,Newcastle United,Bournemouth,False
+Which team finished in position 17 in the 2015-2016 Premier League?,Newcastle United.<|eot_id|>,Newcastle United,Sunderland,False
+Which team finished in position 18 in the 2015-2016 Premier League?,Newcastle United.<|eot_id|>,Newcastle United,Newcastle Utd,True
+Which team finished in position 19 in the 2015-2016 Premier League?,Newcastle United.<|eot_id|>,Newcastle United,Norwich City,False
+Which team finished in position 20 in the 2015-2016 Premier League?,Aston Villa.<|eot_id|>,Aston Villa,Aston Villa,True
+Which team finished in position 1 in the 2016-2017 Premier League?,Chelsea.<|eot_id|>,Chelsea,Chelsea,True
+Which team finished in position 2 in the 2016-2017 Premier League?,Manchester City.<|eot_id|>,Manchester City,Tottenham,False
+Which team finished in position 3 in the 2016-2017 Premier League?,Tottenham.<|eot_id|>,Tottenham,Manchester City,False
+Which team finished in position 4 in the 2016-2017 Premier League?,Liverpool.<|eot_id|>,Liverpool,Liverpool,True
+Which team finished in position 5 in the 2016-2017 Premier League?,Arsenal.<|eot_id|>,Arsenal,Arsenal,True
+Which team finished in position 6 in the 2016-2017 Premier League?,Tottenham.<|eot_id|>,Tottenham,Manchester Utd,False
+Which team finished in position 7 in the 2016-2017 Premier League?,Arsenal.<|eot_id|>,Arsenal,Everton,False
+Which team finished in position 8 in the 2016-2017 Premier League?,Arsenal.<|eot_id|>,Arsenal,Southampton,False
+Which team finished in position 9 in the 2016-2017 Premier League?,Liverpool.<|eot_id|>,Liverpool,Bournemouth,False
+Which team finished in position 10 in the 2016-2017 Premier League?,Liverpool.<|eot_id|>,Liverpool,West Brom,False
+Which team finished in position 11 in the 2016-2017 Premier League?,Everton.<|eot_id|>,Everton,West Ham,False
+Which team finished in position 12 in the 2016-2017 Premier League?,Stoke City.<|eot_id|>,Stoke City,Leicester City,False
+Which team finished in position 13 in the 2016-2017 Premier League?,Stoke City.<|eot_id|>,Stoke City,Stoke City,True
+Which team finished in position 14 in the 2016-2017 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,Crystal Palace,False
+Which team finished in position 15 in the 2016-2017 Premier League?,Bournemouth.<|eot_id|>,Bournemouth,Swansea City,False
+Which team finished in position 16 in the 2016-2017 Premier League?,Hull City.<|eot_id|>,Hull City,Burnley,False
+Which team finished in position 17 in the 2016-2017 Premier League?,Hull City.<|eot_id|>,Hull City,Watford,False
+Which team finished in position 18 in the 2016-2017 Premier League?,Hull City.<|eot_id|>,Hull City,Hull City,True
+Which team finished in position 19 in the 2016-2017 Premier League?,Hull City.<|eot_id|>,Hull City,Middlesbrough,False
+Which team finished in position 20 in the 2016-2017 Premier League?,Middlesbrough.<|eot_id|>,Middlesbrough,Sunderland,False
+Which team finished in position 1 in the 2017-2018 Premier League?,Manchester City.<|eot_id|>,Manchester City,Manchester City,True
+Which team finished in position 2 in the 2017-2018 Premier League?,Manchester United.<|eot_id|>,Manchester United,Manchester Utd,True
+Which team finished in position 3 in the 2017-2018 Premier League?,Manchester.<|eot_id|>,Manchester,Tottenham,False
+Which team finished in position 4 in the 2017-2018 Premier League?,Liverpool.<|eot_id|>,Liverpool,Liverpool,True
+Which team finished in position 5 in the 2017-2018 Premier League?,Liverpool.<|eot_id|>,Liverpool,Chelsea,False
+Which team finished in position 6 in the 2017-2018 Premier League?,Tottenham.<|eot_id|>,Tottenham,Arsenal,False
+Which team finished in position 7 in the 2017-2018 Premier League?,Burnley.<|eot_id|>,Burnley,Burnley,True
+Which team finished in position 8 in the 2017-2018 Premier League?,Arsenal.<|eot_id|>,Arsenal,Everton,False
+Which team finished in position 9 in the 2017-2018 Premier League?,Arsenal.<|eot_id|>,Arsenal,Leicester City,False
+Which team finished in position 10 in the 2017-2018 Premier League?,Arsenal.<|eot_id|>,Arsenal,Newcastle Utd,False
+Which team finished in position 11 in the 2017-2018 Premier League?,Newcastle United.<|eot_id|>,Newcastle United,Crystal Palace,False
+Which team finished in position 12 in the 2017-2018 Premier League?,Newcastle United.<|eot_id|>,Newcastle United,Bournemouth,False
+Which team finished in position 13 in the 2017-2018 Premier League?,Newcastle United.<|eot_id|>,Newcastle United,West Ham,False
+Which team finished in position 14 in the 2017-2018 Premier League?,Watford.<|eot_id|>,Watford,Watford,True
+Which team finished in position 15 in the 2017-2018 Premier League?,Watford.<|eot_id|>,Watford,Brighton,False
+Which team finished in position 16 in the 2017-2018 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,Huddersfield,False
+Which team finished in position 17 in the 2017-2018 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,Southampton,False
+Which team finished in position 18 in the 2017-2018 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,Swansea City,False
+Which team finished in position 19 in the 2017-2018 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,Stoke City,False
+Which team finished in position 20 in the 2017-2018 Premier League?,West Bromwich Albion.<|eot_id|>,West Bromwich Albion,West Brom,True
+Which team finished in position 1 in the 2018-2019 Premier League?,Manchester City.<|eot_id|>,Manchester City,Manchester City,True
+Which team finished in position 2 in the 2018-2019 Premier League?,Manchester City.<|eot_id|>,Manchester City,Liverpool,False
+Which team finished in position 3 in the 2018-2019 Premier League?,Tottenham.<|eot_id|>,Tottenham,Chelsea,False
+Which team finished in position 4 in the 2018-2019 Premier League?,Chelsea.<|eot_id|>,Chelsea,Tottenham,False
+Which team finished in position 5 in the 2018-2019 Premier League?,Arsenal.<|eot_id|>,Arsenal,Arsenal,True
+Which team finished in position 6 in the 2018-2019 Premier League?,Manchester United.<|eot_id|>,Manchester United,Manchester Utd,True
+Which team finished in position 7 in the 2018-2019 Premier League?,Wolverhampton Wanderers.<|eot_id|>,Wolverhampton Wanderers,Wolves,True
+Which team finished in position 8 in the 2018-2019 Premier League?,Everton.<|eot_id|>,Everton,Everton,True
+Which team finished in position 9 in the 2018-2019 Premier League?,Watford.<|eot_id|>,Watford,Leicester City,False
+Which team finished in position 10 in the 2018-2019 Premier League?,Watford.<|eot_id|>,Watford,West Ham,False
+Which team finished in position 11 in the 2018-2019 Premier League?,Watford.<|eot_id|>,Watford,Watford,True
+Which team finished in position 12 in the 2018-2019 Premier League?,Watford.<|eot_id|>,Watford,Crystal Palace,False
+Which team finished in position 13 in the 2018-2019 Premier League?,Watford.<|eot_id|>,Watford,Newcastle Utd,False
+Which team finished in position 14 in the 2018-2019 Premier League?,Watford.<|eot_id|>,Watford,Bournemouth,False
+Which team finished in position 15 in the 2018-2019 Premier League?,Watford.<|eot_id|>,Watford,Burnley,False
+Which team finished in position 16 in the 2018-2019 Premier League?,Watford.<|eot_id|>,Watford,Southampton,False
+Which team finished in position 17 in the 2018-2019 Premier League?,Watford.<|eot_id|>,Watford,Brighton,False
+Which team finished in position 18 in the 2018-2019 Premier League?,Cardiff City.<|eot_id|>,Cardiff City,Cardiff City,True
+Which team finished in position 19 in the 2018-2019 Premier League?,Cardiff City.<|eot_id|>,Cardiff City,Fulham,False
+Which team finished in position 20 in the 2018-2019 Premier League?,Cardiff City.<|eot_id|>,Cardiff City,Huddersfield,False
+Which team finished in position 1 in the 2019-2020 Premier League?,Liverpool.<|eot_id|>,Liverpool,Liverpool,True
+Which team finished in position 2 in the 2019-2020 Premier League?,Manchester City.<|eot_id|>,Manchester City,Manchester City,True
+Which team finished in position 3 in the 2019-2020 Premier League?,Manchester City.<|eot_id|>,Manchester City,Manchester Utd,False
+Which team finished in position 4 in the 2019-2020 Premier League?,Manchester City.<|eot_id|>,Manchester City,Chelsea,False
+Which team finished in position 5 in the 2019-2020 Premier League?,Manchester United.<|eot_id|>,Manchester United,Leicester City,False
+Which team finished in position 6 in the 2019-2020 Premier League?,Manchester United.<|eot_id|>,Manchester United,Tottenham,False
+Which team finished in position 7 in the 2019-2020 Premier League?,Wolverhampton Wanderers.<|eot_id|>,Wolverhampton Wanderers,Wolves,True
+Which team finished in position 8 in the 2019-2020 Premier League?,Everton.<|eot_id|>,Everton,Arsenal,False
+Which team finished in position 9 in the 2019-2020 Premier League?,Wolves.<|eot_id|>,Wolves,Sheffield Utd,False
+Which team finished in position 10 in the 2019-2020 Premier League?,Wolves.<|eot_id|>,Wolves,Burnley,False
+Which team finished in position 11 in the 2019-2020 Premier League?,Sheffield United.<|eot_id|>,Sheffield United,Southampton,False
+Which team finished in position 12 in the 2019-2020 Premier League?,Watford.<|eot_id|>,Watford,Everton,False
+Which team finished in position 13 in the 2019-2020 Premier League?,Sheffield United.<|eot_id|>,Sheffield United,Newcastle Utd,False
+Which team finished in position 14 in the 2019-2020 Premier League?,West Ham.<|eot_id|>,West Ham,Crystal Palace,False
+Which team finished in position 15 in the 2019-2020 Premier League?,Brighton.<|eot_id|>,Brighton,Brighton,True
+Which team finished in position 16 in the 2019-2020 Premier League?,Watford.<|eot_id|>,Watford,West Ham,False
+Which team finished in position 17 in the 2019-2020 Premier League?,Watford.<|eot_id|>,Watford,Aston Villa,False
+Which team finished in position 18 in the 2019-2020 Premier League?,Watford.<|eot_id|>,Watford,Bournemouth,False
+Which team finished in position 19 in the 2019-2020 Premier League?,Norwich.<|eot_id|>,Norwich,Watford,False
+Which team finished in position 20 in the 2019-2020 Premier League?,Norwich City.<|eot_id|>,Norwich City,Norwich City,True
+Which team finished in position 1 in the 2020-2021 Premier League?,Manchester City.<|eot_id|>,Manchester City,Manchester City,True
+Which team finished in position 2 in the 2020-2021 Premier League?,Manchester City.<|eot_id|>,Manchester City,Manchester Utd,False
+Which team finished in position 3 in the 2020-2021 Premier League?,Manchester City.<|eot_id|>,Manchester City,Liverpool,False
+Which team finished in position 4 in the 2020-2021 Premier League?,Leicester City.<|eot_id|>,Leicester City,Chelsea,False
+Which team finished in position 5 in the 2020-2021 Premier League?,Leicester City.<|eot_id|>,Leicester City,Leicester City,True
+Which team finished in position 6 in the 2020-2021 Premier League?,Leicester City.<|eot_id|>,Leicester City,West Ham,False
+Which team finished in position 7 in the 2020-2021 Premier League?,West Ham.<|eot_id|>,West Ham,Tottenham,False
+Which team finished in position 8 in the 2020-2021 Premier League?,Everton.<|eot_id|>,Everton,Arsenal,False
+Which team finished in position 9 in the 2020-2021 Premier League?,Everton.<|eot_id|>,Everton,Leeds United,False
+Which team finished in position 10 in the 2020-2021 Premier League?,Wolves.<|eot_id|>,Wolves,Everton,False
+Which team finished in position 11 in the 2020-2021 Premier League?,Aston Villa.<|eot_id|>,Aston Villa,Aston Villa,True
+Which team finished in position 12 in the 2020-2021 Premier League?,Everton.<|eot_id|>,Everton,Newcastle Utd,False
+Which team finished in position 13 in the 2020-2021 Premier League?,West Ham.<|eot_id|>,West Ham,Wolves,False
+Which team finished in position 14 in the 2020-2021 Premier League?,West Ham.<|eot_id|>,West Ham,Crystal Palace,False
+Which team finished in position 15 in the 2020-2021 Premier League?,Newcastle United.<|eot_id|>,Newcastle United,Southampton,False
+Which team finished in position 16 in the 2020-2021 Premier League?,Brighton.<|eot_id|>,Brighton,Brighton,True
+Which team finished in position 17 in the 2020-2021 Premier League?,Newcastle United.<|eot_id|>,Newcastle United,Burnley,False
+Which team finished in position 18 in the 2020-2021 Premier League?,Fulham.<|eot_id|>,Fulham,Fulham,True
+Which team finished in position 19 in the 2020-2021 Premier League?,Fulham.<|eot_id|>,Fulham,West Brom,False
+Which team finished in position 20 in the 2020-2021 Premier League?,Fulham.<|eot_id|>,Fulham,Sheffield Utd,False
+Which team finished in position 1 in the 2010-2011 Ligue 1?,Marseille.<|eot_id|>,Marseille,Lille,False
+Which team finished in position 2 in the 2010-2011 Ligue 1?,Marseille.<|eot_id|>,Marseille,Marseille,True
+Which team finished in position 3 in the 2010-2011 Ligue 1?,Marseille.<|eot_id|>,Marseille,Lyon,False
+Which team finished in position 4 in the 2010-2011 Ligue 1?,Marseille.<|eot_id|>,Marseille,Paris S-G,False
+Which team finished in position 5 in the 2010-2011 Ligue 1?,Marseille.<|eot_id|>,Marseille,Sochaux,False
+Which team finished in position 6 in the 2010-2011 Ligue 1?,Lyon.<|eot_id|>,Lyon,Rennes,False
+Which team finished in position 7 in the 2010-2011 Ligue 1?,Lyon.<|eot_id|>,Lyon,Bordeaux,False
+Which team finished in position 8 in the 2010-2011 Ligue 1?,Lyon.<|eot_id|>,Lyon,Toulouse,False
+Which team finished in position 9 in the 2010-2011 Ligue 1?,Bordeaux.<|eot_id|>,Bordeaux,Auxerre,False
+Which team finished in position 10 in the 2010-2011 Ligue 1?,Lyon.<|eot_id|>,Lyon,Saint-Étienne,False
+Which team finished in position 11 in the 2010-2011 Ligue 1?,Bordeaux.<|eot_id|>,Bordeaux,Lorient,False
+Which team finished in position 12 in the 2010-2011 Ligue 1?,Rennes.<|eot_id|>,Rennes,Valenciennes,False
+Which team finished in position 13 in the 2010-2011 Ligue 1?,Lyon.<|eot_id|>,Lyon,Nancy,False
+Which team finished in position 14 in the 2010-2011 Ligue 1?,Rennes.<|eot_id|>,Rennes,Montpellier,False
+Which team finished in position 15 in the 2010-2011 Ligue 1?,Rennes.<|eot_id|>,Rennes,Caen,False
+Which team finished in position 16 in the 2010-2011 Ligue 1?,Monaco.<|eot_id|>,Monaco,Brest,False
+Which team finished in position 17 in the 2010-2011 Ligue 1?,Monaco.<|eot_id|>,Monaco,Nice,False
+Which team finished in position 18 in the 2010-2011 Ligue 1?,Monaco.<|eot_id|>,Monaco,Monaco,True
+Which team finished in position 19 in the 2010-2011 Ligue 1?,Monaco.<|eot_id|>,Monaco,Lens,False
+Which team finished in position 20 in the 2010-2011 Ligue 1?,Caen.<|eot_id|>,Caen,Arles-Avignon,False
+Which team finished in position 1 in the 2011-2012 Ligue 1?,Montpellier.<|eot_id|>,Montpellier,Montpellier,True
+Which team finished in position 2 in the 2011-2012 Ligue 1?,Marseille.<|eot_id|>,Marseille,Paris S-G,False
+Which team finished in position 3 in the 2011-2012 Ligue 1?,Lyon.<|eot_id|>,Lyon,Lille,False
+Which team finished in position 4 in the 2011-2012 Ligue 1?,Lyon.<|eot_id|>,Lyon,Lyon,True
+Which team finished in position 5 in the 2011-2012 Ligue 1?,Lyon.<|eot_id|>,Lyon,Bordeaux,False
+Which team finished in position 6 in the 2011-2012 Ligue 1?,Lyon.<|eot_id|>,Lyon,Rennes,False
+Which team finished in position 7 in the 2011-2012 Ligue 1?,Lyon.<|eot_id|>,Lyon,Saint-Étienne,False
+Which team finished in position 8 in the 2011-2012 Ligue 1?,Rennes.<|eot_id|>,Rennes,Toulouse,False
+Which team finished in position 9 in the 2011-2012 Ligue 1?,Lyon.<|eot_id|>,Lyon,Evian,False
+Which team finished in position 10 in the 2011-2012 Ligue 1?,Rennes.<|eot_id|>,Rennes,Marseille,False
+Which team finished in position 11 in the 2011-2012 Ligue 1?,Rennes.<|eot_id|>,Rennes,Nancy,False
+Which team finished in position 12 in the 2011-2012 Ligue 1?,Rennes.<|eot_id|>,Rennes,Valenciennes,False
+Which team finished in position 13 in the 2011-2012 Ligue 1?,Rennes.<|eot_id|>,Rennes,Nice,False
+Which team finished in position 14 in the 2011-2012 Ligue 1?,Rennes.<|eot_id|>,Rennes,Sochaux,False
+Which team finished in position 15 in the 2011-2012 Ligue 1?,Rennes.<|eot_id|>,Rennes,Brest,False
+Which team finished in position 16 in the 2011-2012 Ligue 1?,Rennes.<|eot_id|>,Rennes,Ajaccio,False
+Which team finished in position 17 in the 2011-2012 Ligue 1?,Nancy.<|eot_id|>,Nancy,Lorient,False
+Which team finished in position 18 in the 2011-2012 Ligue 1?,Nancy.<|eot_id|>,Nancy,Caen,False
+Which team finished in position 19 in the 2011-2012 Ligue 1?,Dijon.<|eot_id|>,Dijon,Dijon,True
+Which team finished in position 20 in the 2011-2012 Ligue 1?,Dijon.<|eot_id|>,Dijon,Auxerre,False
+Which team finished in position 1 in the 2012-2013 Ligue 1?,Paris Saint-Germain.<|eot_id|>,Paris Saint-Germain,Paris S-G,True
+Which team finished in position 2 in the 2012-2013 Ligue 1?,Marseille.<|eot_id|>,Marseille,Marseille,True
+Which team finished in position 3 in the 2012-2013 Ligue 1?,Lyon.<|eot_id|>,Lyon,Lyon,True
+Which team finished in position 4 in the 2012-2013 Ligue 1?,Lyon.<|eot_id|>,Lyon,Nice,False
+Which team finished in position 5 in the 2012-2013 Ligue 1?,Lyon.<|eot_id|>,Lyon,Saint-Étienne,False
+Which team finished in position 6 in the 2012-2013 Ligue 1?,Lyon.<|eot_id|>,Lyon,Lille,False
+Which team finished in position 7 in the 2012-2013 Ligue 1?,Lyon.<|eot_id|>,Lyon,Bordeaux,False
+Which team finished in position 8 in the 2012-2013 Ligue 1?,Lyon.<|eot_id|>,Lyon,Lorient,False
+Which team finished in position 9 in the 2012-2013 Ligue 1?,Lyon.<|eot_id|>,Lyon,Montpellier,False
+Which team finished in position 10 in the 2012-2013 Ligue 1?,Lyon.<|eot_id|>,Lyon,Toulouse,False
+Which team finished in position 11 in the 2012-2013 Ligue 1?,Rennes.<|eot_id|>,Rennes,Valenciennes,False
+Which team finished in position 12 in the 2012-2013 Ligue 1?,Rennes.<|eot_id|>,Rennes,Bastia,False
+Which team finished in position 13 in the 2012-2013 Ligue 1?,Lyon.<|eot_id|>,Lyon,Rennes,False
+Which team finished in position 14 in the 2012-2013 Ligue 1?,Rennes.<|eot_id|>,Rennes,Reims,False
+Which team finished in position 15 in the 2012-2013 Ligue 1?,Rennes.<|eot_id|>,Rennes,Sochaux,False
+Which team finished in position 16 in the 2012-2013 Ligue 1?,Rennes.<|eot_id|>,Rennes,Evian,False
+Which team finished in position 17 in the 2012-2013 Ligue 1?,Nancy.<|eot_id|>,Nancy,Ajaccio,False
+Which team finished in position 18 in the 2012-2013 Ligue 1?,Brest.<|eot_id|>,Brest,Nancy,False
+Which team finished in position 19 in the 2012-2013 Ligue 1?,Brest.<|eot_id|>,Brest,Troyes,False
+Which team finished in position 20 in the 2012-2013 Ligue 1?,Brest.<|eot_id|>,Brest,Brest,True
+Which team finished in position 1 in the 2013-2014 Ligue 1?,Paris Saint-Germain.<|eot_id|>,Paris Saint-Germain,Paris S-G,True
+Which team finished in position 2 in the 2013-2014 Ligue 1?,Monaco.<|eot_id|>,Monaco,Monaco,True
+Which team finished in position 3 in the 2013-2014 Ligue 1?,Monaco.<|eot_id|>,Monaco,Lille,False
+Which team finished in position 4 in the 2013-2014 Ligue 1?,Monaco.<|eot_id|>,Monaco,Saint-Étienne,False
+Which team finished in position 5 in the 2013-2014 Ligue 1?,Lyon.<|eot_id|>,Lyon,Lyon,True
+Which team finished in position 6 in the 2013-2014 Ligue 1?,Lyon.<|eot_id|>,Lyon,Marseille,False
+Which team finished in position 7 in the 2013-2014 Ligue 1?,Lyon.<|eot_id|>,Lyon,Bordeaux,False
+Which team finished in position 8 in the 2013-2014 Ligue 1?,Lyon.<|eot_id|>,Lyon,Lorient,False
+Which team finished in position 9 in the 2013-2014 Ligue 1?,Lyon.<|eot_id|>,Lyon,Toulouse,False
+Which team finished in position 10 in the 2013-2014 Ligue 1?,Lyon.<|eot_id|>,Lyon,Bastia,False
+Which team finished in position 11 in the 2013-2014 Ligue 1?,Saint-Etienne.<|eot_id|>,Saint-Etienne,Reims,False
+Which team finished in position 12 in the 2013-2014 Ligue 1?,Bordeaux.<|eot_id|>,Bordeaux,Rennes,False
+Which team finished in position 13 in the 2013-2014 Ligue 1?,Lyon.<|eot_id|>,Lyon,Nantes,False
+Which team finished in position 14 in the 2013-2014 Ligue 1?,Nice.<|eot_id|>,Nice,Evian,False
+Which team finished in position 15 in the 2013-2014 Ligue 1?,Nice.<|eot_id|>,Nice,Montpellier,False
+Which team finished in position 16 in the 2013-2014 Ligue 1?,Toulouse.<|eot_id|>,Toulouse,Guingamp,False
+Which team finished in position 17 in the 2013-2014 Ligue 1?,Toulouse.<|eot_id|>,Toulouse,Nice,False
+Which team finished in position 18 in the 2013-2014 Ligue 1?,Sochaux.<|eot_id|>,Sochaux,Sochaux,True
+Which team finished in position 19 in the 2013-2014 Ligue 1?,Monaco.<|eot_id|>,Monaco,Valenciennes,False
+Which team finished in position 20 in the 2013-2014 Ligue 1?,Evian.<|eot_id|>,Evian,Ajaccio,False
+Which team finished in position 1 in the 2014-2015 Ligue 1?,Paris Saint-Germain.<|eot_id|>,Paris Saint-Germain,Paris S-G,True
+Which team finished in position 2 in the 2014-2015 Ligue 1?,Monaco.<|eot_id|>,Monaco,Lyon,False
+Which team finished in position 3 in the 2014-2015 Ligue 1?,Monaco.<|eot_id|>,Monaco,Monaco,True
+Which team finished in position 4 in the 2014-2015 Ligue 1?,Monaco.<|eot_id|>,Monaco,Marseille,False
+Which team finished in position 5 in the 2014-2015 Ligue 1?,Lyon.<|eot_id|>,Lyon,Saint-Étienne,False
+Which team finished in position 6 in the 2014-2015 Ligue 1?,Lyon.<|eot_id|>,Lyon,Bordeaux,False
+Which team finished in position 7 in the 2014-2015 Ligue 1?,Lyon.<|eot_id|>,Lyon,Montpellier,False
+Which team finished in position 8 in the 2014-2015 Ligue 1?,Lyon.<|eot_id|>,Lyon,Lille,False
+Which team finished in position 9 in the 2014-2015 Ligue 1?,Saint-Etienne.<|eot_id|>,Saint-Etienne,Rennes,False
+Which team finished in position 10 in the 2014-2015 Ligue 1?,Lyon.<|eot_id|>,Lyon,Guingamp,False
+Which team finished in position 11 in the 2014-2015 Ligue 1?,Saint-Etienne.<|eot_id|>,Saint-Etienne,Nice,False
+Which team finished in position 12 in the 2014-2015 Ligue 1?,Monaco.<|eot_id|>,Monaco,Bastia,False
+Which team finished in position 13 in the 2014-2015 Ligue 1?,Saint-Etienne.<|eot_id|>,Saint-Etienne,Caen,False
+Which team finished in position 14 in the 2014-2015 Ligue 1?,Nice.<|eot_id|>,Nice,Nantes,False
+Which team finished in position 15 in the 2014-2015 Ligue 1?,Bordeaux.<|eot_id|>,Bordeaux,Reims,False
+Which team finished in position 16 in the 2014-2015 Ligue 1?,Caen.<|eot_id|>,Caen,Lorient,False
+Which team finished in position 17 in the 2014-2015 Ligue 1?,Caen.<|eot_id|>,Caen,Toulouse,False
+Which team finished in position 18 in the 2014-2015 Ligue 1?,Guingamp.<|eot_id|>,Guingamp,Evian,False
+Which team finished in position 19 in the 2014-2015 Ligue 1?,Caen.<|eot_id|>,Caen,Metz,False
+Which team finished in position 20 in the 2014-2015 Ligue 1?,Caen.<|eot_id|>,Caen,Lens,False
+Which team finished in position 1 in the 2015-2016 Ligue 1?,Paris Saint-Germain.<|eot_id|>,Paris Saint-Germain,Paris S-G,True
+Which team finished in position 2 in the 2015-2016 Ligue 1?,Monaco.<|eot_id|>,Monaco,Lyon,False
+Which team finished in position 3 in the 2015-2016 Ligue 1?,Monaco.<|eot_id|>,Monaco,Monaco,True
+Which team finished in position 4 in the 2015-2016 Ligue 1?,Lyon.<|eot_id|>,Lyon,Nice,False
+Which team finished in position 5 in the 2015-2016 Ligue 1?,Lyon.<|eot_id|>,Lyon,Lille,False
+Which team finished in position 6 in the 2015-2016 Ligue 1?,Lyon.<|eot_id|>,Lyon,Saint-Étienne,False
+Which team finished in position 7 in the 2015-2016 Ligue 1?,Lyon.<|eot_id|>,Lyon,Caen,False
+Which team finished in position 8 in the 2015-2016 Ligue 1?,Lyon.<|eot_id|>,Lyon,Rennes,False
+Which team finished in position 9 in the 2015-2016 Ligue 1?,Nice.<|eot_id|>,Nice,Angers,False
+Which team finished in position 10 in the 2015-2016 Ligue 1?,Lyon.<|eot_id|>,Lyon,Bastia,False
+Which team finished in position 11 in the 2015-2016 Ligue 1?,Nice.<|eot_id|>,Nice,Bordeaux,False
+Which team finished in position 12 in the 2015-2016 Ligue 1?,Saint-Etienne.<|eot_id|>,Saint-Etienne,Montpellier,False
+Which team finished in position 13 in the 2015-2016 Ligue 1?,Saint-Etienne.<|eot_id|>,Saint-Etienne,Marseille,False
+Which team finished in position 14 in the 2015-2016 Ligue 1?,Saint-Etienne.<|eot_id|>,Saint-Etienne,Nantes,False
+Which team finished in position 15 in the 2015-2016 Ligue 1?,Caen.<|eot_id|>,Caen,Lorient,False
+Which team finished in position 16 in the 2015-2016 Ligue 1?,Caen.<|eot_id|>,Caen,Guingamp,False
+Which team finished in position 17 in the 2015-2016 Ligue 1?,Caen.<|eot_id|>,Caen,Toulouse,False
+Which team finished in position 18 in the 2015-2016 Ligue 1?,Caen.<|eot_id|>,Caen,Reims,False
+Which team finished in position 19 in the 2015-2016 Ligue 1?,Lorient.<|eot_id|>,Lorient,Gazélec Ajaccio,False
+Which team finished in position 20 in the 2015-2016 Ligue 1?,Bastia.<|eot_id|>,Bastia,Troyes,False
+Which team finished in position 1 in the 2016-2017 Ligue 1?,Monaco.<|eot_id|>,Monaco,Monaco,True
+Which team finished in position 2 in the 2016-2017 Ligue 1?,Monaco.<|eot_id|>,Monaco,Paris S-G,False
+Which team finished in position 3 in the 2016-2017 Ligue 1?,Monaco.<|eot_id|>,Monaco,Nice,False
+Which team finished in position 4 in the 2016-2017 Ligue 1?,Monaco.<|eot_id|>,Monaco,Lyon,False
+Which team finished in position 5 in the 2016-2017 Ligue 1?,Monaco.<|eot_id|>,Monaco,Marseille,False
+Which team finished in position 6 in the 2016-2017 Ligue 1?,Monaco.<|eot_id|>,Monaco,Bordeaux,False
+Which team finished in position 7 in the 2016-2017 Ligue 1?,Monaco.<|eot_id|>,Monaco,Nantes,False
+Which team finished in position 8 in the 2016-2017 Ligue 1?,Monaco.<|eot_id|>,Monaco,Saint-Étienne,False
+Which team finished in position 9 in the 2016-2017 Ligue 1?,Nice.<|eot_id|>,Nice,Rennes,False
+Which team finished in position 10 in the 2016-2017 Ligue 1?,Nantes.<|eot_id|>,Nantes,Guingamp,False
+Which team finished in position 11 in the 2016-2017 Ligue 1?,Nice.<|eot_id|>,Nice,Lille,False
+Which team finished in position 12 in the 2016-2017 Ligue 1?,Nice.<|eot_id|>,Nice,Angers,False
+Which team finished in position 13 in the 2016-2017 Ligue 1?,Saint-Etienne.<|eot_id|>,Saint-Etienne,Toulouse,False
+Which team finished in position 14 in the 2016-2017 Ligue 1?,Saint-Etienne.<|eot_id|>,Saint-Etienne,Metz,False
+Which team finished in position 15 in the 2016-2017 Ligue 1?,Montpellier.<|eot_id|>,Montpellier,Montpellier,True
+Which team finished in position 16 in the 2016-2017 Ligue 1?,Montpellier.<|eot_id|>,Montpellier,Dijon,False
+Which team finished in position 17 in the 2016-2017 Ligue 1?,Nantes.<|eot_id|>,Nantes,Caen,False
+Which team finished in position 18 in the 2016-2017 Ligue 1?,Lorient.<|eot_id|>,Lorient,Lorient,True
+Which team finished in position 19 in the 2016-2017 Ligue 1?,Lorient.<|eot_id|>,Lorient,Nancy,False
+Which team finished in position 20 in the 2016-2017 Ligue 1?,Dijon.<|eot_id|>,Dijon,Bastia,False
+Which team finished in position 1 in the 2017-2018 Ligue 1?,Paris Saint-Germain.<|eot_id|>,Paris Saint-Germain,Paris S-G,True
+Which team finished in position 2 in the 2017-2018 Ligue 1?,Monaco.<|eot_id|>,Monaco,Monaco,True
+Which team finished in position 3 in the 2017-2018 Ligue 1?,Monaco.<|eot_id|>,Monaco,Lyon,False
+Which team finished in position 4 in the 2017-2018 Ligue 1?,Lyon.<|eot_id|>,Lyon,Marseille,False
+Which team finished in position 5 in the 2017-2018 Ligue 1?,Lyon.<|eot_id|>,Lyon,Rennes,False
+Which team finished in position 6 in the 2017-2018 Ligue 1?,Marseille.<|eot_id|>,Marseille,Bordeaux,False
+Which team finished in position 7 in the 2017-2018 Ligue 1?,Lyon.<|eot_id|>,Lyon,Saint-Étienne,False
+Which team finished in position 8 in the 2017-2018 Ligue 1?,Lyon.<|eot_id|>,Lyon,Nice,False
+Which team finished in position 9 in the 2017-2018 Ligue 1?,Marseille.<|eot_id|>,Marseille,Nantes,False
+Which team finished in position 10 in the 2017-2018 Ligue 1?,Nantes.<|eot_id|>,Nantes,Montpellier,False
+Which team finished in position 11 in the 2017-2018 Ligue 1?,Nantes.<|eot_id|>,Nantes,Dijon,False
+Which team finished in position 12 in the 2017-2018 Ligue 1?,Nantes.<|eot_id|>,Nantes,Guingamp,False
+Which team finished in position 13 in the 2017-2018 Ligue 1?,Nantes.<|eot_id|>,Nantes,Amiens,False
+Which team finished in position 14 in the 2017-2018 Ligue 1?,Nantes.<|eot_id|>,Nantes,Angers,False
+Which team finished in position 15 in the 2017-2018 Ligue 1?,Nantes.<|eot_id|>,Nantes,Strasbourg,False
+Which team finished in position 16 in the 2017-2018 Ligue 1?,Nantes.<|eot_id|>,Nantes,Caen,False
+Which team finished in position 17 in the 2017-2018 Ligue 1?,Dijon.<|eot_id|>,Dijon,Lille,False
+Which team finished in position 18 in the 2017-2018 Ligue 1?,Dijon.<|eot_id|>,Dijon,Toulouse,False
+Which team finished in position 19 in the 2017-2018 Ligue 1?,Dijon.<|eot_id|>,Dijon,Troyes,False
+Which team finished in position 20 in the 2017-2018 Ligue 1?,Dijon.<|eot_id|>,Dijon,Metz,False
+Which team finished in position 1 in the 2018-2019 Ligue 1?,Paris Saint-Germain.<|eot_id|>,Paris Saint-Germain,Paris S-G,True
+Which team finished in position 2 in the 2018-2019 Ligue 1?,Monaco.<|eot_id|>,Monaco,Lille,False
+Which team finished in position 3 in the 2018-2019 Ligue 1?,Lyon.<|eot_id|>,Lyon,Lyon,True
+Which team finished in position 4 in the 2018-2019 Ligue 1?,Lyon.<|eot_id|>,Lyon,Saint-Étienne,False
+Which team finished in position 5 in the 2018-2019 Ligue 1?,Lyon.<|eot_id|>,Lyon,Marseille,False
+Which team finished in position 6 in the 2018-2019 Ligue 1?,Lyon.<|eot_id|>,Lyon,Montpellier,False
+Which team finished in position 7 in the 2018-2019 Ligue 1?,Lyon.<|eot_id|>,Lyon,Nice,False
+Which team finished in position 8 in the 2018-2019 Ligue 1?,Lyon.<|eot_id|>,Lyon,Reims,False
+Which team finished in position 9 in the 2018-2019 Ligue 1?,Lyon.<|eot_id|>,Lyon,Nîmes,False
+Which team finished in position 10 in the 2018-2019 Ligue 1?,Nantes.<|eot_id|>,Nantes,Rennes,False
+Which team finished in position 11 in the 2018-2019 Ligue 1?,Nantes.<|eot_id|>,Nantes,Strasbourg,False
+Which team finished in position 12 in the 2018-2019 Ligue 1?,Nantes.<|eot_id|>,Nantes,Nantes,True
+Which team finished in position 13 in the 2018-2019 Ligue 1?,Nantes.<|eot_id|>,Nantes,Angers,False
+Which team finished in position 14 in the 2018-2019 Ligue 1?,Nantes.<|eot_id|>,Nantes,Bordeaux,False
+Which team finished in position 15 in the 2018-2019 Ligue 1?,Nantes.<|eot_id|>,Nantes,Amiens,False
+Which team finished in position 16 in the 2018-2019 Ligue 1?,Nimes.<|eot_id|>,Nimes,Toulouse,False
+Which team finished in position 17 in the 2018-2019 Ligue 1?,Nimes.<|eot_id|>,Nimes,Monaco,False
+Which team finished in position 18 in the 2018-2019 Ligue 1?,Nimes.<|eot_id|>,Nimes,Dijon,False
+Which team finished in position 19 in the 2018-2019 Ligue 1?,Nimes.<|eot_id|>,Nimes,Caen,False
+Which team finished in position 20 in the 2018-2019 Ligue 1?,Nîmes.<|eot_id|>,Nîmes,Guingamp,False
+Which team finished in position 1 in the 2019-2020 Ligue 1?,Paris Saint-Germain.<|eot_id|>,Paris Saint-Germain,Paris S-G,True
+Which team finished in position 2 in the 2019-2020 Ligue 1?,Monaco.<|eot_id|>,Monaco,Marseille,False
+Which team finished in position 3 in the 2019-2020 Ligue 1?,Monaco.<|eot_id|>,Monaco,Rennes,False
+Which team finished in position 4 in the 2019-2020 Ligue 1?,Lyon.<|eot_id|>,Lyon,Lille,False
+Which team finished in position 5 in the 2019-2020 Ligue 1?,Lyon.<|eot_id|>,Lyon,Nice,False
+Which team finished in position 6 in the 2019-2020 Ligue 1?,Lyon.<|eot_id|>,Lyon,Reims,False
+Which team finished in position 7 in the 2019-2020 Ligue 1?,Lyon.<|eot_id|>,Lyon,Lyon,True
+Which team finished in position 8 in the 2019-2020 Ligue 1?,Lyon.<|eot_id|>,Lyon,Montpellier,False
+Which team finished in position 9 in the 2019-2020 Ligue 1?,Lyon.<|eot_id|>,Lyon,Monaco,False
+Which team finished in position 10 in the 2019-2020 Ligue 1?,Nimes.<|eot_id|>,Nimes,Strasbourg,False
+Which team finished in position 11 in the 2019-2020 Ligue 1?,Nimes.<|eot_id|>,Nimes,Angers,False
+Which team finished in position 12 in the 2019-2020 Ligue 1?,Nimes.<|eot_id|>,Nimes,Bordeaux,False
+Which team finished in position 13 in the 2019-2020 Ligue 1?,Nimes.<|eot_id|>,Nimes,Nantes,False
+Which team finished in position 14 in the 2019-2020 Ligue 1?,Nimes.<|eot_id|>,Nimes,Brest,False
+Which team finished in position 15 in the 2019-2020 Ligue 1?,Nimes.<|eot_id|>,Nimes,Metz,False
+Which team finished in position 16 in the 2019-2020 Ligue 1?,Nimes.<|eot_id|>,Nimes,Dijon,False
+Which team finished in position 17 in the 2019-2020 Ligue 1?,Nimes.<|eot_id|>,Nimes,Saint-Étienne,False
+Which team finished in position 18 in the 2019-2020 Ligue 1?,Nimes.<|eot_id|>,Nimes,Nîmes,True
+Which team finished in position 19 in the 2019-2020 Ligue 1?,Nimes.<|eot_id|>,Nimes,Amiens,False
+Which team finished in position 20 in the 2019-2020 Ligue 1?,Nimes.<|eot_id|>,Nimes,Toulouse,False
+Which team finished in position 1 in the 2020-2021 Ligue 1?,Lille.<|eot_id|>,Lille,Lille,True
+Which team finished in position 2 in the 2020-2021 Ligue 1?,Monaco.<|eot_id|>,Monaco,Paris S-G,False
+Which team finished in position 3 in the 2020-2021 Ligue 1?,Monaco.<|eot_id|>,Monaco,Monaco,True
+Which team finished in position 4 in the 2020-2021 Ligue 1?,Monaco.<|eot_id|>,Monaco,Lyon,False
+Which team finished in position 5 in the 2020-2021 Ligue 1?,Lyon.<|eot_id|>,Lyon,Marseille,False
+Which team finished in position 6 in the 2020-2021 Ligue 1?,Monaco.<|eot_id|>,Monaco,Rennes,False
+Which team finished in position 7 in the 2020-2021 Ligue 1?,Lyon.<|eot_id|>,Lyon,Lens,False
+Which team finished in position 8 in the 2020-2021 Ligue 1?,Lyon.<|eot_id|>,Lyon,Montpellier,False
+Which team finished in position 9 in the 2020-2021 Ligue 1?,Lyon.<|eot_id|>,Lyon,Nice,False
+Which team finished in position 10 in the 2020-2021 Ligue 1?,Lyon.<|eot_id|>,Lyon,Metz,False
+Which team finished in position 11 in the 2020-2021 Ligue 1?,Rennes.<|eot_id|>,Rennes,Saint-Étienne,False
+Which team finished in position 12 in the 2020-2021 Ligue 1?,Rennes.<|eot_id|>,Rennes,Bordeaux,False
+Which team finished in position 13 in the 2020-2021 Ligue 1?,Rennes.<|eot_id|>,Rennes,Angers,False
+Which team finished in position 14 in the 2020-2021 Ligue 1?,Rennes.<|eot_id|>,Rennes,Reims,False
+Which team finished in position 15 in the 2020-2021 Ligue 1?,Nantes.<|eot_id|>,Nantes,Strasbourg,False
+Which team finished in position 16 in the 2020-2021 Ligue 1?,Nantes.<|eot_id|>,Nantes,Lorient,False
+Which team finished in position 17 in the 2020-2021 Ligue 1?,Nantes.<|eot_id|>,Nantes,Brest,False
+Which team finished in position 18 in the 2020-2021 Ligue 1?,Nimes.<|eot_id|>,Nimes,Nantes,False
+Which team finished in position 19 in the 2020-2021 Ligue 1?,Nimes.<|eot_id|>,Nimes,Nîmes,True
+Which team finished in position 20 in the 2020-2021 Ligue 1?,Nimes.<|eot_id|>,Nimes,Dijon,False
+Which team finished in position 1 in the 2010-2011 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Dortmund,False
+Which team finished in position 2 in the 2010-2011 Fußball-Bundesliga?,Dortmund.<|eot_id|>,Dortmund,Leverkusen,False
+Which team finished in position 3 in the 2010-2011 Fußball-Bundesliga?,Schalke.<|eot_id|>,Schalke,Bayern Munich,False
+Which team finished in position 4 in the 2010-2011 Fußball-Bundesliga?,Schalke.<|eot_id|>,Schalke,Hannover 96,False
+Which team finished in position 5 in the 2010-2011 Fußball-Bundesliga?,Schalke.<|eot_id|>,Schalke,Mainz 05,False
+Which team finished in position 6 in the 2010-2011 Fußball-Bundesliga?,Schalke.<|eot_id|>,Schalke,Nürnberg,False
+Which team finished in position 7 in the 2010-2011 Fußball-Bundesliga?,Schalke.<|eot_id|>,Schalke,Kaiserslautern,False
+Which team finished in position 8 in the 2010-2011 Fußball-Bundesliga?,Werder Bremen.<|eot_id|>,Werder Bremen,Hamburger SV,False
+Which team finished in position 9 in the 2010-2011 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Freiburg,False
+Which team finished in position 10 in the 2010-2011 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Köln,False
+Which team finished in position 11 in the 2010-2011 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hoffenheim,False
+Which team finished in position 12 in the 2010-2011 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Stuttgart,False
+Which team finished in position 13 in the 2010-2011 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Werder Bremen,False
+Which team finished in position 14 in the 2010-2011 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Schalke 04,False
+Which team finished in position 15 in the 2010-2011 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Wolfsburg,False
+Which team finished in position 16 in the 2010-2011 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,M'Gladbach,False
+Which team finished in position 17 in the 2010-2011 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Eint Frankfurt,False
+Which team finished in position 18 in the 2010-2011 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,St. Pauli,False
+Which team finished in position 1 in the 2011-2012 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Dortmund,False
+Which team finished in position 2 in the 2011-2012 Fußball-Bundesliga?,Dortmund.<|eot_id|>,Dortmund,Bayern Munich,False
+Which team finished in position 3 in the 2011-2012 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,Schalke 04,False
+Which team finished in position 4 in the 2011-2012 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,M'Gladbach,False
+Which team finished in position 5 in the 2011-2012 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,Leverkusen,False
+Which team finished in position 6 in the 2011-2012 Fußball-Bundesliga?,Schalke.<|eot_id|>,Schalke,Stuttgart,False
+Which team finished in position 7 in the 2011-2012 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,Hannover 96,False
+Which team finished in position 8 in the 2011-2012 Fußball-Bundesliga?,Wolfsburg.<|eot_id|>,Wolfsburg,Wolfsburg,True
+Which team finished in position 9 in the 2011-2012 Fußball-Bundesliga?,Hannover 96.<|eot_id|>,Hannover 96,Werder Bremen,False
+Which team finished in position 10 in the 2011-2012 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Nürnberg,False
+Which team finished in position 11 in the 2011-2012 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hoffenheim,False
+Which team finished in position 12 in the 2011-2012 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Freiburg,False
+Which team finished in position 13 in the 2011-2012 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Mainz 05,True
+Which team finished in position 14 in the 2011-2012 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Augsburg,False
+Which team finished in position 15 in the 2011-2012 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hamburger SV,False
+Which team finished in position 16 in the 2011-2012 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hertha BSC,False
+Which team finished in position 17 in the 2011-2012 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Köln,False
+Which team finished in position 18 in the 2011-2012 Fußball-Bundesliga?,Augsburg.<|eot_id|>,Augsburg,Kaiserslautern,False
+Which team finished in position 1 in the 2012-2013 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Bayern Munich,True
+Which team finished in position 2 in the 2012-2013 Fußball-Bundesliga?,Dortmund.<|eot_id|>,Dortmund,Dortmund,True
+Which team finished in position 3 in the 2012-2013 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,Leverkusen,False
+Which team finished in position 4 in the 2012-2013 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,Schalke 04,False
+Which team finished in position 5 in the 2012-2013 Fußball-Bundesliga?,Bayer Leverkusen.<|eot_id|>,Bayer Leverkusen,Freiburg,False
+Which team finished in position 6 in the 2012-2013 Fußball-Bundesliga?,Bayer Leverkusen.<|eot_id|>,Bayer Leverkusen,Eint Frankfurt,False
+Which team finished in position 7 in the 2012-2013 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,Hamburger SV,False
+Which team finished in position 8 in the 2012-2013 Fußball-Bundesliga?,Werder Bremen.<|eot_id|>,Werder Bremen,M'Gladbach,False
+Which team finished in position 9 in the 2012-2013 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hannover 96,False
+Which team finished in position 10 in the 2012-2013 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Nürnberg,False
+Which team finished in position 11 in the 2012-2013 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Wolfsburg,False
+Which team finished in position 12 in the 2012-2013 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Stuttgart,False
+Which team finished in position 13 in the 2012-2013 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Mainz 05,True
+Which team finished in position 14 in the 2012-2013 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Werder Bremen,False
+Which team finished in position 15 in the 2012-2013 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Augsburg,False
+Which team finished in position 16 in the 2012-2013 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hoffenheim,False
+Which team finished in position 17 in the 2012-2013 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Düsseldorf,False
+Which team finished in position 18 in the 2012-2013 Fußball-Bundesliga?,Augsburg.<|eot_id|>,Augsburg,Greuther Fürth,False
+Which team finished in position 1 in the 2013-2014 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Bayern Munich,True
+Which team finished in position 2 in the 2013-2014 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Dortmund,False
+Which team finished in position 3 in the 2013-2014 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Schalke 04,False
+Which team finished in position 4 in the 2013-2014 Fußball-Bundesliga?,Bayer Leverkusen.<|eot_id|>,Bayer Leverkusen,Leverkusen,True
+Which team finished in position 5 in the 2013-2014 Fußball-Bundesliga?,Bayer Leverkusen.<|eot_id|>,Bayer Leverkusen,Wolfsburg,False
+Which team finished in position 6 in the 2013-2014 Fußball-Bundesliga?,Bayer Leverkusen.<|eot_id|>,Bayer Leverkusen,M'Gladbach,False
+Which team finished in position 7 in the 2013-2014 Fußball-Bundesliga?,Wolfsburg.<|eot_id|>,Wolfsburg,Mainz 05,False
+Which team finished in position 8 in the 2013-2014 Fußball-Bundesliga?,Wolfsburg.<|eot_id|>,Wolfsburg,Augsburg,False
+Which team finished in position 9 in the 2013-2014 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hoffenheim,False
+Which team finished in position 10 in the 2013-2014 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hannover 96,False
+Which team finished in position 11 in the 2013-2014 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hertha BSC,False
+Which team finished in position 12 in the 2013-2014 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Werder Bremen,False
+Which team finished in position 13 in the 2013-2014 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Eint Frankfurt,False
+Which team finished in position 14 in the 2013-2014 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Freiburg,False
+Which team finished in position 15 in the 2013-2014 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Stuttgart,False
+Which team finished in position 16 in the 2013-2014 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hamburger SV,False
+Which team finished in position 17 in the 2013-2014 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Nürnberg,False
+Which team finished in position 18 in the 2013-2014 Fußball-Bundesliga?,Eintracht Braunschweig.<|eot_id|>,Eintracht Braunschweig,Braunschweig,True
+Which team finished in position 1 in the 2014-2015 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Bayern Munich,True
+Which team finished in position 2 in the 2014-2015 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Wolfsburg,False
+Which team finished in position 3 in the 2014-2015 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,M'Gladbach,False
+Which team finished in position 4 in the 2014-2015 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,Leverkusen,False
+Which team finished in position 5 in the 2014-2015 Fußball-Bundesliga?,Bayer Leverkusen.<|eot_id|>,Bayer Leverkusen,Augsburg,False
+Which team finished in position 6 in the 2014-2015 Fußball-Bundesliga?,Bayer Leverkusen.<|eot_id|>,Bayer Leverkusen,Schalke 04,False
+Which team finished in position 7 in the 2014-2015 Fußball-Bundesliga?,Wolfsburg.<|eot_id|>,Wolfsburg,Dortmund,False
+Which team finished in position 8 in the 2014-2015 Fußball-Bundesliga?,Wolfsburg.<|eot_id|>,Wolfsburg,Hoffenheim,False
+Which team finished in position 9 in the 2014-2015 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Eint Frankfurt,False
+Which team finished in position 10 in the 2014-2015 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Werder Bremen,False
+Which team finished in position 11 in the 2014-2015 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Mainz 05,True
+Which team finished in position 12 in the 2014-2015 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Köln,False
+Which team finished in position 13 in the 2014-2015 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hannover 96,False
+Which team finished in position 14 in the 2014-2015 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Stuttgart,False
+Which team finished in position 15 in the 2014-2015 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hertha BSC,False
+Which team finished in position 16 in the 2014-2015 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hamburger SV,False
+Which team finished in position 17 in the 2014-2015 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Freiburg,False
+Which team finished in position 18 in the 2014-2015 Fußball-Bundesliga?,Paderborn.<|eot_id|>,Paderborn,Paderborn 07,True
+Which team finished in position 1 in the 2015-2016 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Bayern Munich,True
+Which team finished in position 2 in the 2015-2016 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Dortmund,False
+Which team finished in position 3 in the 2015-2016 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Leverkusen,False
+Which team finished in position 4 in the 2015-2016 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,M'Gladbach,False
+Which team finished in position 5 in the 2015-2016 Fußball-Bundesliga?,Bayer Leverkusen.<|eot_id|>,Bayer Leverkusen,Schalke 04,False
+Which team finished in position 6 in the 2015-2016 Fußball-Bundesliga?,Bayer Leverkusen.<|eot_id|>,Bayer Leverkusen,Mainz 05,False
+Which team finished in position 7 in the 2015-2016 Fußball-Bundesliga?,Bayer Leverkusen.<|eot_id|>,Bayer Leverkusen,Hertha BSC,False
+Which team finished in position 8 in the 2015-2016 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Wolfsburg,False
+Which team finished in position 9 in the 2015-2016 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Köln,False
+Which team finished in position 10 in the 2015-2016 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hamburger SV,False
+Which team finished in position 11 in the 2015-2016 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Ingolstadt 04,False
+Which team finished in position 12 in the 2015-2016 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Augsburg,False
+Which team finished in position 13 in the 2015-2016 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Werder Bremen,False
+Which team finished in position 14 in the 2015-2016 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Darmstadt 98,False
+Which team finished in position 15 in the 2015-2016 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hoffenheim,False
+Which team finished in position 16 in the 2015-2016 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Eint Frankfurt,False
+Which team finished in position 17 in the 2015-2016 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Stuttgart,False
+Which team finished in position 18 in the 2015-2016 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hannover 96,False
+Which team finished in position 1 in the 2016-2017 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Bayern Munich,True
+Which team finished in position 2 in the 2016-2017 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,RB Leipzig,False
+Which team finished in position 3 in the 2016-2017 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Dortmund,False
+Which team finished in position 4 in the 2016-2017 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Hoffenheim,False
+Which team finished in position 5 in the 2016-2017 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,Köln,False
+Which team finished in position 6 in the 2016-2017 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,Hertha BSC,False
+Which team finished in position 7 in the 2016-2017 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,Freiburg,False
+Which team finished in position 8 in the 2016-2017 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Werder Bremen,False
+Which team finished in position 9 in the 2016-2017 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,M'Gladbach,False
+Which team finished in position 10 in the 2016-2017 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Schalke 04,False
+Which team finished in position 11 in the 2016-2017 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Eint Frankfurt,False
+Which team finished in position 12 in the 2016-2017 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Leverkusen,False
+Which team finished in position 13 in the 2016-2017 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Augsburg,False
+Which team finished in position 14 in the 2016-2017 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hamburger SV,False
+Which team finished in position 15 in the 2016-2017 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Mainz 05,True
+Which team finished in position 16 in the 2016-2017 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Wolfsburg,False
+Which team finished in position 17 in the 2016-2017 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Ingolstadt 04,False
+Which team finished in position 18 in the 2016-2017 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Darmstadt 98,False
+Which team finished in position 1 in the 2017-2018 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Bayern Munich,True
+Which team finished in position 2 in the 2017-2018 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Schalke 04,False
+Which team finished in position 3 in the 2017-2018 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Hoffenheim,False
+Which team finished in position 4 in the 2017-2018 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,Dortmund,True
+Which team finished in position 5 in the 2017-2018 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,Leverkusen,False
+Which team finished in position 6 in the 2017-2018 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,RB Leipzig,False
+Which team finished in position 7 in the 2017-2018 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,Stuttgart,False
+Which team finished in position 8 in the 2017-2018 Fußball-Bundesliga?,Hoffenheim.<|eot_id|>,Hoffenheim,Eint Frankfurt,False
+Which team finished in position 9 in the 2017-2018 Fußball-Bundesliga?,Hertha Berlin.<|eot_id|>,Hertha Berlin,M'Gladbach,False
+Which team finished in position 10 in the 2017-2018 Fußball-Bundesliga?,Hoffenheim.<|eot_id|>,Hoffenheim,Hertha BSC,False
+Which team finished in position 11 in the 2017-2018 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Werder Bremen,False
+Which team finished in position 12 in the 2017-2018 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Augsburg,False
+Which team finished in position 13 in the 2017-2018 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hannover 96,False
+Which team finished in position 14 in the 2017-2018 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Mainz 05,True
+Which team finished in position 15 in the 2017-2018 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Freiburg,False
+Which team finished in position 16 in the 2017-2018 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Wolfsburg,False
+Which team finished in position 17 in the 2017-2018 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hamburger SV,False
+Which team finished in position 18 in the 2017-2018 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Köln,False
+Which team finished in position 1 in the 2018-2019 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Bayern Munich,True
+Which team finished in position 2 in the 2018-2019 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Dortmund,False
+Which team finished in position 3 in the 2018-2019 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,RB Leipzig,False
+Which team finished in position 4 in the 2018-2019 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,Leverkusen,False
+Which team finished in position 5 in the 2018-2019 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,M'Gladbach,False
+Which team finished in position 6 in the 2018-2019 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,Wolfsburg,False
+Which team finished in position 7 in the 2018-2019 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,Eint Frankfurt,False
+Which team finished in position 8 in the 2018-2019 Fußball-Bundesliga?,Wolfsburg.<|eot_id|>,Wolfsburg,Werder Bremen,False
+Which team finished in position 9 in the 2018-2019 Fußball-Bundesliga?,Hertha Berlin.<|eot_id|>,Hertha Berlin,Hoffenheim,False
+Which team finished in position 10 in the 2018-2019 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Düsseldorf,False
+Which team finished in position 11 in the 2018-2019 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hertha BSC,False
+Which team finished in position 12 in the 2018-2019 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Mainz 05,True
+Which team finished in position 13 in the 2018-2019 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Freiburg,False
+Which team finished in position 14 in the 2018-2019 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Schalke 04,False
+Which team finished in position 15 in the 2018-2019 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Augsburg,False
+Which team finished in position 16 in the 2018-2019 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Stuttgart,False
+Which team finished in position 17 in the 2018-2019 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hannover 96,False
+Which team finished in position 18 in the 2018-2019 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Nürnberg,False
+Which team finished in position 1 in the 2019-2020 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Bayern Munich,True
+Which team finished in position 2 in the 2019-2020 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Dortmund,False
+Which team finished in position 3 in the 2019-2020 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,RB Leipzig,False
+Which team finished in position 4 in the 2019-2020 Fußball-Bundesliga?,Leipzig.<|eot_id|>,Leipzig,M'Gladbach,False
+Which team finished in position 5 in the 2019-2020 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,Leverkusen,False
+Which team finished in position 6 in the 2019-2020 Fußball-Bundesliga?,Bayer Leverkusen.<|eot_id|>,Bayer Leverkusen,Hoffenheim,False
+Which team finished in position 7 in the 2019-2020 Fußball-Bundesliga?,Borussia Dortmund.<|eot_id|>,Borussia Dortmund,Wolfsburg,False
+Which team finished in position 8 in the 2019-2020 Fußball-Bundesliga?,Wolfsburg.<|eot_id|>,Wolfsburg,Freiburg,False
+Which team finished in position 9 in the 2019-2020 Fußball-Bundesliga?,Hertha Berlin.<|eot_id|>,Hertha Berlin,Eint Frankfurt,False
+Which team finished in position 10 in the 2019-2020 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hertha BSC,False
+Which team finished in position 11 in the 2019-2020 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Union Berlin,False
+Which team finished in position 12 in the 2019-2020 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Schalke 04,False
+Which team finished in position 13 in the 2019-2020 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Mainz 05,True
+Which team finished in position 14 in the 2019-2020 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Köln,False
+Which team finished in position 15 in the 2019-2020 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Augsburg,False
+Which team finished in position 16 in the 2019-2020 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Werder Bremen,False
+Which team finished in position 17 in the 2019-2020 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Düsseldorf,False
+Which team finished in position 18 in the 2019-2020 Fußball-Bundesliga?,Paderborn.<|eot_id|>,Paderborn,Paderborn 07,True
+Which team finished in position 1 in the 2020-2021 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Bayern Munich,True
+Which team finished in position 2 in the 2020-2021 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,RB Leipzig,False
+Which team finished in position 3 in the 2020-2021 Fußball-Bundesliga?,Bayern Munich.<|eot_id|>,Bayern Munich,Dortmund,False
+Which team finished in position 4 in the 2020-2021 Fußball-Bundesliga?,VfL Wolfsburg.<|eot_id|>,VfL Wolfsburg,Wolfsburg,True
+Which team finished in position 5 in the 2020-2021 Fußball-Bundesliga?,VfL Wolfsburg.<|eot_id|>,VfL Wolfsburg,Eint Frankfurt,False
+Which team finished in position 6 in the 2020-2021 Fußball-Bundesliga?,VfL Wolfsburg.<|eot_id|>,VfL Wolfsburg,Leverkusen,False
+Which team finished in position 7 in the 2020-2021 Fußball-Bundesliga?,Bayer Leverkusen.<|eot_id|>,Bayer Leverkusen,Union Berlin,False
+Which team finished in position 8 in the 2020-2021 Fußball-Bundesliga?,Wolfsburg.<|eot_id|>,Wolfsburg,M'Gladbach,False
+Which team finished in position 9 in the 2020-2021 Fußball-Bundesliga?,VfL Wolfsburg.<|eot_id|>,VfL Wolfsburg,Stuttgart,False
+Which team finished in position 10 in the 2020-2021 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Freiburg,False
+Which team finished in position 11 in the 2020-2021 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hoffenheim,False
+Which team finished in position 12 in the 2020-2021 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Mainz 05,True
+Which team finished in position 13 in the 2020-2021 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Augsburg,False
+Which team finished in position 14 in the 2020-2021 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Hertha BSC,False
+Which team finished in position 15 in the 2020-2021 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Arminia,False
+Which team finished in position 16 in the 2020-2021 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Köln,False
+Which team finished in position 17 in the 2020-2021 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Werder Bremen,False
+Which team finished in position 18 in the 2020-2021 Fußball-Bundesliga?,Mainz.<|eot_id|>,Mainz,Schalke 04,False
+Which team finished in position 1 in the 2010-2011 Serie A?,Milan.<|eot_id|>,Milan,Milan,True
+Which team finished in position 2 in the 2010-2011 Serie A?,AC Milan.<|eot_id|>,AC Milan,Inter,False
+Which team finished in position 3 in the 2010-2011 Serie A?,Inter Milan.<|eot_id|>,Inter Milan,Napoli,False
+Which team finished in position 4 in the 2010-2011 Serie A?,Napoli.<|eot_id|>,Napoli,Udinese,False
+Which team finished in position 5 in the 2010-2011 Serie A?,Napoli.<|eot_id|>,Napoli,Lazio,False
+Which team finished in position 6 in the 2010-2011 Serie A?,Roma.<|eot_id|>,Roma,Roma,True
+Which team finished in position 7 in the 2010-2011 Serie A?,AC Milan.<|eot_id|>,AC Milan,Juventus,False
+Which team finished in position 8 in the 2010-2011 Serie A?,Roma.<|eot_id|>,Roma,Palermo,False
+Which team finished in position 9 in the 2010-2011 Serie A?,Sampdoria.<|eot_id|>,Sampdoria,Fiorentina,False
+Which team finished in position 10 in the 2010-2011 Serie A?,Napoli.<|eot_id|>,Napoli,Genoa,False
+Which team finished in position 11 in the 2010-2011 Serie A?,Lazio.<|eot_id|>,Lazio,Chievo,False
+Which team finished in position 12 in the 2010-2011 Serie A?,Lazio.<|eot_id|>,Lazio,Parma,False
+Which team finished in position 13 in the 2010-2011 Serie A?,Lazio.<|eot_id|>,Lazio,Catania,False
+Which team finished in position 14 in the 2010-2011 Serie A?,Lazio.<|eot_id|>,Lazio,Cagliari,False
+Which team finished in position 15 in the 2010-2011 Serie A?,Lazio.<|eot_id|>,Lazio,Cesena,False
+Which team finished in position 16 in the 2010-2011 Serie A?,Lazio.<|eot_id|>,Lazio,Bologna,False
+Which team finished in position 17 in the 2010-2011 Serie A?,Bari.<|eot_id|>,Bari,Lecce,False
+Which team finished in position 18 in the 2010-2011 Serie A?,Bari.<|eot_id|>,Bari,Sampdoria,False
+Which team finished in position 19 in the 2010-2011 Serie A?,Bari.<|eot_id|>,Bari,Brescia,False
+Which team finished in position 20 in the 2010-2011 Serie A?,Bari.<|eot_id|>,Bari,Bari,True
+Which team finished in position 1 in the 2011-2012 Serie A?,Juventus.<|eot_id|>,Juventus,Juventus,True
+Which team finished in position 2 in the 2011-2012 Serie A?,AC Milan.<|eot_id|>,AC Milan,Milan,True
+Which team finished in position 3 in the 2011-2012 Serie A?,Napoli.<|eot_id|>,Napoli,Udinese,False
+Which team finished in position 4 in the 2011-2012 Serie A?,Napoli.<|eot_id|>,Napoli,Lazio,False
+Which team finished in position 5 in the 2011-2012 Serie A?,Napoli.<|eot_id|>,Napoli,Napoli,True
+Which team finished in position 6 in the 2011-2012 Serie A?,Napoli.<|eot_id|>,Napoli,Inter,False
+Which team finished in position 7 in the 2011-2012 Serie A?,Udinese.<|eot_id|>,Udinese,Roma,False
+Which team finished in position 8 in the 2011-2012 Serie A?,Napoli.<|eot_id|>,Napoli,Parma,False
+Which team finished in position 9 in the 2011-2012 Serie A?,Lazio.<|eot_id|>,Lazio,Bologna,False
+Which team finished in position 10 in the 2011-2012 Serie A?,Udinese.<|eot_id|>,Udinese,Chievo,False
+Which team finished in position 11 in the 2011-2012 Serie A?,Lazio.<|eot_id|>,Lazio,Catania,False
+Which team finished in position 12 in the 2011-2012 Serie A?,Lazio.<|eot_id|>,Lazio,Atalanta,False
+Which team finished in position 13 in the 2011-2012 Serie A?,Lazio.<|eot_id|>,Lazio,Fiorentina,False
+Which team finished in position 14 in the 2011-2012 Serie A?,Lazio.<|eot_id|>,Lazio,Siena,False
+Which team finished in position 15 in the 2011-2012 Serie A?,Lazio.<|eot_id|>,Lazio,Cagliari,False
+Which team finished in position 16 in the 2011-2012 Serie A?,Lazio.<|eot_id|>,Lazio,Palermo,False
+Which team finished in position 17 in the 2011-2012 Serie A?,Novara.<|eot_id|>,Novara,Genoa,False
+Which team finished in position 18 in the 2011-2012 Serie A?,Novara.<|eot_id|>,Novara,Lecce,False
+Which team finished in position 19 in the 2011-2012 Serie A?,Novara.<|eot_id|>,Novara,Novara,True
+Which team finished in position 20 in the 2011-2012 Serie A?,Novara.<|eot_id|>,Novara,Cesena,False
+Which team finished in position 1 in the 2012-2013 Serie A?,Juventus.<|eot_id|>,Juventus,Juventus,True
+Which team finished in position 2 in the 2012-2013 Serie A?,Napoli.<|eot_id|>,Napoli,Napoli,True
+Which team finished in position 3 in the 2012-2013 Serie A?,Napoli.<|eot_id|>,Napoli,Milan,False
+Which team finished in position 4 in the 2012-2013 Serie A?,Napoli.<|eot_id|>,Napoli,Fiorentina,False
+Which team finished in position 5 in the 2012-2013 Serie A?,Napoli.<|eot_id|>,Napoli,Udinese,False
+Which team finished in position 6 in the 2012-2013 Serie A?,Lazio.<|eot_id|>,Lazio,Roma,False
+Which team finished in position 7 in the 2012-2013 Serie A?,Lazio.<|eot_id|>,Lazio,Lazio,True
+Which team finished in position 8 in the 2012-2013 Serie A?,Napoli.<|eot_id|>,Napoli,Catania,False
+Which team finished in position 9 in the 2012-2013 Serie A?,Napoli.<|eot_id|>,Napoli,Inter,False
+Which team finished in position 10 in the 2012-2013 Serie A?,Napoli.<|eot_id|>,Napoli,Parma,False
+Which team finished in position 11 in the 2012-2013 Serie A?,Napoli.<|eot_id|>,Napoli,Cagliari,False
+Which team finished in position 12 in the 2012-2013 Serie A?,Lazio.<|eot_id|>,Lazio,Chievo,False
+Which team finished in position 13 in the 2012-2013 Serie A?,Lazio.<|eot_id|>,Lazio,Bologna,False
+Which team finished in position 14 in the 2012-2013 Serie A?,Lazio.<|eot_id|>,Lazio,Sampdoria,False
+Which team finished in position 15 in the 2012-2013 Serie A?,Catania.<|eot_id|>,Catania,Atalanta,False
+Which team finished in position 16 in the 2012-2013 Serie A?,Siena.<|eot_id|>,Siena,Torino,False
+Which team finished in position 17 in the 2012-2013 Serie A?,Siena.<|eot_id|>,Siena,Genoa,False
+Which team finished in position 18 in the 2012-2013 Serie A?,Siena.<|eot_id|>,Siena,Palermo,False
+Which team finished in position 19 in the 2012-2013 Serie A?,Siena.<|eot_id|>,Siena,Siena,True
+Which team finished in position 20 in the 2012-2013 Serie A?,Siena.<|eot_id|>,Siena,Pescara,False
+Which team finished in position 1 in the 2013-2014 Serie A?,Juventus.<|eot_id|>,Juventus,Juventus,True
+Which team finished in position 2 in the 2013-2014 Serie A?,Roma.<|eot_id|>,Roma,Roma,True
+Which team finished in position 3 in the 2013-2014 Serie A?,Napoli.<|eot_id|>,Napoli,Napoli,True
+Which team finished in position 4 in the 2013-2014 Serie A?,Napoli.<|eot_id|>,Napoli,Fiorentina,False
+Which team finished in position 5 in the 2013-2014 Serie A?,Napoli.<|eot_id|>,Napoli,Inter,False
+Which team finished in position 6 in the 2013-2014 Serie A?,Napoli.<|eot_id|>,Napoli,Parma,False
+Which team finished in position 7 in the 2013-2014 Serie A?,Roma.<|eot_id|>,Roma,Torino,False
+Which team finished in position 8 in the 2013-2014 Serie A?,Napoli.<|eot_id|>,Napoli,Milan,False
+Which team finished in position 9 in the 2013-2014 Serie A?,Napoli.<|eot_id|>,Napoli,Lazio,False
+Which team finished in position 10 in the 2013-2014 Serie A?,Napoli.<|eot_id|>,Napoli,Hellas Verona,False
+Which team finished in position 11 in the 2013-2014 Serie A?,Napoli.<|eot_id|>,Napoli,Atalanta,False
+Which team finished in position 12 in the 2013-2014 Serie A?,Napoli.<|eot_id|>,Napoli,Sampdoria,False
+Which team finished in position 13 in the 2013-2014 Serie A?,Inter Milan.<|eot_id|>,Inter Milan,Udinese,False
+Which team finished in position 14 in the 2013-2014 Serie A?,Napoli.<|eot_id|>,Napoli,Genoa,False
+Which team finished in position 15 in the 2013-2014 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Cagliari,False
+Which team finished in position 16 in the 2013-2014 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Chievo,False
+Which team finished in position 17 in the 2013-2014 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Sassuolo,True
+Which team finished in position 18 in the 2013-2014 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Catania,False
+Which team finished in position 19 in the 2013-2014 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Bologna,False
+Which team finished in position 20 in the 2013-2014 Serie A?,Catania.<|eot_id|>,Catania,Livorno,False
+Which team finished in position 1 in the 2014-2015 Serie A?,Juventus.<|eot_id|>,Juventus,Juventus,True
+Which team finished in position 2 in the 2014-2015 Serie A?,Juventus.<|eot_id|>,Juventus,Roma,False
+Which team finished in position 3 in the 2014-2015 Serie A?,Juventus.<|eot_id|>,Juventus,Lazio,False
+Which team finished in position 4 in the 2014-2015 Serie A?,Napoli.<|eot_id|>,Napoli,Fiorentina,False
+Which team finished in position 5 in the 2014-2015 Serie A?,Napoli.<|eot_id|>,Napoli,Napoli,True
+Which team finished in position 6 in the 2014-2015 Serie A?,Napoli.<|eot_id|>,Napoli,Genoa,False
+Which team finished in position 7 in the 2014-2015 Serie A?,Roma.<|eot_id|>,Roma,Sampdoria,False
+Which team finished in position 8 in the 2014-2015 Serie A?,Napoli.<|eot_id|>,Napoli,Inter,False
+Which team finished in position 9 in the 2014-2015 Serie A?,Roma.<|eot_id|>,Roma,Torino,False
+Which team finished in position 10 in the 2014-2015 Serie A?,Napoli.<|eot_id|>,Napoli,Milan,False
+Which team finished in position 11 in the 2014-2015 Serie A?,Napoli.<|eot_id|>,Napoli,Palermo,False
+Which team finished in position 12 in the 2014-2015 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Sassuolo,True
+Which team finished in position 13 in the 2014-2015 Serie A?,Sampdoria.<|eot_id|>,Sampdoria,Hellas Verona,False
+Which team finished in position 14 in the 2014-2015 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Chievo,False
+Which team finished in position 15 in the 2014-2015 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Empoli,False
+Which team finished in position 16 in the 2014-2015 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Udinese,False
+Which team finished in position 17 in the 2014-2015 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Atalanta,False
+Which team finished in position 18 in the 2014-2015 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Cagliari,False
+Which team finished in position 19 in the 2014-2015 Serie A?,Parma.<|eot_id|>,Parma,Cesena,False
+Which team finished in position 20 in the 2014-2015 Serie A?,Parma.<|eot_id|>,Parma,Parma,True
+Which team finished in position 1 in the 2015-2016 Serie A?,Juventus.<|eot_id|>,Juventus,Juventus,True
+Which team finished in position 2 in the 2015-2016 Serie A?,Napoli.<|eot_id|>,Napoli,Napoli,True
+Which team finished in position 3 in the 2015-2016 Serie A?,Napoli.<|eot_id|>,Napoli,Roma,False
+Which team finished in position 4 in the 2015-2016 Serie A?,Napoli.<|eot_id|>,Napoli,Inter,False
+Which team finished in position 5 in the 2015-2016 Serie A?,Napoli.<|eot_id|>,Napoli,Fiorentina,False
+Which team finished in position 6 in the 2015-2016 Serie A?,Napoli.<|eot_id|>,Napoli,Sassuolo,False
+Which team finished in position 7 in the 2015-2016 Serie A?,Napoli.<|eot_id|>,Napoli,Milan,False
+Which team finished in position 8 in the 2015-2016 Serie A?,Napoli.<|eot_id|>,Napoli,Lazio,False
+Which team finished in position 9 in the 2015-2016 Serie A?,Napoli.<|eot_id|>,Napoli,Chievo,False
+Which team finished in position 10 in the 2015-2016 Serie A?,Napoli.<|eot_id|>,Napoli,Empoli,False
+Which team finished in position 11 in the 2015-2016 Serie A?,Napoli.<|eot_id|>,Napoli,Genoa,False
+Which team finished in position 12 in the 2015-2016 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Torino,False
+Which team finished in position 13 in the 2015-2016 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Atalanta,False
+Which team finished in position 14 in the 2015-2016 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Bologna,False
+Which team finished in position 15 in the 2015-2016 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Sampdoria,False
+Which team finished in position 16 in the 2015-2016 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Palermo,False
+Which team finished in position 17 in the 2015-2016 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Udinese,False
+Which team finished in position 18 in the 2015-2016 Serie A?,Palermo.<|eot_id|>,Palermo,Carpi,False
+Which team finished in position 19 in the 2015-2016 Serie A?,Frosinone.<|eot_id|>,Frosinone,Frosinone,True
+Which team finished in position 20 in the 2015-2016 Serie A?,Carpi.<|eot_id|>,Carpi,Hellas Verona,False
+Which team finished in position 1 in the 2016-2017 Serie A?,Juventus.<|eot_id|>,Juventus,Juventus,True
+Which team finished in position 2 in the 2016-2017 Serie A?,Napoli.<|eot_id|>,Napoli,Roma,False
+Which team finished in position 3 in the 2016-2017 Serie A?,Juventus.<|eot_id|>,Juventus,Napoli,False
+Which team finished in position 4 in the 2016-2017 Serie A?,Napoli.<|eot_id|>,Napoli,Atalanta,False
+Which team finished in position 5 in the 2016-2017 Serie A?,Napoli.<|eot_id|>,Napoli,Lazio,False
+Which team finished in position 6 in the 2016-2017 Serie A?,Roma.<|eot_id|>,Roma,Milan,False
+Which team finished in position 7 in the 2016-2017 Serie A?,Roma.<|eot_id|>,Roma,Inter,False
+Which team finished in position 8 in the 2016-2017 Serie A?,Roma.<|eot_id|>,Roma,Fiorentina,False
+Which team finished in position 9 in the 2016-2017 Serie A?,Lazio.<|eot_id|>,Lazio,Torino,False
+Which team finished in position 10 in the 2016-2017 Serie A?,Lazio.<|eot_id|>,Lazio,Sampdoria,False
+Which team finished in position 11 in the 2016-2017 Serie A?,Lazio.<|eot_id|>,Lazio,Cagliari,False
+Which team finished in position 12 in the 2016-2017 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Sassuolo,True
+Which team finished in position 13 in the 2016-2017 Serie A?,Cagliari.<|eot_id|>,Cagliari,Udinese,False
+Which team finished in position 14 in the 2016-2017 Serie A?,Crotone.<|eot_id|>,Crotone,Chievo,False
+Which team finished in position 15 in the 2016-2017 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Bologna,False
+Which team finished in position 16 in the 2016-2017 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Genoa,False
+Which team finished in position 17 in the 2016-2017 Serie A?,Crotone.<|eot_id|>,Crotone,Crotone,True
+Which team finished in position 18 in the 2016-2017 Serie A?,Crotone.<|eot_id|>,Crotone,Empoli,False
+Which team finished in position 19 in the 2016-2017 Serie A?,Crotone.<|eot_id|>,Crotone,Palermo,False
+Which team finished in position 20 in the 2016-2017 Serie A?,Pescara.<|eot_id|>,Pescara,Pescara,True
+Which team finished in position 1 in the 2017-2018 Serie A?,Juventus.<|eot_id|>,Juventus,Juventus,True
+Which team finished in position 2 in the 2017-2018 Serie A?,Napoli.<|eot_id|>,Napoli,Napoli,True
+Which team finished in position 3 in the 2017-2018 Serie A?,Napoli.<|eot_id|>,Napoli,Roma,False
+Which team finished in position 4 in the 2017-2018 Serie A?,Napoli.<|eot_id|>,Napoli,Inter,False
+Which team finished in position 5 in the 2017-2018 Serie A?,Roma.<|eot_id|>,Roma,Lazio,False
+Which team finished in position 6 in the 2017-2018 Serie A?,Roma.<|eot_id|>,Roma,Milan,False
+Which team finished in position 7 in the 2017-2018 Serie A?,Roma.<|eot_id|>,Roma,Atalanta,False
+Which team finished in position 8 in the 2017-2018 Serie A?,Lazio.<|eot_id|>,Lazio,Fiorentina,False
+Which team finished in position 9 in the 2017-2018 Serie A?,Lazio.<|eot_id|>,Lazio,Torino,False
+Which team finished in position 10 in the 2017-2018 Serie A?,Lazio.<|eot_id|>,Lazio,Sampdoria,False
+Which team finished in position 11 in the 2017-2018 Serie A?,Lazio.<|eot_id|>,Lazio,Sassuolo,False
+Which team finished in position 12 in the 2017-2018 Serie A?,Lazio.<|eot_id|>,Lazio,Genoa,False
+Which team finished in position 13 in the 2017-2018 Serie A?,Lazio.<|eot_id|>,Lazio,Chievo,False
+Which team finished in position 14 in the 2017-2018 Serie A?,Sampdoria.<|eot_id|>,Sampdoria,Udinese,False
+Which team finished in position 15 in the 2017-2018 Serie A?,Sampdoria.<|eot_id|>,Sampdoria,Bologna,False
+Which team finished in position 16 in the 2017-2018 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Cagliari,False
+Which team finished in position 17 in the 2017-2018 Serie A?,SPAL.<|eot_id|>,SPAL,SPAL,True
+Which team finished in position 18 in the 2017-2018 Serie A?,SPAL.<|eot_id|>,SPAL,Crotone,False
+Which team finished in position 19 in the 2017-2018 Serie A?,SPAL.<|eot_id|>,SPAL,Hellas Verona,False
+Which team finished in position 20 in the 2017-2018 Serie A?,SPAL.<|eot_id|>,SPAL,Benevento,False
+Which team finished in position 1 in the 2018-2019 Serie A?,Juventus.<|eot_id|>,Juventus,Juventus,True
+Which team finished in position 2 in the 2018-2019 Serie A?,Napoli.<|eot_id|>,Napoli,Napoli,True
+Which team finished in position 3 in the 2018-2019 Serie A?,Napoli.<|eot_id|>,Napoli,Atalanta,False
+Which team finished in position 4 in the 2018-2019 Serie A?,Atalanta.<|eot_id|>,Atalanta,Inter,False
+Which team finished in position 5 in the 2018-2019 Serie A?,Roma.<|eot_id|>,Roma,Milan,False
+Which team finished in position 6 in the 2018-2019 Serie A?,Roma.<|eot_id|>,Roma,Roma,True
+Which team finished in position 7 in the 2018-2019 Serie A?,Roma.<|eot_id|>,Roma,Torino,False
+Which team finished in position 8 in the 2018-2019 Serie A?,Napoli.<|eot_id|>,Napoli,Lazio,False
+Which team finished in position 9 in the 2018-2019 Serie A?,Roma.<|eot_id|>,Roma,Sampdoria,False
+Which team finished in position 10 in the 2018-2019 Serie A?,Roma.<|eot_id|>,Roma,Bologna,False
+Which team finished in position 11 in the 2018-2019 Serie A?,Roma.<|eot_id|>,Roma,Sassuolo,False
+Which team finished in position 12 in the 2018-2019 Serie A?,Lazio.<|eot_id|>,Lazio,Udinese,False
+Which team finished in position 13 in the 2018-2019 Serie A?,Udinese.<|eot_id|>,Udinese,SPAL,False
+Which team finished in position 14 in the 2018-2019 Serie A?,Lazio.<|eot_id|>,Lazio,Parma,False
+Which team finished in position 15 in the 2018-2019 Serie A?,Lazio.<|eot_id|>,Lazio,Cagliari,False
+Which team finished in position 16 in the 2018-2019 Serie A?,Lecce.<|eot_id|>,Lecce,Fiorentina,False
+Which team finished in position 17 in the 2018-2019 Serie A?,SPAL.<|eot_id|>,SPAL,Genoa,False
+Which team finished in position 18 in the 2018-2019 Serie A?,Lecce.<|eot_id|>,Lecce,Empoli,False
+Which team finished in position 19 in the 2018-2019 Serie A?,Empoli.<|eot_id|>,Empoli,Frosinone,False
+Which team finished in position 20 in the 2018-2019 Serie A?,Brescia.<|eot_id|>,Brescia,Chievo,False
+Which team finished in position 1 in the 2019-2020 Serie A?,Juventus.<|eot_id|>,Juventus,Juventus,True
+Which team finished in position 2 in the 2019-2020 Serie A?,Juventus.<|eot_id|>,Juventus,Inter,False
+Which team finished in position 3 in the 2019-2020 Serie A?,Atalanta.<|eot_id|>,Atalanta,Atalanta,True
+Which team finished in position 4 in the 2019-2020 Serie A?,Atalanta.<|eot_id|>,Atalanta,Lazio,False
+Which team finished in position 5 in the 2019-2020 Serie A?,Roma.<|eot_id|>,Roma,Roma,True
+Which team finished in position 6 in the 2019-2020 Serie A?,Roma.<|eot_id|>,Roma,Milan,False
+Which team finished in position 7 in the 2019-2020 Serie A?,Roma.<|eot_id|>,Roma,Napoli,False
+Which team finished in position 8 in the 2019-2020 Serie A?,Napoli.<|eot_id|>,Napoli,Sassuolo,False
+Which team finished in position 9 in the 2019-2020 Serie A?,Napoli.<|eot_id|>,Napoli,Hellas Verona,False
+Which team finished in position 10 in the 2019-2020 Serie A?,Napoli.<|eot_id|>,Napoli,Fiorentina,False
+Which team finished in position 11 in the 2019-2020 Serie A?,Napoli.<|eot_id|>,Napoli,Parma,False
+Which team finished in position 12 in the 2019-2020 Serie A?,Lazio.<|eot_id|>,Lazio,Bologna,False
+Which team finished in position 13 in the 2019-2020 Serie A?,<|eot_id|>,,Udinese,False
+Which team finished in position 14 in the 2019-2020 Serie A?,Roma.<|eot_id|>,Roma,Cagliari,False
+Which team finished in position 15 in the 2019-2020 Serie A?,Parma.<|eot_id|>,Parma,Sampdoria,False
+Which team finished in position 16 in the 2019-2020 Serie A?,Lazio.<|eot_id|>,Lazio,Torino,False
+Which team finished in position 17 in the 2019-2020 Serie A?,Lecce.<|eot_id|>,Lecce,Genoa,False
+Which team finished in position 18 in the 2019-2020 Serie A?,Lecce.<|eot_id|>,Lecce,Lecce,True
+Which team finished in position 19 in the 2019-2020 Serie A?,Lecce.<|eot_id|>,Lecce,Brescia,False
+Which team finished in position 20 in the 2019-2020 Serie A?,Brescia.<|eot_id|>,Brescia,SPAL,False
+Which team finished in position 1 in the 2020-2021 Serie A?,Inter Milan.<|eot_id|>,Inter Milan,Inter,True
+Which team finished in position 2 in the 2020-2021 Serie A?,Milan.<|eot_id|>,Milan,Milan,True
+Which team finished in position 3 in the 2020-2021 Serie A?,Inter Milan.<|eot_id|>,Inter Milan,Atalanta,False
+Which team finished in position 4 in the 2020-2021 Serie A?,Atalanta.<|eot_id|>,Atalanta,Juventus,False
+Which team finished in position 5 in the 2020-2021 Serie A?,Napoli.<|eot_id|>,Napoli,Napoli,True
+Which team finished in position 6 in the 2020-2021 Serie A?,Napoli.<|eot_id|>,Napoli,Lazio,False
+Which team finished in position 7 in the 2020-2021 Serie A?,Atalanta.<|eot_id|>,Atalanta,Roma,False
+Which team finished in position 8 in the 2020-2021 Serie A?,Napoli.<|eot_id|>,Napoli,Sassuolo,False
+Which team finished in position 9 in the 2020-2021 Serie A?,Atalanta.<|eot_id|>,Atalanta,Sampdoria,False
+Which team finished in position 10 in the 2020-2021 Serie A?,Napoli.<|eot_id|>,Napoli,Hellas Verona,False
+Which team finished in position 11 in the 2020-2021 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Genoa,False
+Which team finished in position 12 in the 2020-2021 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Bologna,False
+Which team finished in position 13 in the 2020-2021 Serie A?,Hellas Verona.<|eot_id|>,Hellas Verona,Fiorentina,False
+Which team finished in position 14 in the 2020-2021 Serie A?,Genoa.<|eot_id|>,Genoa,Udinese,False
+Which team finished in position 15 in the 2020-2021 Serie A?,Sassuolo.<|eot_id|>,Sassuolo,Spezia,False
+Which team finished in position 16 in the 2020-2021 Serie A?,Crotone.<|eot_id|>,Crotone,Cagliari,False
+Which team finished in position 17 in the 2020-2021 Serie A?,Crotone.<|eot_id|>,Crotone,Torino,False
+Which team finished in position 18 in the 2020-2021 Serie A?,Crotone.<|eot_id|>,Crotone,Benevento,False
+Which team finished in position 19 in the 2020-2021 Serie A?,Benevento.<|eot_id|>,Benevento,Crotone,False
+Which team finished in position 20 in the 2020-2021 Serie A?,Crotone.<|eot_id|>,Crotone,Parma,False
+Which team finished in position 1 in the 2010-2011 La Liga?,Barcelona.<|eot_id|>,Barcelona,Barcelona,True
+Which team finished in position 2 in the 2010-2011 La Liga?,Barcelona.<|eot_id|>,Barcelona,Real Madrid,False
+Which team finished in position 3 in the 2010-2011 La Liga?,Barcelona.<|eot_id|>,Barcelona,Valencia,False
+Which team finished in position 4 in the 2010-2011 La Liga?,Villarreal.<|eot_id|>,Villarreal,Villarreal,True
+Which team finished in position 5 in the 2010-2011 La Liga?,Villarreal.<|eot_id|>,Villarreal,Sevilla,False
+Which team finished in position 6 in the 2010-2011 La Liga?,Villarreal.<|eot_id|>,Villarreal,Athletic Club,False
+Which team finished in position 7 in the 2010-2011 La Liga?,Villarreal.<|eot_id|>,Villarreal,Atlético Madrid,False
+Which team finished in position 8 in the 2010-2011 La Liga?,Villarreal.<|eot_id|>,Villarreal,Espanyol,False
+Which team finished in position 9 in the 2010-2011 La Liga?,Villarreal.<|eot_id|>,Villarreal,Osasuna,False
+Which team finished in position 10 in the 2010-2011 La Liga?,Villarreal.<|eot_id|>,Villarreal,Sporting Gijón,False
+Which team finished in position 11 in the 2010-2011 La Liga?,Villarreal.<|eot_id|>,Villarreal,Málaga,False
+Which team finished in position 12 in the 2010-2011 La Liga?,Villarreal.<|eot_id|>,Villarreal,Racing Sant,False
+Which team finished in position 13 in the 2010-2011 La Liga?,Villarreal.<|eot_id|>,Villarreal,Zaragoza,False
+Which team finished in position 14 in the 2010-2011 La Liga?,Villarreal.<|eot_id|>,Villarreal,Levante,False
+Which team finished in position 15 in the 2010-2011 La Liga?,Villarreal.<|eot_id|>,Villarreal,Real Sociedad,False
+Which team finished in position 16 in the 2010-2011 La Liga?,Deportivo La Coruña.<|eot_id|>,Deportivo La Coruña,Getafe,False
+Which team finished in position 17 in the 2010-2011 La Liga?,Deportivo La Coruña.<|eot_id|>,Deportivo La Coruña,Mallorca,False
+Which team finished in position 18 in the 2010-2011 La Liga?,Deportivo La Coruña.<|eot_id|>,Deportivo La Coruña,La Coruña,True
+Which team finished in position 19 in the 2010-2011 La Liga?,Deportivo La Coruña.<|eot_id|>,Deportivo La Coruña,Hércules,False
+Which team finished in position 20 in the 2010-2011 La Liga?,Huesca.<|eot_id|>,Huesca,Almería,False
+Which team finished in position 1 in the 2011-2012 La Liga?,Barcelona.<|eot_id|>,Barcelona,Real Madrid,False
+Which team finished in position 2 in the 2011-2012 La Liga?,Barcelona.<|eot_id|>,Barcelona,Barcelona,True
+Which team finished in position 3 in the 2011-2012 La Liga?,Barcelona.<|eot_id|>,Barcelona,Valencia,False
+Which team finished in position 4 in the 2011-2012 La Liga?,Barcelona.<|eot_id|>,Barcelona,Málaga,False
+Which team finished in position 5 in the 2011-2012 La Liga?,Valencia.<|eot_id|>,Valencia,Atlético Madrid,False
+Which team finished in position 6 in the 2011-2012 La Liga?,Valencia.<|eot_id|>,Valencia,Levante,False
+Which team finished in position 7 in the 2011-2012 La Liga?,Valencia.<|eot_id|>,Valencia,Osasuna,False
+Which team finished in position 8 in the 2011-2012 La Liga?,Valencia.<|eot_id|>,Valencia,Mallorca,False
+Which team finished in position 9 in the 2011-2012 La Liga?,Villarreal.<|eot_id|>,Villarreal,Sevilla,False
+Which team finished in position 10 in the 2011-2012 La Liga?,Valencia.<|eot_id|>,Valencia,Athletic Club,False
+Which team finished in position 11 in the 2011-2012 La Liga?,Valencia.<|eot_id|>,Valencia,Getafe,False
+Which team finished in position 12 in the 2011-2012 La Liga?,Athletic Bilbao.<|eot_id|>,Athletic Bilbao,Real Sociedad,False
+Which team finished in position 13 in the 2011-2012 La Liga?,Athletic Bilbao.<|eot_id|>,Athletic Bilbao,Betis,False
+Which team finished in position 14 in the 2011-2012 La Liga?,Athletic Bilbao.<|eot_id|>,Athletic Bilbao,Espanyol,False
+Which team finished in position 15 in the 2011-2012 La Liga?,Athletic Bilbao.<|eot_id|>,Athletic Bilbao,Rayo Vallecano,False
+Which team finished in position 16 in the 2011-2012 La Liga?,Racing Santander.<|eot_id|>,Racing Santander,Zaragoza,False
+Which team finished in position 17 in the 2011-2012 La Liga?,Racing Santander.<|eot_id|>,Racing Santander,Granada,False
+Which team finished in position 18 in the 2011-2012 La Liga?,Racing Santander.<|eot_id|>,Racing Santander,Villarreal,False
+Which team finished in position 19 in the 2011-2012 La Liga?,Racing Santander.<|eot_id|>,Racing Santander,Sporting Gijón,False
+Which team finished in position 20 in the 2011-2012 La Liga?,Real Zaragoza.<|eot_id|>,Real Zaragoza,Racing Sant,False
+Which team finished in position 1 in the 2012-2013 La Liga?,Barcelona.<|eot_id|>,Barcelona,Barcelona,True
+Which team finished in position 2 in the 2012-2013 La Liga?,Barcelona.<|eot_id|>,Barcelona,Real Madrid,False
+Which team finished in position 3 in the 2012-2013 La Liga?,Barcelona.<|eot_id|>,Barcelona,Atlético Madrid,False
+Which team finished in position 4 in the 2012-2013 La Liga?,Barcelona.<|eot_id|>,Barcelona,Real Sociedad,False
+Which team finished in position 5 in the 2012-2013 La Liga?,Barcelona.<|eot_id|>,Barcelona,Valencia,False
+Which team finished in position 6 in the 2012-2013 La Liga?,Valencia.<|eot_id|>,Valencia,Málaga,False
+Which team finished in position 7 in the 2012-2013 La Liga?,Valencia.<|eot_id|>,Valencia,Betis,False
+Which team finished in position 8 in the 2012-2013 La Liga?,Valencia.<|eot_id|>,Valencia,Rayo Vallecano,False
+Which team finished in position 9 in the 2012-2013 La Liga?,Valencia.<|eot_id|>,Valencia,Sevilla,False
+Which team finished in position 10 in the 2012-2013 La Liga?,Valencia.<|eot_id|>,Valencia,Getafe,False
+Which team finished in position 11 in the 2012-2013 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Levante,False
+Which team finished in position 12 in the 2012-2013 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Athletic Club,False
+Which team finished in position 13 in the 2012-2013 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Espanyol,False
+Which team finished in position 14 in the 2012-2013 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Valladolid,False
+Which team finished in position 15 in the 2012-2013 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Granada,False
+Which team finished in position 16 in the 2012-2013 La Liga?,Deportivo La Coruña.<|eot_id|>,Deportivo La Coruña,Osasuna,False
+Which team finished in position 17 in the 2012-2013 La Liga?,Deportivo La Coruña.<|eot_id|>,Deportivo La Coruña,Celta Vigo,False
+Which team finished in position 18 in the 2012-2013 La Liga?,Deportivo La Coruña.<|eot_id|>,Deportivo La Coruña,Mallorca,False
+Which team finished in position 19 in the 2012-2013 La Liga?,Deportivo La Coruña.<|eot_id|>,Deportivo La Coruña,La Coruña,True
+Which team finished in position 20 in the 2012-2013 La Liga?,Deportivo La Coruña.<|eot_id|>,Deportivo La Coruña,Zaragoza,False
+Which team finished in position 1 in the 2013-2014 La Liga?,Barcelona.<|eot_id|>,Barcelona,Atlético Madrid,False
+Which team finished in position 2 in the 2013-2014 La Liga?,Barcelona.<|eot_id|>,Barcelona,Barcelona,True
+Which team finished in position 3 in the 2013-2014 La Liga?,Barcelona.<|eot_id|>,Barcelona,Real Madrid,False
+Which team finished in position 4 in the 2013-2014 La Liga?,Barcelona.<|eot_id|>,Barcelona,Athletic Club,False
+Which team finished in position 5 in the 2013-2014 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Sevilla,False
+Which team finished in position 6 in the 2013-2014 La Liga?,Atlético Madrid.<|eot_id|>,Atlético Madrid,Villarreal,False
+Which team finished in position 7 in the 2013-2014 La Liga?,Villarreal.<|eot_id|>,Villarreal,Real Sociedad,False
+Which team finished in position 8 in the 2013-2014 La Liga?,Villarreal.<|eot_id|>,Villarreal,Valencia,False
+Which team finished in position 9 in the 2013-2014 La Liga?,Villarreal.<|eot_id|>,Villarreal,Celta Vigo,False
+Which team finished in position 10 in the 2013-2014 La Liga?,Villarreal.<|eot_id|>,Villarreal,Levante,False
+Which team finished in position 11 in the 2013-2014 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Málaga,False
+Which team finished in position 12 in the 2013-2014 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Rayo Vallecano,False
+Which team finished in position 13 in the 2013-2014 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Getafe,False
+Which team finished in position 14 in the 2013-2014 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Espanyol,False
+Which team finished in position 15 in the 2013-2014 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Granada,False
+Which team finished in position 16 in the 2013-2014 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Elche,False
+Which team finished in position 17 in the 2013-2014 La Liga?,Real Betis.<|eot_id|>,Real Betis,Almería,False
+Which team finished in position 18 in the 2013-2014 La Liga?,Real Betis.<|eot_id|>,Real Betis,Osasuna,False
+Which team finished in position 19 in the 2013-2014 La Liga?,Deportivo La Coruña.<|eot_id|>,Deportivo La Coruña,Valladolid,False
+Which team finished in position 20 in the 2013-2014 La Liga?,Deportivo La Coruña.<|eot_id|>,Deportivo La Coruña,Betis,False
+Which team finished in position 1 in the 2014-2015 La Liga?,Barcelona.<|eot_id|>,Barcelona,Barcelona,True
+Which team finished in position 2 in the 2014-2015 La Liga?,Barcelona.<|eot_id|>,Barcelona,Real Madrid,False
+Which team finished in position 3 in the 2014-2015 La Liga?,Barcelona.<|eot_id|>,Barcelona,Atlético Madrid,False
+Which team finished in position 4 in the 2014-2015 La Liga?,Atlético Madrid.<|eot_id|>,Atlético Madrid,Valencia,False
+Which team finished in position 5 in the 2014-2015 La Liga?,Atlético Madrid.<|eot_id|>,Atlético Madrid,Sevilla,False
+Which team finished in position 6 in the 2014-2015 La Liga?,Atlético Madrid.<|eot_id|>,Atlético Madrid,Villarreal,False
+Which team finished in position 7 in the 2014-2015 La Liga?,Villarreal.<|eot_id|>,Villarreal,Athletic Club,False
+Which team finished in position 8 in the 2014-2015 La Liga?,Villarreal.<|eot_id|>,Villarreal,Celta Vigo,False
+Which team finished in position 9 in the 2014-2015 La Liga?,Villarreal.<|eot_id|>,Villarreal,Málaga,False
+Which team finished in position 10 in the 2014-2015 La Liga?,Villarreal.<|eot_id|>,Villarreal,Espanyol,False
+Which team finished in position 11 in the 2014-2015 La Liga?,Villarreal.<|eot_id|>,Villarreal,Rayo Vallecano,False
+Which team finished in position 12 in the 2014-2015 La Liga?,Villarreal.<|eot_id|>,Villarreal,Real Sociedad,False
+Which team finished in position 13 in the 2014-2015 La Liga?,Villarreal.<|eot_id|>,Villarreal,Elche,False
+Which team finished in position 14 in the 2014-2015 La Liga?,Espanyol.<|eot_id|>,Espanyol,Levante,False
+Which team finished in position 15 in the 2014-2015 La Liga?,Eibar.<|eot_id|>,Eibar,Getafe,False
+Which team finished in position 16 in the 2014-2015 La Liga?,Eibar.<|eot_id|>,Eibar,La Coruña,False
+Which team finished in position 17 in the 2014-2015 La Liga?,Eibar.<|eot_id|>,Eibar,Granada,False
+Which team finished in position 18 in the 2014-2015 La Liga?,Elche.<|eot_id|>,Elche,Eibar,False
+Which team finished in position 19 in the 2014-2015 La Liga?,Deportivo La Coruña.<|eot_id|>,Deportivo La Coruña,Almería,False
+Which team finished in position 20 in the 2014-2015 La Liga?,Deportivo La Coruña.<|eot_id|>,Deportivo La Coruña,Córdoba,False
+Which team finished in position 1 in the 2015-2016 La Liga?,Barcelona.<|eot_id|>,Barcelona,Barcelona,True
+Which team finished in position 2 in the 2015-2016 La Liga?,Barcelona.<|eot_id|>,Barcelona,Real Madrid,False
+Which team finished in position 3 in the 2015-2016 La Liga?,Barcelona.<|eot_id|>,Barcelona,Atlético Madrid,False
+Which team finished in position 4 in the 2015-2016 La Liga?,Barcelona.<|eot_id|>,Barcelona,Villarreal,False
+Which team finished in position 5 in the 2015-2016 La Liga?,Barcelona.<|eot_id|>,Barcelona,Athletic Club,False
+Which team finished in position 6 in the 2015-2016 La Liga?,Villarreal.<|eot_id|>,Villarreal,Celta Vigo,False
+Which team finished in position 7 in the 2015-2016 La Liga?,Villarreal.<|eot_id|>,Villarreal,Sevilla,False
+Which team finished in position 8 in the 2015-2016 La Liga?,Villarreal.<|eot_id|>,Villarreal,Málaga,False
+Which team finished in position 9 in the 2015-2016 La Liga?,Villarreal.<|eot_id|>,Villarreal,Real Sociedad,False
+Which team finished in position 10 in the 2015-2016 La Liga?,Celta Vigo.<|eot_id|>,Celta Vigo,Betis,False
+Which team finished in position 11 in the 2015-2016 La Liga?,Celta Vigo.<|eot_id|>,Celta Vigo,Las Palmas,False
+Which team finished in position 12 in the 2015-2016 La Liga?,Espanyol.<|eot_id|>,Espanyol,Valencia,False
+Which team finished in position 13 in the 2015-2016 La Liga?,Celta Vigo.<|eot_id|>,Celta Vigo,Espanyol,False
+Which team finished in position 14 in the 2015-2016 La Liga?,Espanyol.<|eot_id|>,Espanyol,Eibar,False
+Which team finished in position 15 in the 2015-2016 La Liga?,Eibar.<|eot_id|>,Eibar,La Coruña,False
+Which team finished in position 16 in the 2015-2016 La Liga?,Espanyol.<|eot_id|>,Espanyol,Granada,False
+Which team finished in position 17 in the 2015-2016 La Liga?,Eibar.<|eot_id|>,Eibar,Sporting Gijón,False
+Which team finished in position 18 in the 2015-2016 La Liga?,Deportivo La Coruña.<|eot_id|>,Deportivo La Coruña,Rayo Vallecano,False
+Which team finished in position 19 in the 2015-2016 La Liga?,Deportivo La Coruña.<|eot_id|>,Deportivo La Coruña,Getafe,False
+Which team finished in position 20 in the 2015-2016 La Liga?,Deportivo La Coruña.<|eot_id|>,Deportivo La Coruña,Levante,False
+Which team finished in position 1 in the 2016-2017 La Liga?,Barcelona.<|eot_id|>,Barcelona,Real Madrid,False
+Which team finished in position 2 in the 2016-2017 La Liga?,Barcelona.<|eot_id|>,Barcelona,Barcelona,True
+Which team finished in position 3 in the 2016-2017 La Liga?,Atlético Madrid.<|eot_id|>,Atlético Madrid,Atlético Madrid,True
+Which team finished in position 4 in the 2016-2017 La Liga?,Barcelona.<|eot_id|>,Barcelona,Sevilla,False
+Which team finished in position 5 in the 2016-2017 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Villarreal,False
+Which team finished in position 6 in the 2016-2017 La Liga?,Sevilla.<|eot_id|>,Sevilla,Real Sociedad,False
+Which team finished in position 7 in the 2016-2017 La Liga?,Atlético Madrid.<|eot_id|>,Atlético Madrid,Athletic Club,False
+Which team finished in position 8 in the 2016-2017 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Espanyol,False
+Which team finished in position 9 in the 2016-2017 La Liga?,Celta Vigo.<|eot_id|>,Celta Vigo,Alavés,False
+Which team finished in position 10 in the 2016-2017 La Liga?,Celta Vigo.<|eot_id|>,Celta Vigo,Eibar,False
+Which team finished in position 11 in the 2016-2017 La Liga?,Celta Vigo.<|eot_id|>,Celta Vigo,Málaga,False
+Which team finished in position 12 in the 2016-2017 La Liga?,Celta Vigo.<|eot_id|>,Celta Vigo,Valencia,False
+Which team finished in position 13 in the 2016-2017 La Liga?,Celta Vigo.<|eot_id|>,Celta Vigo,Celta Vigo,True
+Which team finished in position 14 in the 2016-2017 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Las Palmas,False
+Which team finished in position 15 in the 2016-2017 La Liga?,Eibar.<|eot_id|>,Eibar,Betis,False
+Which team finished in position 16 in the 2016-2017 La Liga?,Leganes.<|eot_id|>,Leganes,La Coruña,False
+Which team finished in position 17 in the 2016-2017 La Liga?,Leganes.<|eot_id|>,Leganes,Leganés,True
+Which team finished in position 18 in the 2016-2017 La Liga?,Leganes.<|eot_id|>,Leganes,Sporting Gijón,False
+Which team finished in position 19 in the 2016-2017 La Liga?,Deportivo La Coruña.<|eot_id|>,Deportivo La Coruña,Osasuna,False
+Which team finished in position 20 in the 2016-2017 La Liga?,Osasuna.<|eot_id|>,Osasuna,Granada,False
+Which team finished in position 1 in the 2017-2018 La Liga?,Barcelona.<|eot_id|>,Barcelona,Barcelona,True
+Which team finished in position 2 in the 2017-2018 La Liga?,Barcelona.<|eot_id|>,Barcelona,Atlético Madrid,False
+Which team finished in position 3 in the 2017-2018 La Liga?,Real Madrid.<|eot_id|>,Real Madrid,Real Madrid,True
+Which team finished in position 4 in the 2017-2018 La Liga?,Real Madrid.<|eot_id|>,Real Madrid,Valencia,False
+Which team finished in position 5 in the 2017-2018 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Villarreal,False
+Which team finished in position 6 in the 2017-2018 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Betis,False
+Which team finished in position 7 in the 2017-2018 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Sevilla,False
+Which team finished in position 8 in the 2017-2018 La Liga?,Valencia.<|eot_id|>,Valencia,Getafe,False
+Which team finished in position 9 in the 2017-2018 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Eibar,False
+Which team finished in position 10 in the 2017-2018 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Girona,False
+Which team finished in position 11 in the 2017-2018 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Espanyol,False
+Which team finished in position 12 in the 2017-2018 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Real Sociedad,True
+Which team finished in position 13 in the 2017-2018 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Celta Vigo,False
+Which team finished in position 14 in the 2017-2018 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Alavés,False
+Which team finished in position 15 in the 2017-2018 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Levante,False
+Which team finished in position 16 in the 2017-2018 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Athletic Club,False
+Which team finished in position 17 in the 2017-2018 La Liga?,Leganes.<|eot_id|>,Leganes,Leganés,True
+Which team finished in position 18 in the 2017-2018 La Liga?,Deportivo La Coruña.<|eot_id|>,Deportivo La Coruña,La Coruña,True
+Which team finished in position 19 in the 2017-2018 La Liga?,Deportivo La Coruña.<|eot_id|>,Deportivo La Coruña,Las Palmas,False
+Which team finished in position 20 in the 2017-2018 La Liga?,Leganes.<|eot_id|>,Leganes,Málaga,False
+Which team finished in position 1 in the 2018-2019 La Liga?,Barcelona.<|eot_id|>,Barcelona,Barcelona,True
+Which team finished in position 2 in the 2018-2019 La Liga?,Barcelona.<|eot_id|>,Barcelona,Atlético Madrid,False
+Which team finished in position 3 in the 2018-2019 La Liga?,Barcelona.<|eot_id|>,Barcelona,Real Madrid,False
+Which team finished in position 4 in the 2018-2019 La Liga?,Barcelona.<|eot_id|>,Barcelona,Valencia,False
+Which team finished in position 5 in the 2018-2019 La Liga?,Barcelona.<|eot_id|>,Barcelona,Getafe,False
+Which team finished in position 6 in the 2018-2019 La Liga?,Valencia.<|eot_id|>,Valencia,Sevilla,False
+Which team finished in position 7 in the 2018-2019 La Liga?,Valencia.<|eot_id|>,Valencia,Espanyol,False
+Which team finished in position 8 in the 2018-2019 La Liga?,Valencia.<|eot_id|>,Valencia,Athletic Club,False
+Which team finished in position 9 in the 2018-2019 La Liga?,Valencia.<|eot_id|>,Valencia,Real Sociedad,False
+Which team finished in position 10 in the 2018-2019 La Liga?,Valencia.<|eot_id|>,Valencia,Betis,False
+Which team finished in position 11 in the 2018-2019 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Alavés,False
+Which team finished in position 12 in the 2018-2019 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Eibar,False
+Which team finished in position 13 in the 2018-2019 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Leganés,False
+Which team finished in position 14 in the 2018-2019 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Villarreal,False
+Which team finished in position 15 in the 2018-2019 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Levante,False
+Which team finished in position 16 in the 2018-2019 La Liga?,Eibar.<|eot_id|>,Eibar,Valladolid,False
+Which team finished in position 17 in the 2018-2019 La Liga?,Eibar.<|eot_id|>,Eibar,Celta Vigo,False
+Which team finished in position 18 in the 2018-2019 La Liga?,Villarreal.<|eot_id|>,Villarreal,Girona,False
+Which team finished in position 19 in the 2018-2019 La Liga?,Valladolid.<|eot_id|>,Valladolid,Huesca,False
+Which team finished in position 20 in the 2018-2019 La Liga?,Leganes.<|eot_id|>,Leganes,Rayo Vallecano,False
+Which team finished in position 1 in the 2019-2020 La Liga?,Barcelona.<|eot_id|>,Barcelona,Real Madrid,False
+Which team finished in position 2 in the 2019-2020 La Liga?,Barcelona.<|eot_id|>,Barcelona,Barcelona,True
+Which team finished in position 3 in the 2019-2020 La Liga?,Real Madrid.<|eot_id|>,Real Madrid,Atlético Madrid,False
+Which team finished in position 4 in the 2019-2020 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Sevilla,False
+Which team finished in position 5 in the 2019-2020 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Villarreal,False
+Which team finished in position 6 in the 2019-2020 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Real Sociedad,True
+Which team finished in position 7 in the 2019-2020 La Liga?,Sevilla.<|eot_id|>,Sevilla,Granada,False
+Which team finished in position 8 in the 2019-2020 La Liga?,Sevilla.<|eot_id|>,Sevilla,Getafe,False
+Which team finished in position 9 in the 2019-2020 La Liga?,Sevilla.<|eot_id|>,Sevilla,Valencia,False
+Which team finished in position 10 in the 2019-2020 La Liga?,Villarreal.<|eot_id|>,Villarreal,Osasuna,False
+Which team finished in position 11 in the 2019-2020 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Athletic Club,False
+Which team finished in position 12 in the 2019-2020 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Levante,False
+Which team finished in position 13 in the 2019-2020 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Valladolid,False
+Which team finished in position 14 in the 2019-2020 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Eibar,False
+Which team finished in position 15 in the 2019-2020 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Betis,False
+Which team finished in position 16 in the 2019-2020 La Liga?,Eibar.<|eot_id|>,Eibar,Alavés,False
+Which team finished in position 17 in the 2019-2020 La Liga?,Eibar.<|eot_id|>,Eibar,Celta Vigo,False
+Which team finished in position 18 in the 2019-2020 La Liga?,Eibar.<|eot_id|>,Eibar,Leganés,False
+Which team finished in position 19 in the 2019-2020 La Liga?,Eibar.<|eot_id|>,Eibar,Mallorca,False
+Which team finished in position 20 in the 2019-2020 La Liga?,Espanyol.<|eot_id|>,Espanyol,Espanyol,True
+Which team finished in position 1 in the 2020-2021 La Liga?,Atlético Madrid.<|eot_id|>,Atlético Madrid,Atlético Madrid,True
+Which team finished in position 2 in the 2020-2021 La Liga?,Barcelona.<|eot_id|>,Barcelona,Real Madrid,False
+Which team finished in position 3 in the 2020-2021 La Liga?,Real Madrid.<|eot_id|>,Real Madrid,Barcelona,False
+Which team finished in position 4 in the 2020-2021 La Liga?,Barcelona.<|eot_id|>,Barcelona,Sevilla,False
+Which team finished in position 5 in the 2020-2021 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Real Sociedad,True
+Which team finished in position 6 in the 2020-2021 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Betis,False
+Which team finished in position 7 in the 2020-2021 La Liga?,Villarreal.<|eot_id|>,Villarreal,Villarreal,True
+Which team finished in position 8 in the 2020-2021 La Liga?,Villarreal.<|eot_id|>,Villarreal,Celta Vigo,False
+Which team finished in position 9 in the 2020-2021 La Liga?,Villarreal.<|eot_id|>,Villarreal,Granada,False
+Which team finished in position 10 in the 2020-2021 La Liga?,Villarreal.<|eot_id|>,Villarreal,Athletic Club,False
+Which team finished in position 11 in the 2020-2021 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Osasuna,False
+Which team finished in position 12 in the 2020-2021 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Cádiz,False
+Which team finished in position 13 in the 2020-2021 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Valencia,False
+Which team finished in position 14 in the 2020-2021 La Liga?,Real Sociedad.<|eot_id|>,Real Sociedad,Levante,False
+Which team finished in position 15 in the 2020-2021 La Liga?,Celta Vigo.<|eot_id|>,Celta Vigo,Getafe,False
+Which team finished in position 16 in the 2020-2021 La Liga?,Eibar.<|eot_id|>,Eibar,Alavés,False
+Which team finished in position 17 in the 2020-2021 La Liga?,Eibar.<|eot_id|>,Eibar,Elche,False
+Which team finished in position 18 in the 2020-2021 La Liga?,Eibar.<|eot_id|>,Eibar,Huesca,False
+Which team finished in position 19 in the 2020-2021 La Liga?,Valladolid.<|eot_id|>,Valladolid,Valladolid,True
+Which team finished in position 20 in the 2020-2021 La Liga?,Eibar.<|eot_id|>,Eibar,Eibar,True
