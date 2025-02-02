@@ -2,6 +2,7 @@ evaluations/
 generations/
 experiment_results/
 activations/
+datasets/
 
 # Custom datasets
 !./datasets/raw/birth_years_4k/

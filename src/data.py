@@ -15,7 +15,7 @@ def format_multi_prompt(
     answers,
     sys_prompt: str,
     choices=["A", "B", "C", "D"],
-    generation_delimiter: Optional[str] = "Answer:",
+    generation_delimiter="Answer:",
 ) -> str:
     formatted_question = f"{question}\n" + "\n".join(
         [f"{choice}. {answer}" for choice, answer in zip(choices, answers)]
@@ -26,7 +26,9 @@ def format_multi_prompt(
 
 
 def format_open_prompt(
-    question, sys_prompt: str, generation_delimiter: Optional[str] = "Answer:"
+    question,
+    sys_prompt: str,
+    generation_delimiter="Answer:",
 ) -> str:
     formatted_question = f"{question}"
     if generation_delimiter:
@@ -38,7 +40,7 @@ def format_mmlu(
     path: str,
     sys_prompt: str,
     answer_map: list[str],
-    generation_delimiter: Optional[str] = False,
+    generation_delimiter="Answer:",
 ) -> pd.DataFrame:
     dataset_df = pd.read_parquet(path)
     prompts = dataset_df.apply(
@@ -65,7 +67,7 @@ def format_gsm8k(
     path: str,
     sys_prompt: str,
     cot_answer_delim="####",
-    generation_delimiter: Optional[str] = False,
+    generation_delimiter="Answer:",
 ) -> pd.DataFrame:
     dataset_df = pd.read_parquet(path)
     prompts = dataset_df.apply(
@@ -92,7 +94,7 @@ def format_generic(
     path: str,
     sys_prompt: str,
     col_names: dict[str, str],
-    generation_delimiter: Optional[str] = False,
+    generation_delimiter="Answer:",
     format: Literal["parquet", "csv"] = "parquet",
 ) -> pd.DataFrame:
     if format == "parquet":

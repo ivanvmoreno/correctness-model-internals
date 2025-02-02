@@ -112,7 +112,7 @@ def generate_answers(
                     )
                     generations_data = []
                     for statement in tqdm(chunk):
-                        if dataset_name == "mmlu":
+                        if dataset_conf.answer_type == "multiple_choice":
                             const_answer, _ = generate_const(
                                 tokenizer, model, statement, choices_ids
                             )
@@ -123,7 +123,7 @@ def generate_answers(
                                 }
                             )
 
-                        elif dataset_name == "gsm8k":
+                        elif dataset_conf.answer_type == "open_ended":
                             generation = generate_unconst(
                                 tokenizer,
                                 model,
@@ -136,6 +136,11 @@ def generate_answers(
                                     "prompt": statement,
                                     "answer": generation,
                                 }
+                            )
+
+                        else:
+                            raise ValueError(
+                                f"Answer type {dataset_conf.answer_type} not supported"
                             )
 
                     generations_df = pd.DataFrame(generations_data)

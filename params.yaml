@@ -12,6 +12,7 @@ datasets:
   mmlu:
     answer_type: multiple_choice
     answer_map: [A, B, C, D]
+    eval_type: constrained_tokens
     subsets:
       - high_school_mathematics
       - college_mathematics
@@ -161,19 +162,21 @@ datasets:
 models:
   llama3_8b_chat:
     dir_path: llama3_8b_chat_hf
+    eos_token: <\|eot_id\|>
   llama3_8b_cot:
     dir_path: llama3_8b_cot_numina_hf
+    eos_token: <\|eot_id\|>
   llama3_3b_chat:
     dir_path: llama3_3b_chat_hf
 
 format_datasets:
   raw_dir_path: raw
   formatted_dir_path: formatted
-  generation_delimiter: false  # e.g., "Answer:"
+  generation_delimiter: "Answer:" # {str (e.g., "Answer:"), false}
 
 generate_answers:
   model: llama3_3b_chat
-  max_dataset_size: 10
+  max_dataset_size: false # false or integer
   sample_strategy: first_n # {first_n, random}
   max_new_tokens: 1024
   stop_word: "}$"

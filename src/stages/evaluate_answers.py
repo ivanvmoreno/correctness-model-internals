@@ -96,7 +96,7 @@ def evaluate_answers(
                             f"Loading ground truth from {ground_truth_full}"
                         )
                         ground_truth_df = pd.read_csv(ground_truth_full)
-                if dataset_name == "mmlu":
+                if dataset_conf.eval_type == "constrained_tokens":
                     # Convert from string label to index
                     y_true = ground_truth_df["answer"].apply(label_to_index)
                     y_pred = generations_df["answer"].apply(label_to_index)
@@ -106,7 +106,7 @@ def evaluate_answers(
                         metric: EVAL_METRICS[metric](y_true, y_pred)
                         for metric in EVAL_METRICS
                     }
-                elif dataset_name == "gsm8k":
+                elif dataset_conf.eval_type == "regex_match":
                     # Extract answers from open-ended generations
                     y_true = ground_truth_df["answer"].astype(str)
                     y_pred = generations_df["answer"].apply(
@@ -117,6 +117,28 @@ def evaluate_answers(
                     metrics = {
                         "accuracy": y_correct.mean(),
                     }
+                elif dataset_conf.eval_type == "answers_map":
+                    # TODO: make this more generic
+                    answers_map = json.loads(dataset_conf.answers_map_path)
+                    y_true = ground_truth_df["answer"]
+                    y_pred = generations_df["answer"]
+                    y_correct = pd.Series(
+                        [
+                            x in answers_map[y_true[i]]
+                            for i, x in zip(y_pred.index, y_pred)
+                        ]
+                    ).astype(int)
+                    metrics = {
+                        "accuracy": y_correct.mean(),
+                    }
+                elif dataset_conf.eval_type == "exact_match":
+                    y_true = ground_truth_df["answer"].astype(str)
+                    y_pred = generations_df["answer"].astype(str)
+                    y_correct = y_true == y_pred
+                    metrics = {
+                        "accuracy": y_correct.mean(),
+                    }
+
                 evaluations_path = os.path.join(
                     config.base.evaluations_dir,
                     model,
