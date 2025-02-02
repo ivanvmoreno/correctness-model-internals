@@ -18,6 +18,81 @@ datasets:
       - abstract_algebra
     prompts:
       base: The following is a multiple choice question (with answers). Give your answer with a single letter corresponding to the correct answer.
+  cities_10k:
+    answer_type: open_ended
+    subsets:
+      - main
+    prompts:
+      base: |-
+        I am going to ask you a question about cities. End your sentence with <|eot_id|>.
+        Here are some examples of questions that might help you:
+        ---
+        Question: In which country is the city of Barcelona located?
+        Answer: Spain<|eot_id|>
+        ---
+        Question: In which country is the city of Berlin located?
+        Answer: Germany<|eot_id|>
+        ---
+        Question: In which country is the city of Beijing located?
+        Answer: China<|eot_id|>
+        ---
+        Question:
+  birth_years_4k:
+    answer_type: open_ended
+    subsets:
+      - main
+    prompts:
+      base: |-
+        I am going to ask you what year a person was born. End your sentence with <|eot_id|>.
+        Here are some examples of questions that might help you:
+        ---
+        Question: What year was Barack Obama born? 
+        Answer: 1961<|eot_id|>
+        ---
+        Question: What year was Vladimir Putin born? 
+        Answer: 1952<|eot_id|>
+        ---
+        Question: What year was Xi Jinping born? 
+        Answer: 1953<|eot_id|>
+        ---
+        Question:
+  medals_9k:
+    answer_type: open_ended
+    subsets:
+      - main
+    prompts:
+      base: |-
+        I am going to ask you a question about the olympics. End your sentence with <|eot_id|>.
+        Here are some examples of questions that might help you:
+        ---
+        Question: Which country won gold in Gymnastics Women's Team All-Around in the 1928 Summer Olympics?
+        Answer: Netherlands<|eot_id|> 
+        ---
+        Question: Which country won gold in Hockey Women's Hockey in the 2004 Summer Olympics? Answer: Germany<|eot_id|> 
+        ---
+        Question: Which country won gold in Fencing Men's Sabre, Individual in the 1964 Summer Olympics?
+        Answer: Hungary<|eot_id|>
+        ---
+        Question:
+  football_leagues_1k:
+    answer_type: open_ended
+    subsets:
+      - main
+    prompts:
+      base: |-
+        I am going to ask you a question about football. End your sentence with <|eot_id|>.
+        Here are some examples of questions that might help you:
+        ---
+        Question: Which team finished in position 10 in the 2010-2011 Premier League?
+        Answer: Sunderland<|eot_id|> 
+        ---
+        Question: Which team finished in position 19 in the 2020-2021 La Liga?
+        Answer: Valladolid<|eot_id|> 
+        ---
+        Question: Which team finished in position 13 in the 2019-2020 Serie A?
+        Answer: Udinese<|eot_id|>
+        ---
+        Question:
   gsm8k:
     answer_type: open_ended
     answer_delim: "####"

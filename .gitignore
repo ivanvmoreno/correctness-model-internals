@@ -3,6 +3,12 @@ generations/
 experiment_results/
 activations/
 
+# Custom datasets
+!./datasets/raw/birth_years_4k/
+!./datasets/raw/cities_10k/
+!./datasets/raw/football_leagues_1k/
+!./datasets/raw/medals_9k/
+
 # activations
 **/acts/
 
