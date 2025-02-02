@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Literal
 
 import pandas as pd
 
@@ -22,7 +22,7 @@ def format_multi_prompt(
     )
     if generation_delimiter:
         formatted_question += f"\n{generation_delimiter}"
-    return f"{sys_prompt}\n{formatted_question}".strip()
+    return f"{sys_prompt.strip()} {formatted_question}".strip()
 
 
 def format_open_prompt(
@@ -31,7 +31,7 @@ def format_open_prompt(
     formatted_question = f"{question}"
     if generation_delimiter:
         formatted_question += f"\n{generation_delimiter}"
-    return f"{sys_prompt}\n{formatted_question}".strip()
+    return f"{sys_prompt.strip()} {formatted_question}".strip()
 
 
 def format_mmlu(
@@ -83,6 +83,41 @@ def format_gsm8k(
         {
             "prompt": prompts,
             "answer": dataset_df["parsed_answers"],
+        }
+    )
+    return formatted
+
+
+def format_generic(
+    path: str,
+    sys_prompt: str,
+    col_names: dict[str, str],
+    generation_delimiter: Optional[str] = False,
+    format: Literal["parquet", "csv"] = "parquet",
+) -> pd.DataFrame:
+    if format == "parquet":
+        dataset_df = pd.read_parquet(path)
+    elif format == "csv":
+        dataset_df = pd.read_csv(path)
+    else:
+        raise ValueError(
+            "Invalid dataset format specified. Must be 'parquet' or 'csv'"
+        )
+    dataset_df = dataset_df.rename(
+        columns={{v: k for k, v in col_names.items()}}
+    )
+    prompts = dataset_df.apply(
+        lambda row: format_open_prompt(
+            row["prompt"],
+            sys_prompt,
+            generation_delimiter=generation_delimiter,
+        ),
+        axis=1,
+    )
+    formatted = pd.DataFrame(
+        {
+            "prompt": prompts,
+            "answer": dataset_df["answer"],
         }
     )
     return formatted
