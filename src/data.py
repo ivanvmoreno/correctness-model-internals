@@ -107,7 +107,6 @@ def format_generic(
         )
     reversed_dict = {v: k for k, v in col_names.items()}
     dataset_df = dataset_df[reversed_dict.keys()].rename(columns=reversed_dict)
-    print("COLUMNS RENAMED", dataset_df.columns)
     prompts = dataset_df.apply(
         lambda row: format_open_prompt(
             row["prompt"],
