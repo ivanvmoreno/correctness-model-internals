@@ -95,7 +95,10 @@ class Hook:
         self.out = None
 
     def __call__(self, module, module_inputs, module_outputs):
-        self.out, _ = module_outputs
+       if isinstance(module_outputs, tuple):
+           self.out = module_outputs[0]
+       else:
+           self.out = module_outputs
 
 
 def get_acts(statements, tokenizer, model, layers, device="cuda:0"):
