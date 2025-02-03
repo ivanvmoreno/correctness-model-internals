@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 import torch
 from tqdm import tqdm
@@ -20,49 +20,74 @@ def load_model(
 
 
 def generate_const(
-    tokenizer, model, prompt: str, choices_ids
-) -> Tuple[str, str]:
-    input_ids = tokenizer.encode(prompt, return_tensors="pt").to(model.device)
+    tokenizer: AutoTokenizer,
+    model: AutoModelForCausalLM,
+    prompts: List[str],
+    choices_ids: List[int],
+) -> Tuple[List[str], List[str]]:
+    """Generate constrained answers for a batch of prompts (multiple-choice)."""
+    inputs = tokenizer(
+        prompts, return_tensors="pt", padding=True, truncation=True
+    ).to(model.device)
+    input_ids = inputs.input_ids
+    attention_mask = inputs.attention_mask
 
     with torch.no_grad():
-        outputs = model(input_ids)
+        outputs = model(input_ids, attention_mask=attention_mask)
         logits = outputs.logits
-        last_token_logits = logits[0, -1, :]  # Logits for the last token
-        masked_logits = last_token_logits.clone()
-        masked_logits[:] = float("-inf")
-        masked_logits[choices_ids] = last_token_logits[choices_ids]
-        top_const_token_id = torch.argmax(masked_logits).item()
-        top_unconst_token_id = torch.argmax(last_token_logits).item()
-        top_const_token = tokenizer.decode([top_const_token_id])
-        top_unconst_token = tokenizer.decode([top_unconst_token_id])
+        last_token_logits = logits[:, -1, :]  # (batch_size, vocab_size)
 
-    return top_const_token.strip(), top_unconst_token.strip()
+        masked_logits = torch.full_like(last_token_logits, float("-inf"))
+        masked_logits[:, choices_ids] = last_token_logits[:, choices_ids]
+        top_const_token_ids = torch.argmax(masked_logits, dim=-1)
+        top_unconst_token_ids = torch.argmax(last_token_logits, dim=-1)
+        top_const_tokens = tokenizer.batch_decode(
+            top_const_token_ids, skip_special_tokens=True
+        )
+        top_unconst_tokens = tokenizer.batch_decode(
+            top_unconst_token_ids, skip_special_tokens=True
+        )
+        top_const_tokens = [t.strip() for t in top_const_tokens]
+        top_unconst_tokens = [t.strip() for t in top_unconst_tokens]
 
-
-from typing import Optional
+    return top_const_tokens, top_unconst_tokens
 
 
 def generate_unconst(
-    tokenizer,
-    model,
-    prompt: str,
+    tokenizer: AutoTokenizer,
+    model: AutoModelForCausalLM,
+    prompts: List[str],
     max_new_tokens: int = 64,
     stop_word: Optional[str] = None,
-) -> str:
-    input_ids = tokenizer.encode(prompt, return_tensors="pt").to(model.device)
+) -> List[str]:
+    """Generate unconstrained answers for a batch of prompts (open-ended)."""
+    inputs = tokenizer(
+        prompts, return_tensors="pt", padding=True, truncation=True
+    ).to(model.device)
+    input_ids = inputs.input_ids
+    attention_mask = inputs.attention_mask
+
     generated_ids = model.generate(
         input_ids,
+        attention_mask=attention_mask,
         max_new_tokens=max_new_tokens,
         pad_token_id=tokenizer.eos_token_id,
     )
-    # Exclude prompt
-    new_tokens = generated_ids[0][input_ids.size(1) :]
-    new_text = tokenizer.decode(new_tokens, skip_special_tokens=True)
-    if stop_word is not None:
-        stop_index = new_text.find(stop_word)
-        if stop_index != -1:
-            new_text = new_text[: stop_index + len(stop_word)]
-    return new_text.strip()
+
+    new_texts = []
+    for i in range(len(generated_ids)):
+        input_len = attention_mask[i].sum().item()
+        new_tokens = generated_ids[i][input_len:]
+        new_text = tokenizer.decode(new_tokens, skip_special_tokens=True)
+
+        if stop_word is not None:
+            stop_index = new_text.find(stop_word)
+            if stop_index != -1:
+                new_text = new_text[: stop_index + len(stop_word)]
+
+        new_texts.append(new_text.strip())
+
+    return new_texts
 
 
 class Hook:

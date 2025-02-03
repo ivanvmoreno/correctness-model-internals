@@ -33,6 +33,8 @@ def generate_answers(
     tokenizer, model = load_model(
         config.base.models_dir, config.models[model_id].dir_path
     )
+    tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.padding_side = "left"  # decoder-only model
 
     for dataset_name, dataset_conf in config.datasets.items():
         if dataset_name == "mmlu":
@@ -73,6 +75,7 @@ def generate_answers(
                 statements = load_statements(
                     os.path.join(formatted_path, f"{subset}.csv")
                 )
+
                 if (
                     config.generate_answers.max_dataset_size
                     and config.generate_answers.max_dataset_size
@@ -101,50 +104,50 @@ def generate_answers(
                     pd.DataFrame(
                         statements, columns=["prompt", "answer"]
                     ).to_csv(sampled_file, index=False)
+
                 # We only need the prompts for generation
                 statements = [s[0] for s in statements]
-                for idx in range(
-                    0, len(statements), min(batch_size, len(statements))
-                ):
+                total_batches = (len(statements) + batch_size - 1) // batch_size
+                batch_iter = tqdm(
+                    range(0, len(statements), batch_size),
+                    desc=f"Processing {subset}",
+                    total=total_batches,
+                    unit="batch",
+                )
+
+                for idx in batch_iter:
                     chunk = statements[idx : idx + batch_size]
                     save_file = os.path.join(
                         save_dir, f"{subset}_generations_{idx}.csv"
                     )
                     generations_data = []
-                    for statement in tqdm(chunk):
-                        if dataset_conf.answer_type == "multiple_choice":
-                            const_answer, _ = generate_const(
-                                tokenizer, model, statement, choices_ids
-                            )
+
+                    if dataset_conf.answer_type == "multiple_choice":
+                        const_answers, _ = generate_const(
+                            tokenizer, model, chunk, choices_ids
+                        )
+                        for prompt, answer in zip(chunk, const_answers):
                             generations_data.append(
-                                {
-                                    "prompt": statement,
-                                    "answer": const_answer,
-                                }
+                                {"prompt": prompt, "answer": answer}
                             )
 
-                        elif dataset_conf.answer_type == "open_ended":
-                            generation = generate_unconst(
-                                tokenizer,
-                                model,
-                                statement,
-                                max_new_tokens=config.generate_answers.max_new_tokens,
-                                stop_word=config.generate_answers.stop_word,
-                            )
+                    elif dataset_conf.answer_type == "open_ended":
+                        generations = generate_unconst(
+                            tokenizer,
+                            model,
+                            chunk,
+                            max_new_tokens=config.generate_answers.max_new_tokens,
+                            stop_word=config.generate_answers.stop_word,
+                        )
+                        for prompt, gen in zip(chunk, generations):
                             generations_data.append(
-                                {
-                                    "prompt": statement,
-                                    "answer": generation,
-                                }
+                                {"prompt": prompt, "answer": gen}
                             )
 
-                        else:
-                            raise ValueError(
-                                f"Answer type {dataset_conf.answer_type} not supported"
-                            )
-
-                    generations_df = pd.DataFrame(generations_data)
-                    generations_df.to_csv(save_file, index=False)
+                    batch_iter.set_postfix_str(f"Saving {len(chunk)} samples")
+                    pd.DataFrame(generations_data).to_csv(
+                        save_file, index=False
+                    )
                     logger.info(f"Saved generation results to {save_file}")
 
                 logger.info(f"Joining all partial generation files")
