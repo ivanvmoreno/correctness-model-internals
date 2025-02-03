@@ -180,6 +180,7 @@ generate_answers:
   sample_strategy: first_n # {first_n, random}
   max_new_tokens: 1024
   stop_word: "}$"
+  batch_size: 25
 
 capture_activations:
   input_type: [prompt_only, prompt_answer] # {prompt_only, prompt_answer}
