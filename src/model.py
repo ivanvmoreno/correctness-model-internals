@@ -57,7 +57,7 @@ def generate_unconst(
     tokenizer: AutoTokenizer,
     model: AutoModelForCausalLM,
     prompts: List[str],
-    max_new_tokens: int = 64,
+    max_new_tokens: int = 1024,
     stop_word: Optional[str] = None,
 ) -> List[str]:
     """Generate unconstrained answers for a batch of prompts (open-ended)."""
@@ -76,7 +76,7 @@ def generate_unconst(
 
     new_texts = []
     for i in range(len(generated_ids)):
-        input_len = attention_mask[i].sum().item()
+        input_len = input_ids[i].shape[-1]
         new_tokens = generated_ids[i][input_len:]
         new_text = tokenizer.decode(new_tokens, skip_special_tokens=True)
 
