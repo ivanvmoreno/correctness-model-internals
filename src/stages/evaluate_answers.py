@@ -118,8 +118,16 @@ def evaluate_answers(
                         "accuracy": y_correct.mean(),
                     }
                 elif dataset_conf.eval_type == "answers_map":
-                    # TODO: make this more generic
-                    answers_map = json.loads(dataset_conf.answers_map_path)
+                    answers_map = json.loads(
+                        open(
+                            os.path.join(
+                                config.base.datasets_dir,
+                                config.format_datasets.raw_dir_path,
+                                dataset_name,
+                                "eval_map.json",
+                            ),
+                        ).read()
+                    )
                     y_true = ground_truth_df["answer"]
                     y_pred = generations_df["answer"]
                     y_correct = pd.Series(
