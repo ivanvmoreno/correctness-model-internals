@@ -96,6 +96,10 @@ def evaluate_answers(
                             f"Loading ground truth from {ground_truth_full}"
                         )
                         ground_truth_df = pd.read_csv(ground_truth_full)
+                else:
+                    ground_truth_full = f"{ground_truth_path}/{subset}.csv"
+                    logger.info(f"Loading ground truth from {ground_truth_full}")
+                    ground_truth_df = pd.read_csv(ground_truth_full)
                 if dataset_conf.eval_type == "constrained_tokens":
                     # Convert from string label to index
                     y_true = ground_truth_df["answer"].apply(label_to_index)
