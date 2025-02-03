@@ -176,7 +176,7 @@ format_datasets:
 
 generate_answers:
   model: llama3_3b_chat
-  max_dataset_size: false # false or integer
+  max_dataset_size: 10 # false or integer
   sample_strategy: first_n # {first_n, random}
   max_new_tokens: 1024
   stop_word: "}$"

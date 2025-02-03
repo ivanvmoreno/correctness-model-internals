@@ -3,15 +3,15 @@ stages:
   format_datasets:
     cmd: python -m src.stages.format_datasets --config=params.yaml
     deps:
-    - path: ./datasets/raw
+    - path: ./datasets/raw/
       hash: md5
-      md5: 7f93c31ddb6c346dd79ece5a3bdcf9ac.dir
-      size: 275957836
-      nfiles: 563
+      md5: 6c820ba7f1280a9e91e0b015ebdc13bd.dir
+      size: 277885975
+      nfiles: 570
     - path: src/stages/format_datasets.py
       hash: md5
-      md5: 721378a9842218bb125df29fc54d2c4c
-      size: 2227
+      md5: 60e286109cc57530df5a9d6abc744ed1
+      size: 2513
     params:
       params.yaml:
         base:
@@ -22,6 +22,7 @@ stages:
           generations_dir: ./generations
           evaluations_dir: ./evaluations
           activations_dir: ./activations
+          classification_stats_dir: ./classification_stats
         datasets:
           mmlu:
             answer_type: multiple_choice
@@ -30,6 +31,7 @@ stages:
             - B
             - C
             - D
+            eval_type: constrained_tokens
             subsets:
             - high_school_mathematics
             - college_mathematics
@@ -37,10 +39,82 @@ stages:
             prompts:
               base: The following is a multiple choice question (with answers). Give
                 your answer with a single letter corresponding to the correct answer.
+          cities_10k:
+            answer_type: open_ended
+            subsets:
+            - main
+            format: csv
+            eval_type: answers_map
+            answers_map_path: eval_map.json
+            col_map:
+              prompt: question
+              answer: correct_answer
+            prompts:
+              base: "I am going to ask you a question about cities. End your sentence
+                with <|eot_id|>.\nHere are some examples of questions that might help
+                you:\n---\nQuestion: In which country is the city of Barcelona located?\n
+                Answer: Spain<|eot_id|>\n---\nQuestion: In which country is the city
+                of Berlin located?\nAnswer: Germany<|eot_id|>\n---\nQuestion: In which
+                country is the city of Beijing located?\nAnswer: China<|eot_id|>\n\
+                ---\nQuestion:"
+          birth_years_4k:
+            answer_type: open_ended
+            subsets:
+            - main
+            format: csv
+            eval_type: exact_match
+            col_map:
+              prompt: question
+              answer: correct_answer
+            prompts:
+              base: "I am going to ask you what year a person was born. End your sentence
+                with <|eot_id|>.\nHere are some examples of questions that might help
+                you:\n---\nQuestion: What year was Barack Obama born? \nAnswer: 1961<|eot_id|>\n
+                ---\nQuestion: What year was Vladimir Putin born? \nAnswer: 1952<|eot_id|>\n
+                ---\nQuestion: What year was Xi Jinping born? \nAnswer: 1953<|eot_id|>\n\
+                ---\nQuestion:"
+          medals_9k:
+            answer_type: open_ended
+            subsets:
+            - main
+            format: csv
+            eval_type: answers_map
+            answers_map_path: eval_map.json
+            col_map:
+              prompt: question
+              answer: correct_answer
+            prompts:
+              base: "I am going to ask you a question about the olympics. End your
+                sentence with <|eot_id|>.\nHere are some examples of questions that
+                might help you:\n---\nQuestion: Which country won gold in Gymnastics
+                Women's Team All-Around in the 1928 Summer Olympics?\nAnswer: Netherlands<|eot_id|>
+                \n---\nQuestion: Which country won gold in Hockey Women's Hockey in
+                the 2004 Summer Olympics? Answer: Germany<|eot_id|> \n---\nQuestion:
+                Which country won gold in Fencing Men's Sabre, Individual in the 1964
+                Summer Olympics?\nAnswer: Hungary<|eot_id|>\n---\nQuestion:"
+          football_leagues_1k:
+            answer_type: open_ended
+            subsets:
+            - main
+            format: csv
+            eval_type: answers_map
+            answers_map_path: eval_map.json
+            col_map:
+              prompt: question
+              answer: correct_answer
+            prompts:
+              base: "I am going to ask you a question about football. End your sentence
+                with <|eot_id|>.\nHere are some examples of questions that might help
+                you:\n---\nQuestion: Which team finished in position 10 in the 2010-2011
+                Premier League?\nAnswer: Sunderland<|eot_id|> \n---\nQuestion: Which
+                team finished in position 19 in the 2020-2021 La Liga?\nAnswer: Valladolid<|eot_id|>
+                \n---\nQuestion: Which team finished in position 13 in the 2019-2020
+                Serie A?\nAnswer: Udinese<|eot_id|>\n---\nQuestion:"
           gsm8k:
             answer_type: open_ended
             answer_delim: '####'
             answer_regex: (?<=\$\\boxed\{)\d+(?=\}\$)
+            eval_type: regex_match
             subsets:
             - main
             prompts:
@@ -85,25 +159,25 @@ stages:
         format_datasets:
           raw_dir_path: raw
           formatted_dir_path: formatted
-          generation_delimiter: false
+          generation_delimiter: 'Answer:'
     outs:
-    - path: ./datasets/formatted
+    - path: ./datasets/formatted/
       hash: md5
-      md5: dae3593c60f8f2be277e13a706b3891d.dir
-      size: 26554358
-      nfiles: 5
+      md5: 4269e165c552c934a86a66ce11cf86d7.dir
+      size: 39841960
+      nfiles: 9
   generate_answers:
     cmd: python -m src.stages.generate_answers --config=params.yaml --model=llama3_3b_chat
     deps:
-    - path: ./datasets/formatted
+    - path: ./datasets/formatted/
       hash: md5
-      md5: d8a636d00988d54dfcc0877f78e54524.dir
-      size: 26595234
-      nfiles: 10
+      md5: 53876b756a47d0ba9e4b8454a3b63775.dir
+      size: 39904421
+      nfiles: 18
     - path: src/stages/generate_answers.py
       hash: md5
-      md5: fbea02d500df3fdeb66e870f5f78dcb9
-      size: 7738
+      md5: c4e452869ce16560a356124eeccd630b
+      size: 7993
     params:
       params.yaml:
         base:
@@ -114,6 +188,7 @@ stages:
           generations_dir: ./generations
           evaluations_dir: ./evaluations
           activations_dir: ./activations
+          classification_stats_dir: ./classification_stats
         datasets:
           mmlu:
             answer_type: multiple_choice
@@ -122,6 +197,7 @@ stages:
             - B
             - C
             - D
+            eval_type: constrained_tokens
             subsets:
             - high_school_mathematics
             - college_mathematics
@@ -129,10 +205,82 @@ stages:
             prompts:
               base: The following is a multiple choice question (with answers). Give
                 your answer with a single letter corresponding to the correct answer.
+          cities_10k:
+            answer_type: open_ended
+            subsets:
+            - main
+            format: csv
+            eval_type: answers_map
+            answers_map_path: eval_map.json
+            col_map:
+              prompt: question
+              answer: correct_answer
+            prompts:
+              base: "I am going to ask you a question about cities. End your sentence
+                with <|eot_id|>.\nHere are some examples of questions that might help
+                you:\n---\nQuestion: In which country is the city of Barcelona located?\n
+                Answer: Spain<|eot_id|>\n---\nQuestion: In which country is the city
+                of Berlin located?\nAnswer: Germany<|eot_id|>\n---\nQuestion: In which
+                country is the city of Beijing located?\nAnswer: China<|eot_id|>\n\
+                ---\nQuestion:"
+          birth_years_4k:
+            answer_type: open_ended
+            subsets:
+            - main
+            format: csv
+            eval_type: exact_match
+            col_map:
+              prompt: question
+              answer: correct_answer
+            prompts:
+              base: "I am going to ask you what year a person was born. End your sentence
+                with <|eot_id|>.\nHere are some examples of questions that might help
+                you:\n---\nQuestion: What year was Barack Obama born? \nAnswer: 1961<|eot_id|>\n
+                ---\nQuestion: What year was Vladimir Putin born? \nAnswer: 1952<|eot_id|>\n
+                ---\nQuestion: What year was Xi Jinping born? \nAnswer: 1953<|eot_id|>\n\
+                ---\nQuestion:"
+          medals_9k:
+            answer_type: open_ended
+            subsets:
+            - main
+            format: csv
+            eval_type: answers_map
+            answers_map_path: eval_map.json
+            col_map:
+              prompt: question
+              answer: correct_answer
+            prompts:
+              base: "I am going to ask you a question about the olympics. End your
+                sentence with <|eot_id|>.\nHere are some examples of questions that
+                might help you:\n---\nQuestion: Which country won gold in Gymnastics
+                Women's Team All-Around in the 1928 Summer Olympics?\nAnswer: Netherlands<|eot_id|>
+                \n---\nQuestion: Which country won gold in Hockey Women's Hockey in
+                the 2004 Summer Olympics? Answer: Germany<|eot_id|> \n---\nQuestion:
+                Which country won gold in Fencing Men's Sabre, Individual in the 1964
+                Summer Olympics?\nAnswer: Hungary<|eot_id|>\n---\nQuestion:"
+          football_leagues_1k:
+            answer_type: open_ended
+            subsets:
+            - main
+            format: csv
+            eval_type: answers_map
+            answers_map_path: eval_map.json
+            col_map:
+              prompt: question
+              answer: correct_answer
+            prompts:
+              base: "I am going to ask you a question about football. End your sentence
+                with <|eot_id|>.\nHere are some examples of questions that might help
+                you:\n---\nQuestion: Which team finished in position 10 in the 2010-2011
+                Premier League?\nAnswer: Sunderland<|eot_id|> \n---\nQuestion: Which
+                team finished in position 19 in the 2020-2021 La Liga?\nAnswer: Valladolid<|eot_id|>
+                \n---\nQuestion: Which team finished in position 13 in the 2019-2020
+                Serie A?\nAnswer: Udinese<|eot_id|>\n---\nQuestion:"
           gsm8k:
             answer_type: open_ended
             answer_delim: '####'
             answer_regex: (?<=\$\\boxed\{)\d+(?=\}\$)
+            eval_type: regex_match
             subsets:
             - main
             prompts:
@@ -177,7 +325,7 @@ stages:
         format_datasets:
           raw_dir_path: raw
           formatted_dir_path: formatted
-          generation_delimiter: false
+          generation_delimiter: 'Answer:'
         generate_answers:
           model: llama3_3b_chat
           max_dataset_size: 10
@@ -185,28 +333,28 @@ stages:
           max_new_tokens: 1024
           stop_word: '}$'
     outs:
-    - path: ./generations
+    - path: ./generations/
       hash: md5
-      md5: c6f2e71bed965e5dd98da848a72997d3.dir
-      size: 44490
-      nfiles: 5
+      md5: 34fe304bb7025699455a8622475309b7.dir
+      size: 77391
+      nfiles: 9
   evaluate_answers:
     cmd: python -m src.stages.evaluate_answers --config=params.yaml --model=llama3_3b_chat
     deps:
-    - path: ./datasets/formatted
+    - path: ./datasets/formatted/
       hash: md5
-      md5: d8a636d00988d54dfcc0877f78e54524.dir
-      size: 26595234
-      nfiles: 10
-    - path: ./generations
+      md5: 53876b756a47d0ba9e4b8454a3b63775.dir
+      size: 39904421
+      nfiles: 18
+    - path: ./generations/
       hash: md5
-      md5: c6f2e71bed965e5dd98da848a72997d3.dir
-      size: 44490
-      nfiles: 5
+      md5: 34fe304bb7025699455a8622475309b7.dir
+      size: 77391
+      nfiles: 9
     - path: src/stages/evaluate_answers.py
       hash: md5
-      md5: 4c7e6d2e78bf03013806db915ec2c4db
-      size: 6946
+      md5: c1f330e7fbb56bfd02fa09953f6421ca
+      size: 8295
     params:
       params.yaml:
         base:
@@ -217,6 +365,7 @@ stages:
           generations_dir: ./generations
           evaluations_dir: ./evaluations
           activations_dir: ./activations
+          classification_stats_dir: ./classification_stats
         datasets:
           mmlu:
             answer_type: multiple_choice
@@ -225,6 +374,7 @@ stages:
             - B
             - C
             - D
+            eval_type: constrained_tokens
             subsets:
             - high_school_mathematics
             - college_mathematics
@@ -232,10 +382,82 @@ stages:
             prompts:
               base: The following is a multiple choice question (with answers). Give
                 your answer with a single letter corresponding to the correct answer.
+          cities_10k:
+            answer_type: open_ended
+            subsets:
+            - main
+            format: csv
+            eval_type: answers_map
+            answers_map_path: eval_map.json
+            col_map:
+              prompt: question
+              answer: correct_answer
+            prompts:
+              base: "I am going to ask you a question about cities. End your sentence
+                with <|eot_id|>.\nHere are some examples of questions that might help
+                you:\n---\nQuestion: In which country is the city of Barcelona located?\n
+                Answer: Spain<|eot_id|>\n---\nQuestion: In which country is the city
+                of Berlin located?\nAnswer: Germany<|eot_id|>\n---\nQuestion: In which
+                country is the city of Beijing located?\nAnswer: China<|eot_id|>\n\
+                ---\nQuestion:"
+          birth_years_4k:
+            answer_type: open_ended
+            subsets:
+            - main
+            format: csv
+            eval_type: exact_match
+            col_map:
+              prompt: question
+              answer: correct_answer
+            prompts:
+              base: "I am going to ask you what year a person was born. End your sentence
+                with <|eot_id|>.\nHere are some examples of questions that might help
+                you:\n---\nQuestion: What year was Barack Obama born? \nAnswer: 1961<|eot_id|>\n
+                ---\nQuestion: What year was Vladimir Putin born? \nAnswer: 1952<|eot_id|>\n
+                ---\nQuestion: What year was Xi Jinping born? \nAnswer: 1953<|eot_id|>\n\
+                ---\nQuestion:"
+          medals_9k:
+            answer_type: open_ended
+            subsets:
+            - main
+            format: csv
+            eval_type: answers_map
+            answers_map_path: eval_map.json
+            col_map:
+              prompt: question
+              answer: correct_answer
+            prompts:
+              base: "I am going to ask you a question about the olympics. End your
+                sentence with <|eot_id|>.\nHere are some examples of questions that
+                might help you:\n---\nQuestion: Which country won gold in Gymnastics
+                Women's Team All-Around in the 1928 Summer Olympics?\nAnswer: Netherlands<|eot_id|>
+                \n---\nQuestion: Which country won gold in Hockey Women's Hockey in
+                the 2004 Summer Olympics? Answer: Germany<|eot_id|> \n---\nQuestion:
+                Which country won gold in Fencing Men's Sabre, Individual in the 1964
+                Summer Olympics?\nAnswer: Hungary<|eot_id|>\n---\nQuestion:"
+          football_leagues_1k:
+            answer_type: open_ended
+            subsets:
+            - main
+            format: csv
+            eval_type: answers_map
+            answers_map_path: eval_map.json
+            col_map:
+              prompt: question
+              answer: correct_answer
+            prompts:
+              base: "I am going to ask you a question about football. End your sentence
+                with <|eot_id|>.\nHere are some examples of questions that might help
+                you:\n---\nQuestion: Which team finished in position 10 in the 2010-2011
+                Premier League?\nAnswer: Sunderland<|eot_id|> \n---\nQuestion: Which
+                team finished in position 19 in the 2020-2021 La Liga?\nAnswer: Valladolid<|eot_id|>
+                \n---\nQuestion: Which team finished in position 13 in the 2019-2020
+                Serie A?\nAnswer: Udinese<|eot_id|>\n---\nQuestion:"
           gsm8k:
             answer_type: open_ended
             answer_delim: '####'
             answer_regex: (?<=\$\\boxed\{)\d+(?=\}\$)
+            eval_type: regex_match
             subsets:
             - main
             prompts:
@@ -280,7 +502,7 @@ stages:
         format_datasets:
           raw_dir_path: raw
           formatted_dir_path: formatted
-          generation_delimiter: false
+          generation_delimiter: 'Answer:'
         generate_answers:
           model: llama3_3b_chat
           max_dataset_size: 10
@@ -288,23 +510,23 @@ stages:
           max_new_tokens: 1024
           stop_word: '}$'
     outs:
-    - path: ./evaluations
+    - path: ./evaluations/
       hash: md5
-      md5: cf2beb4d0cddc57424e2b130de3f4549.dir
-      size: 46405
-      nfiles: 11
+      md5: ca2439ede8cb76d6ba5285b475aef19b.dir
+      size: 80462
+      nfiles: 19
   capture_activations:
     cmd: python -m src.stages.capture_activations --config=params.yaml --model=llama3_3b_chat
     deps:
-    - path: ./generations
+    - path: ./generations/
       hash: md5
-      md5: c6f2e71bed965e5dd98da848a72997d3.dir
-      size: 44490
-      nfiles: 5
+      md5: 34fe304bb7025699455a8622475309b7.dir
+      size: 77391
+      nfiles: 9
     - path: src/stages/capture_activations.py
       hash: md5
-      md5: 5f3e0d43d369b623bb4a35926e3ac678
-      size: 5260
+      md5: 6d433ee82c9f0c1f0d56de4ec9c93ca3
+      size: 5479
     params:
       params.yaml:
         base:
@@ -315,6 +537,7 @@ stages:
           generations_dir: ./generations
           evaluations_dir: ./evaluations
           activations_dir: ./activations
+          classification_stats_dir: ./classification_stats
         capture_activations:
           input_type:
           - prompt_only
@@ -327,6 +550,7 @@ stages:
             - B
             - C
             - D
+            eval_type: constrained_tokens
             subsets:
             - high_school_mathematics
             - college_mathematics
@@ -334,10 +558,82 @@ stages:
             prompts:
               base: The following is a multiple choice question (with answers). Give
                 your answer with a single letter corresponding to the correct answer.
+          cities_10k:
+            answer_type: open_ended
+            subsets:
+            - main
+            format: csv
+            eval_type: answers_map
+            answers_map_path: eval_map.json
+            col_map:
+              prompt: question
+              answer: correct_answer
+            prompts:
+              base: "I am going to ask you a question about cities. End your sentence
+                with <|eot_id|>.\nHere are some examples of questions that might help
+                you:\n---\nQuestion: In which country is the city of Barcelona located?\n
+                Answer: Spain<|eot_id|>\n---\nQuestion: In which country is the city
+                of Berlin located?\nAnswer: Germany<|eot_id|>\n---\nQuestion: In which
+                country is the city of Beijing located?\nAnswer: China<|eot_id|>\n\
+                ---\nQuestion:"
+          birth_years_4k:
+            answer_type: open_ended
+            subsets:
+            - main
+            format: csv
+            eval_type: exact_match
+            col_map:
+              prompt: question
+              answer: correct_answer
+            prompts:
+              base: "I am going to ask you what year a person was born. End your sentence
+                with <|eot_id|>.\nHere are some examples of questions that might help
+                you:\n---\nQuestion: What year was Barack Obama born? \nAnswer: 1961<|eot_id|>\n
+                ---\nQuestion: What year was Vladimir Putin born? \nAnswer: 1952<|eot_id|>\n
+                ---\nQuestion: What year was Xi Jinping born? \nAnswer: 1953<|eot_id|>\n\
+                ---\nQuestion:"
+          medals_9k:
+            answer_type: open_ended
+            subsets:
+            - main
+            format: csv
+            eval_type: answers_map
+            answers_map_path: eval_map.json
+            col_map:
+              prompt: question
+              answer: correct_answer
+            prompts:
+              base: "I am going to ask you a question about the olympics. End your
+                sentence with <|eot_id|>.\nHere are some examples of questions that
+                might help you:\n---\nQuestion: Which country won gold in Gymnastics
+                Women's Team All-Around in the 1928 Summer Olympics?\nAnswer: Netherlands<|eot_id|>
+                \n---\nQuestion: Which country won gold in Hockey Women's Hockey in
+                the 2004 Summer Olympics? Answer: Germany<|eot_id|> \n---\nQuestion:
+                Which country won gold in Fencing Men's Sabre, Individual in the 1964
+                Summer Olympics?\nAnswer: Hungary<|eot_id|>\n---\nQuestion:"
+          football_leagues_1k:
+            answer_type: open_ended
+            subsets:
+            - main
+            format: csv
+            eval_type: answers_map
+            answers_map_path: eval_map.json
+            col_map:
+              prompt: question
+              answer: correct_answer
+            prompts:
+              base: "I am going to ask you a question about football. End your sentence
+                with <|eot_id|>.\nHere are some examples of questions that might help
+                you:\n---\nQuestion: Which team finished in position 10 in the 2010-2011
+                Premier League?\nAnswer: Sunderland<|eot_id|> \n---\nQuestion: Which
+                team finished in position 19 in the 2020-2021 La Liga?\nAnswer: Valladolid<|eot_id|>
+                \n---\nQuestion: Which team finished in position 13 in the 2019-2020
+                Serie A?\nAnswer: Udinese<|eot_id|>\n---\nQuestion:"
           gsm8k:
             answer_type: open_ended
             answer_delim: '####'
             answer_regex: (?<=\$\\boxed\{)\d+(?=\}\$)
+            eval_type: regex_match
             subsets:
             - main
             prompts:
@@ -388,13 +684,15 @@ stages:
         models:
           llama3_8b_chat:
             dir_path: llama3_8b_chat_hf
+            eos_token: <\|eot_id\|>
           llama3_8b_cot:
             dir_path: llama3_8b_cot_numina_hf
+            eos_token: <\|eot_id\|>
           llama3_3b_chat:
             dir_path: llama3_3b_chat_hf
     outs:
-    - path: ./activations
+    - path: ./activations/
       hash: md5
-      md5: 4c01fe27d17e39e24724b7a78cad30de.dir
-      size: 1240900
-      nfiles: 10
+      md5: acc64d7dc42dabb0164ba826abab6645.dir
+      size: 68181120
+      nfiles: 5040
