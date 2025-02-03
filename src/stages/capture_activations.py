@@ -37,13 +37,14 @@ def capture_activations(
     )
     model.to(device)
 
+    # Capture activations for all layers
+    if layers is None:
+        layers = list(range(len(model.model.layers)))
+
     if isinstance(layers, int):
         layers = [layers]
     layers = [int(layer) for layer in layers]
 
-    # Capture activations for all layers
-    if layers == [-1]:
-        layers = list(range(len(model.model.layers)))
     logger.info(f"Extracting activations from layers {layers}")
 
     for dataset_name, dataset_conf in config.datasets.items():
@@ -134,10 +135,10 @@ if __name__ == "__main__":
     args_parser.add_argument("--config", dest="config", required=True)
     args_parser.add_argument("--model", dest="model", required=True)
     args_parser.add_argument(
-        "--layers", dest="layers", nargs="+", default=[-1], type=int
+        "--layers", dest="layers", nargs="+", default=None, type=int
     )
     args_parser.add_argument(
         "--batch-size", dest="batch_size", default=1, type=int
     )
     args = args_parser.parse_args()
-    capture_activations(args.config, args.model, args.batch_size)
+    capture_activations(args.config, args.model, args.layers, args.batch_size)
