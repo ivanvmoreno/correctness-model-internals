@@ -14,7 +14,6 @@ from src.classifying import (
     get_correctness_direction_classifier,
     get_logistic_regression_classifier,
 )
-from src.model import load_model
 from src.utils.config import load_config
 from src.utils.logging import get_logger
 

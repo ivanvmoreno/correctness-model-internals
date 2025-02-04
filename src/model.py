@@ -3,9 +3,11 @@ from typing import Optional, Tuple, List
 import torch
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from vllm import LLM, SamplingParams
+from vllm.model_executor.guided_decoding.guided_fields import LLMGuidedOptions
 
 
-def load_model(
+def load_hf_model(
     models_path: str, model_dir: str, device="cuda:0"
 ) -> Tuple[AutoTokenizer, AutoModelForCausalLM]:
     """
@@ -19,12 +21,26 @@ def load_model(
     return tokenizer, model
 
 
-def generate_const(
+def load_vllm_model(
+    models_path: str, model_dir: str, max_model_len=1024
+) -> LLM:
+    """
+    Load vLLM model from local weights.
+    """
+    tokenizer = AutoTokenizer.from_pretrained(f"{models_path}/{model_dir}")
+    model = LLM(
+        model=f"{models_path}/{model_dir}",
+        max_model_len=max_model_len,
+    )
+    return tokenizer, model
+
+
+def generate_const_hf(
     tokenizer: AutoTokenizer,
     model: AutoModelForCausalLM,
     prompts: List[str],
     choices_ids: List[int],
-) -> Tuple[List[str], List[str]]:
+) -> List[str]:
     """Generate constrained answers for a batch of prompts (multiple-choice)."""
     inputs = tokenizer(
         prompts, return_tensors="pt", padding=True, truncation=True
@@ -40,20 +56,69 @@ def generate_const(
         masked_logits = torch.full_like(last_token_logits, float("-inf"))
         masked_logits[:, choices_ids] = last_token_logits[:, choices_ids]
         top_const_token_ids = torch.argmax(masked_logits, dim=-1)
-        top_unconst_token_ids = torch.argmax(last_token_logits, dim=-1)
         top_const_tokens = tokenizer.batch_decode(
             top_const_token_ids, skip_special_tokens=True
         )
-        top_unconst_tokens = tokenizer.batch_decode(
-            top_unconst_token_ids, skip_special_tokens=True
-        )
         top_const_tokens = [t.strip() for t in top_const_tokens]
-        top_unconst_tokens = [t.strip() for t in top_unconst_tokens]
 
-    return top_const_tokens, top_unconst_tokens
+    return top_const_tokens
 
 
-def generate_unconst(
+def generate_const_vllm(
+    model: LLM,
+    prompts: List[str],
+    choices_ids: List[int],
+) -> List[str]:
+    """
+    Generate constrained answers for a batch of prompts (multiple-choice) using vLLM.
+    """
+    sampling_params = SamplingParams(
+        max_tokens=1,
+        temperature=0.0,
+    )
+    results = model.generate(
+        prompts,
+        sampling_params=sampling_params,
+        guided_options_request=LLMGuidedOptions(guided_choice=choices_ids),
+    )
+    generated_tokens = [result.outputs[0].text for result in results]
+    return generated_tokens
+
+
+def generate_unconst_vllm(
+    llm: LLM,
+    prompts: List[str],
+    max_new_tokens: int = 1024,
+    stop_words: Optional[List[str]] = None,
+) -> List[str]:
+    """Generate unconstrained answers using vLLM, stopping on any stop word substrings."""
+    sampling_params = SamplingParams(
+        temperature=0.0,
+        top_p=1.0,
+        max_tokens=max_new_tokens,
+    )
+
+    vllm_outputs = llm.generate(prompts, sampling_params)
+    generated_texts = [output.outputs[0].text for output in vllm_outputs]
+
+    processed_texts = []
+    for text in generated_texts:
+        if stop_words:
+            earliest_stop = None
+            for stop_word in stop_words:
+                idx = text.find(stop_word)
+                if idx != -1 and (
+                    earliest_stop is None or idx < earliest_stop[0]
+                ):
+                    earliest_stop = (idx, stop_word)
+            if earliest_stop is not None:
+                text = text[: earliest_stop[0] + len(earliest_stop[1])]
+        processed_texts.append(text.strip())
+
+    return processed_texts
+
+
+def generate_unconst_hf(
     tokenizer: AutoTokenizer,
     model: AutoModelForCausalLM,
     prompts: List[str],

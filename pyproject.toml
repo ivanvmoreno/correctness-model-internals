@@ -1,3 +1,45 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+dependencies = [
+    "torch",
+    "transformers",
+    "sentencepiece",
+    "protobuf",
+    "pandas",
+    "tqdm",
+    "matplotlib",
+    "numpy",
+    "scikit-learn",
+    "datasets",
+    "evaluate",
+    "umap-learn",
+    "pyarrow",
+    "python-box",
+    "black",
+    "isort",
+    "dvc[gs]",
+    "vllm>=0.5.4",
+    "markupsafe<3.0.2",
+]
+name = "correctness-model-internals"
+version = "0.1.0"
+description = "MARS - Predicting correctness from model internals"
+authors = [{ name = "Iván Moreno", email = "ivan@ivan.build" }]
+requires-python = ">=3.11"
+
+[[tool.uv.index]]
+url = "https://download.pytorch.org/whl/cu121"
+name = "pytorch"
+
+[tool.uv.sources]
+torch = { index = "pytorch" }
+
+[project.optional-dependencies]
+dev = ["black", "isort"]
+
 [tool.black]
 line-length = 80
 target_version = ['py311']

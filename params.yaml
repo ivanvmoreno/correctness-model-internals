@@ -173,11 +173,14 @@ models:
   llama3.1_8b_chat:
     dir_path: llama3.1_8b_chat
     eos_token: <\|eot_id\|>
+    max_length: 1024
   llama3_8b_cot:
     dir_path: llama3_8b_cot_numina_hf
     eos_token: <\|eot_id\|>
+    max_length: 1024
   llama3_3b_chat:
     dir_path: llama3_3b_chat_hf
+    max_length: 1024
 
 format_datasets:
   raw_dir_path: raw
@@ -189,6 +192,7 @@ generate_answers:
   max_dataset_size: false # false or integer
   sample_strategy: first_n # {first_n, random}
   batch_size: 10
+  inference_engine: vllm # {vllm, hf}
 
 capture_activations:
   input_type: [prompt_only, prompt_answer] # {prompt_only, prompt_answer}

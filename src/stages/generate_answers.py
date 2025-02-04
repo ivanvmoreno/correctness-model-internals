@@ -6,7 +6,14 @@ import pandas as pd
 from tqdm import tqdm
 
 from src.data import load_statements
-from src.model import generate_const, generate_unconst, load_model
+from src.model import (
+    generate_const_hf,
+    generate_const_vllm,
+    generate_unconst_hf,
+    generate_unconst_vllm,
+    load_hf_model,
+    load_vllm_model,
+)
 from src.utils.config import load_config
 from src.utils.logging import get_logger
 from src.utils.utils import sample_list_first_n, sample_list_random
@@ -29,21 +36,54 @@ def generate_answers(
 
     logger.info(f"Generating answers for model {model_id}")
 
-    logger.info(f"Loading model into GPU")
-    tokenizer, model = load_model(
-        config.base.models_dir, config.models[model_id].dir_path
+    if config.generate_answers.inference_engine == "hf":
+        logger.info(f"Loading model into GPU")
+        tokenizer, model = load_hf_model(
+            config.base.models_dir, config.models[model_id].dir_path
+        )
+        tokenizer.pad_token = tokenizer.eos_token
+        tokenizer.padding_side = "left"  # decoder-only model
+        generator_unconst = (
+            lambda prompts, max_new_tokens, stop_words: generate_unconst_hf(
+                tokenizer, model, prompts, max_new_tokens, stop_words
+            )
+        )
+        generator_const = lambda prompts, choices_ids: generate_const_hf(
+            tokenizer, model, prompts, choices_ids
+        )
+    elif config.generate_answers.inference_engine == "vllm":
+        tokenizer, model = load_vllm_model(
+            config.base.models_dir,
+            config.models[model_id].dir_path,
+            config.models[model_id].max_length,
+        )
+        generator_unconst = (
+            lambda prompts, max_new_tokens, stop_words: generate_unconst_vllm(
+                model, prompts, max_new_tokens, stop_words
+            )
+        )
+        generator_const = lambda prompts, choices_ids: generate_const_vllm(
+            model, prompts, choices_ids
+        )
+    else:
+        raise ValueError(
+            f"Unknown inference engine: {config.generate_answers.inference_engine}"
+        )
+    logger.info(
+        f"Using inference engine: {config.generate_answers.inference_engine}"
     )
-    tokenizer.pad_token = tokenizer.eos_token
-    tokenizer.padding_side = "left"  # decoder-only model
 
     for dataset_name, dataset_conf in config.datasets.items():
         if dataset_name == "mmlu":
             # Allow for space-aware variations of the answer map
-            choices_ids = [
-                tokenizer.encode(choice, add_special_tokens=False)[0]
-                for choice in dataset_conf.answer_map
-                + [f" {c}" for c in dataset_conf.answer_map]
+            choices_ids = dataset_conf.answer_map + [
+                f" {c}" for c in dataset_conf.answer_map
             ]
+            if config.generate_answers.inference_engine == "hf":
+                choices_ids = [
+                    tokenizer.encode(choice, add_special_tokens=False)[0]
+                    for choice in choices_ids
+                ]
         for prompt_version, _ in dataset_conf.prompts.items():
             save_dir = os.path.join(
                 config.base.generations_dir,
@@ -123,18 +163,14 @@ def generate_answers(
                     generations_data = []
 
                     if dataset_conf.answer_type == "multiple_choice":
-                        const_answers, _ = generate_const(
-                            tokenizer, model, chunk, choices_ids
-                        )
+                        const_answers = generator_const(chunk, choices_ids)
                         for prompt, answer in zip(chunk, const_answers):
                             generations_data.append(
                                 {"prompt": prompt, "answer": answer}
                             )
 
                     elif dataset_conf.answer_type == "open_ended":
-                        generations = generate_unconst(
-                            tokenizer,
-                            model,
+                        generations = generator_unconst(
                             chunk,
                             max_new_tokens=dataset_conf.max_new_tokens,
                             stop_words=dataset_conf.stop_words,
