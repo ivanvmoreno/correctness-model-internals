@@ -4,7 +4,6 @@ build-backend = "setuptools.build_meta"
 
 [project]
 dependencies = [
-    "torch",
     "transformers",
     "sentencepiece",
     "protobuf",
@@ -21,8 +20,8 @@ dependencies = [
     "black",
     "isort",
     "dvc[gs]",
-    "vllm>=0.5.4",
     "markupsafe<3.0.2",
+    "vllm>=0.5.4",
 ]
 name = "correctness-model-internals"
 version = "0.1.0"
@@ -30,14 +29,21 @@ description = "MARS - Predicting correctness from model internals"
 authors = [{ name = "Iván Moreno", email = "ivan@ivan.build" }]
 requires-python = ">=3.11"
 
+[tool.uv]
+conflicts = [[{ extra = "cpu" }, { extra = "gpu" }]]
+index-strategy = "unsafe-best-match"
+
 [[tool.uv.index]]
 url = "https://download.pytorch.org/whl/cu121"
-name = "pytorch"
+name = "pytorch-cuda"
 
-[tool.uv.sources]
-torch = { index = "pytorch" }
+[[tool.uv.index]]
+url = "https://download.pytorch.org/whl/cpu"
+name = "pytorch-cpu"
 
 [project.optional-dependencies]
+cpu = ["torch==2.4.0+cpu"]
+gpu = ["torch==2.4.0+cu121"]
 dev = ["black", "isort"]
 
 [tool.black]
