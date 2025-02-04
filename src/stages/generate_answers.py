@@ -136,8 +136,8 @@ def generate_answers(
                             tokenizer,
                             model,
                             chunk,
-                            max_new_tokens=config.generate_answers.max_new_tokens,
-                            stop_word=config.generate_answers.stop_word,
+                            max_new_tokens=dataset_conf.max_new_tokens,
+                            stop_words=dataset_conf.stop_words,
                         )
                         for prompt, gen in zip(chunk, generations):
                             generations_data.append(

@@ -25,6 +25,8 @@ datasets:
       - main
     format: csv
     eval_type: answers_map
+    max_new_tokens: 128
+    stop_words: ["<|eot_id|>", "\n"]
     answers_map_path: eval_map.json
     col_map:
       prompt: question
@@ -50,6 +52,8 @@ datasets:
       - main
     format: csv
     eval_type: exact_match
+    max_new_tokens: 128
+    stop_words: ["<|eot_id|>", "\n"]
     col_map:
       prompt: question
       answer: correct_answer
@@ -74,6 +78,8 @@ datasets:
       - main
     format: csv
     eval_type: answers_map
+    max_new_tokens: 128
+    stop_words: ["<|eot_id|>", "\n"]
     answers_map_path: eval_map.json
     col_map:
       prompt: question
@@ -98,6 +104,8 @@ datasets:
       - main
     format: csv
     eval_type: answers_map
+    max_new_tokens: 128
+    stop_words: ["<|eot_id|>", "\n"]
     answers_map_path: eval_map.json
     col_map:
       prompt: question
@@ -122,6 +130,8 @@ datasets:
     answer_delim: "####"
     answer_regex: (?<=\$\\boxed\{)\d+(?=\}\$)
     eval_type: regex_match
+    max_new_tokens: 1024
+    stop_words: ["}$"]
     subsets:
       - main
     prompts:
@@ -178,8 +188,6 @@ generate_answers:
   model: llama3.1_8b_chat
   max_dataset_size: false # false or integer
   sample_strategy: first_n # {first_n, random}
-  max_new_tokens: 1024
-  stop_word: "}$"
   batch_size: 10
 
 capture_activations:

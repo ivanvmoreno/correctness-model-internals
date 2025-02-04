@@ -58,9 +58,9 @@ def generate_unconst(
     model: AutoModelForCausalLM,
     prompts: List[str],
     max_new_tokens: int = 1024,
-    stop_word: Optional[str] = None,
+    stop_words: Optional[List[str]] = None,
 ) -> List[str]:
-    """Generate unconstrained answers for a batch of prompts (open-ended)."""
+    """Generate unconstrained answers for a batch of prompts (open-ended), stopping on any of a list of stop words if provided."""
     inputs = tokenizer(
         prompts, return_tensors="pt", padding=True, truncation=True
     ).to(model.device)
@@ -80,10 +80,20 @@ def generate_unconst(
         new_tokens = generated_ids[i][input_len:]
         new_text = tokenizer.decode(new_tokens, skip_special_tokens=True)
 
-        if stop_word is not None:
-            stop_index = new_text.find(stop_word)
-            if stop_index != -1:
-                new_text = new_text[: stop_index + len(stop_word)]
+        if stop_words:
+            earliest_stop_index = None
+            earliest_stop_word = None
+            for sw in stop_words:
+                idx = new_text.find(sw)
+                if idx != -1 and (
+                    earliest_stop_index is None or idx < earliest_stop_index
+                ):
+                    earliest_stop_index = idx
+                    earliest_stop_word = sw
+            if earliest_stop_index is not None:
+                new_text = new_text[
+                    : earliest_stop_index + len(earliest_stop_word)
+                ]
 
         new_texts.append(new_text.strip())
 
@@ -95,10 +105,10 @@ class Hook:
         self.out = None
 
     def __call__(self, module, module_inputs, module_outputs):
-       if isinstance(module_outputs, tuple):
-           self.out = module_outputs[0]
-       else:
-           self.out = module_outputs
+        if isinstance(module_outputs, tuple):
+            self.out = module_outputs[0]
+        else:
+            self.out = module_outputs
 
 
 def get_acts(statements, tokenizer, model, layers, device="cuda:0"):
