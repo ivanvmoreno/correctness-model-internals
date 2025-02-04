@@ -35,6 +35,8 @@ def capture_activations(
     tokenizer, model = load_hf_model(
         config.base.models_dir, config.models[model_id].dir_path
     )
+    tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.padding_side = "left"  # decoder-only model
     model.to(device)
 
     # Capture activations for all layers
@@ -76,7 +78,9 @@ def capture_activations(
 
                 statements = load_statements(generations_path)
 
-                for idx in range(0, len(statements), batch_size):
+                for batch_num, idx in enumerate(
+                    range(0, len(statements), batch_size)
+                ):
                     chunk = statements[idx : idx + batch_size]
 
                     if isinstance(config.capture_activations.input_type, str):
@@ -91,11 +95,13 @@ def capture_activations(
                             )
 
                         batch_inputs = []
-                        for statement in [str(s) for s in chunk]:
+                        for s in chunk:
                             if input_type == "prompt_only":
-                                batch_inputs.append(statement[0])
+                                batch_inputs.append(s[0])
                             elif input_type == "prompt_answer":
-                                batch_inputs.append(" ".join(statement))
+                                batch_inputs.append(
+                                    " ".join([str(x) for x in s])
+                                )
 
                         with torch.no_grad():
                             acts = get_acts(
@@ -122,10 +128,9 @@ def capture_activations(
                                 )
 
                             logger.info(
-                                f"Saved activations for subset `{subset}`, batch `{idx}`"
+                                f"Saved activations for dataset {dataset_name}, prompt_version {prompt_version}, subset {subset}, input_type {input_type}, batch {batch_num}"
                             )
 
-                            logger.info("Emptying CUDA cache")
                             torch.cuda.empty_cache()
 
 
@@ -138,7 +143,7 @@ if __name__ == "__main__":
         "--layers", dest="layers", nargs="+", default=None, type=int
     )
     args_parser.add_argument(
-        "--batch-size", dest="batch_size", default=1, type=int
+        "--batch-size", dest="batch_size", default=5, type=int
     )
     args = args_parser.parse_args()
     capture_activations(args.config, args.model, args.layers, args.batch_size)

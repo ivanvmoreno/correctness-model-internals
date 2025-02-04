@@ -178,28 +178,30 @@ class Hook:
 
 def get_acts(statements, tokenizer, model, layers, device="cuda:0"):
     """
-    Get given layer activations for the statements.
-    Return dictionary of stacked activations.
+    Get the given layer activations for all statements processed in one batch.
     """
-    # attach hooks
     hooks, handles = [], []
     for layer in layers:
         hook = Hook()
         handle = model.model.layers[layer].register_forward_hook(hook)
-        hooks.append(hook), handles.append(handle)
+        hooks.append(hook)
+        handles.append(handle)
 
-    # get activations
-    acts = {layer: [] for layer in layers}
-    for statement in tqdm(statements):
-        input_ids = tokenizer.encode(statement, return_tensors="pt").to(device)
-        model(input_ids)
-        for layer, hook in zip(layers, hooks):
-            acts[layer].append(hook.out[0, -1])
+    batch = tokenizer(
+        statements, return_tensors="pt", padding=True, truncation=True
+    )
+    batch = {key: tensor.to(device) for key, tensor in batch.items()}
+    model(**batch)
 
-    for layer, act in acts.items():
-        acts[layer] = torch.stack(act).float()
+    attention_mask = batch["attention_mask"]
+    seq_lengths = attention_mask.sum(dim=1) - 1  # shape: (batch_size,)
 
-    # remove hooks
+    acts = {}
+    for layer, hook in zip(layers, hooks):
+        batch_indices = torch.arange(hook.out.size(0), device=hook.out.device)
+        selected_acts = hook.out[batch_indices, seq_lengths]
+        acts[layer] = selected_acts.float()
+
     for handle in handles:
         handle.remove()
 
