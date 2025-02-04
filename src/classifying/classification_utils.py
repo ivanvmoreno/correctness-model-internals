@@ -3,7 +3,14 @@ from typing import Callable
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, auc, f1_score, roc_curve
+from sklearn.metrics import (
+    accuracy_score,
+    auc,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_curve,
+)
 from sklearn.preprocessing import StandardScaler
 
 from .activations_handler import ActivationsHandler
@@ -59,6 +66,8 @@ class BinaryClassifier:
         classification_metric_funcs: tuple[Callable, ...] = (
             accuracy_score,
             f1_score,
+            precision_score,
+            recall_score,
         ),
         classification_cut: None | float = None,
     ):

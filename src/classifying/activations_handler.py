@@ -24,7 +24,10 @@ class ActivationsHandler:
     """
 
     def __init__(
-        self, activations: BatchActivationsVector, labels: np.typing.ArrayLike
+        self,
+        activations: BatchActivationsVector,
+        labels: np.typing.ArrayLike,
+        _allow_empty: bool = False,
     ):
         """
         Setup
@@ -36,8 +39,14 @@ class ActivationsHandler:
         labels: np.typing.ArrayLike
             Must align with activations
         """
+        if activations.shape[0] != len(labels):
+            raise ValueError("activations and labels must have the same length")
+        if len(labels) == 0 and not _allow_empty:
+            raise ValueError("labels and activations must not be empty")
+
         self.activations = activations
         self.labels = pd.Series(labels).copy().reset_index(drop=True)
+        self.count = len(self.labels)
 
     def __add__(self, other: ActivationsHandler) -> ActivationsHandler:
         """
@@ -53,9 +62,22 @@ class ActivationsHandler:
         ActivationsHandler
             The combined ActivationsHandler
         """
+        if other.labels.empty:
+            raise ValueError("other.labels is empty")
+
+        if self.labels.empty:
+            activations = other.activations
+            labels = other.labels
+        elif other.labels.empty:
+            activations = self.activations
+            labels = self.labels
+        else:
+            activations = pt.cat([self.activations, other.activations], dim=0)
+            labels = pd.concat([self.labels, other.labels])
+
         return self.__class__(
-            activations=pt.cat([self.activations, other.activations], dim=0),
-            labels=pd.concat([self.labels, other.labels]),
+            activations=activations,
+            labels=labels,
         )
 
     def get_groups(
@@ -105,7 +127,7 @@ class ActivationsHandler:
         )
 
     def split_dataset(
-        self, split_sizes: list | tuple, random: bool = True
+        self, split_sizes: list | tuple, random: bool = False
     ) -> Generator[ActivationsHandler, None, None]:
         """
         A generator of ActivationsHandlers depending on the split.
@@ -161,7 +183,7 @@ class ActivationsHandler:
     def sample_equally_across_groups(
         self,
         group_labels: list | set | tuple,
-        random: bool = True,
+        random: bool = False,
     ) -> ActivationsHandler:
         """
         Get an ActivationsHandler with an equal number of samples from each group.
@@ -221,9 +243,11 @@ def combine_activations_handlers(
     ActivationsHandler
         The combined ActivationsHandler
     """
+    if len(activations_handlers) == 1:
+        return activations_handlers[0]
     return sum(
         activations_handlers,
         start=ActivationsHandler(
-            activations=pt.tensor([]), labels=pd.Series([])
+            activations=pt.tensor([]), labels=pd.Series([]), _allow_empty=True
         ),
     )
