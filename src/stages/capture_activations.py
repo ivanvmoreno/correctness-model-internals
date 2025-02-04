@@ -91,7 +91,7 @@ def capture_activations(
                             )
 
                         batch_inputs = []
-                        for statement in chunk:
+                        for statement in [str(s) for s in chunk]:
                             if input_type == "prompt_only":
                                 batch_inputs.append(statement[0])
                             elif input_type == "prompt_answer":
