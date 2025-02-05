@@ -196,3 +196,16 @@ generate_answers:
 
 capture_activations:
   input_type: [prompt_only, prompt_answer] # {prompt_only, prompt_answer}
+
+
+postprocess_activations:
+  methods: [pca, tsne] # {pca, tsne}
+  tsne:
+    n_components: 2
+    perplexity: 30
+    n_iter: 1000
+    random_state: 42
+  pca:
+    n_components: 2
+    random_state: 42
+  

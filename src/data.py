@@ -1,5 +1,7 @@
-from typing import Optional, Literal
+from typing import Literal
 
+import torch
+import numpy as np
 import pandas as pd
 
 
@@ -8,6 +10,14 @@ def load_statements(dataset_path: str) -> list[tuple[str, str]]:
     statements = dataset["prompt"].tolist()
     answers = dataset["answer"].tolist()
     return list(zip(statements, answers))
+
+
+def load_activations(
+    activations_path: str,
+) -> np.ndarray:
+    """Load activations from a given file containing a torch.Tensor."""
+    activations = torch.load(activations_path)
+    return activations.numpy()
 
 
 def format_multi_prompt(
