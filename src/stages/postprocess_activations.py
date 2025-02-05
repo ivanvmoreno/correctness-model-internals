@@ -89,7 +89,7 @@ def postprocess_activations(
                             )
                             activations_batch = load_activations(
                                 activations_batch_path
-                            ).numpy()
+                            )
                             activations_list.append(activations_batch)
                         activations_joined = np.concatenate(
                             activations_list, axis=0
