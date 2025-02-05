@@ -127,9 +127,9 @@ stages:
     deps:
     - path: ./datasets/formatted/
       hash: md5
-      md5: d11b5b1d9d84530cf086c48335fbc620.dir
-      size: 13178584
-      nfiles: 8
+      md5: 2bb0047873630b15d3e4b58692ad76ea.dir
+      size: 13142642
+      nfiles: 4
     - path: src/stages/generate_answers.py
       hash: md5
       md5: 8b4e65e9887f7411f50060d500b99b99
@@ -239,28 +239,28 @@ stages:
           generation_delimiter: 'Answer:'
         generate_answers:
           model: llama3.1_8b_chat
-          max_dataset_size: 17
+          max_dataset_size: false
           sample_strategy: first_n
           batch_size: 10
           inference_engine: vllm
     outs:
     - path: ./generations/
       hash: md5
-      md5: ac3d9414884a220e3bc9f7ade83a5091.dir
-      size: 36041
+      md5: 717740529d58a74a9d0b7d1dfaaa14f8.dir
+      size: 13148563
       nfiles: 4
   evaluate_answers:
     cmd: python -m src.stages.evaluate_answers --config=params.yaml --model=llama3.1_8b_chat
     deps:
     - path: ./datasets/formatted/
       hash: md5
-      md5: d11b5b1d9d84530cf086c48335fbc620.dir
-      size: 13178584
-      nfiles: 8
+      md5: 2bb0047873630b15d3e4b58692ad76ea.dir
+      size: 13142642
+      nfiles: 4
     - path: ./generations/
       hash: md5
-      md5: ac3d9414884a220e3bc9f7ade83a5091.dir
-      size: 36041
+      md5: 717740529d58a74a9d0b7d1dfaaa14f8.dir
+      size: 13148563
       nfiles: 4
     - path: src/stages/evaluate_answers.py
       hash: md5
@@ -371,15 +371,15 @@ stages:
           generation_delimiter: 'Answer:'
         generate_answers:
           model: llama3.1_8b_chat
-          max_dataset_size: 17
+          max_dataset_size: false
           sample_strategy: first_n
           batch_size: 10
           inference_engine: vllm
     outs:
     - path: ./evaluations/
       hash: md5
-      md5: 3e2fed0109c4866701c83614b31dc60a.dir
-      size: 37583
+      md5: 1cc717b9b2645e3653cf58afa1b123f5.dir
+      size: 13427231
       nfiles: 9
   capture_activations:
     cmd: python -m src.stages.capture_activations --config=params.yaml --model=llama3.1_8b_chat
@@ -387,8 +387,8 @@ stages:
     deps:
     - path: ./generations/
       hash: md5
-      md5: ac3d9414884a220e3bc9f7ade83a5091.dir
-      size: 36041
+      md5: 717740529d58a74a9d0b7d1dfaaa14f8.dir
+      size: 13148563
       nfiles: 4
     - path: src/stages/capture_activations.py
       hash: md5
@@ -499,7 +499,7 @@ stages:
                 Serie A?\nAnswer: Udinese<|eot_id|>\n---\nQuestion:"
         generate_answers:
           model: llama3.1_8b_chat
-          max_dataset_size: 17
+          max_dataset_size: false
           sample_strategy: first_n
           batch_size: 10
           inference_engine: vllm
@@ -518,6 +518,6 @@ stages:
     outs:
     - path: ./activations/
       hash: md5
-      md5: da3d604f589fe81d3b043bdff3555618.dir
-      size: 71939328
-      nfiles: 512
+      md5: 2dce57be0338fab3b59adfb7b8e65cf8.dir
+      size: 25862476032
+      nfiles: 156672
