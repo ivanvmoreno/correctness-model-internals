@@ -3,7 +3,6 @@ generations/
 experiment_results/
 activations/
 datasets/
-classification_data/
 
 # Custom datasets
 !./datasets/raw/birth_years_4k/
