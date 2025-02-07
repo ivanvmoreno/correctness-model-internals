@@ -75,6 +75,7 @@ download_repo() {
         echo "Installing dependencies with uv..."
         uv python install ${python_version}
         uv venv
+        source .venv/bin/activate
         uv sync
     fi
 }
@@ -106,7 +107,7 @@ echo "Pod Started"
 
 setup_ssh
 export_env_vars
-download_repo $REPO_URL $REPO_DIR
+download_repo $REPO_URL $REPO_DIR $PYTHON_VERSION
 setup_git $GIT_EMAIL $GIT_NAME
 
 execute_script "/post_start.sh" "Running post-start script..."
