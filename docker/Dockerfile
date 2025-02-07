@@ -14,7 +14,7 @@ ENV PIP_PREFER_BINARY 1
 ENV PYTHONUNBUFFERED 1 
 # uv
 ENV HOME /root
-ENV PATH = "$HOME/.local/bin/:$PATH"
+ENV PATH "$HOME/.local/bin/:$PATH"
 
 WORKDIR /
 
