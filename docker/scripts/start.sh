@@ -63,8 +63,11 @@ download_repo() {
     local repo_url=$1
     local repo_dir=$2
 
-    echo "Downloading repo..."
-    git clone ${repo_url} ${repo_dir}
+    if [[ ! -d ${repo_dir} ]]; then
+        echo "Cloning repo..."
+        git clone ${repo_url} ${repo_dir}
+    fi
+    
     cd ${repo_dir}
 
     if [[ -f "uv.lock" ]]; then
