@@ -79,8 +79,12 @@ RUN apt-get update --yes && \
     # Set locale
     echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
 
-# Install uv
+# uv
 RUN sh -c "$(curl -fsSL https://astral.sh/uv/install.sh)"
+
+# gcloud CLI
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg && apt-get update -y && apt-get install google-cloud-cli -y
+
 
 # zsh
 RUN sh -c "$(curl -L https://github.com/deluan/zsh-in-docker/releases/download/v1.1.5/zsh-in-docker.sh)"
