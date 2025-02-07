@@ -136,38 +136,43 @@ datasets:
       - main
     prompts:
       # TODO: replace with other n-shot examples
-      base_3_shot: |-
-        Give your answer in this format: $\boxed{answer}$
-        Here are some examples to help you understand the format:
-        ---
-        Question: Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?
-        Answer: $\boxed{10}$
-        ---
-        Question: Julie is reading a 120-page book. Yesterday, she was able to read 12 pages and today, she read twice as many pages as yesterday. If she wants to read half of the remaining pages tomorrow, how many pages should she read?
-        Answer: $\boxed{42}$
-        ---
-        Question: Mark has a garden with flowers. He planted plants of three different colors in it. Ten of them are yellow, and there are 80% more of those in purple. There are only 25% as many green flowers as there are yellow and purple flowers. How many flowers does Mark have in his garden?
-        Answer: $\boxed{35}$
-        ---
-        Question:
-      cot_3_shot: |-
-        Think step by step about the following problem.
-        Give your answer in this format: $\boxed{answer}$
-        Here are some examples to help you understand the format:
-        ---
-        Question: Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?
-        Reasoning: Weng earns 12/60 = $12/60=0.20.2 per minute. Working 50 minutes, she earned 0.2 x 50 = $0.2*50=1010.
-        Final answer: $\boxed{10}$
-        ---
-        Question: Julie is reading a 120-page book. Yesterday, she was able to read 12 pages and today, she read twice as many pages as yesterday. If she wants to read half of the remaining pages tomorrow, how many pages should she read?
-        Reasoning: Julie read 12 x 2 = 12*2=2424 pages today. So she was able to read a total of 12 + 24 = 12+24=3636 pages since yesterday. There are 120 - 36 = 120-36=8484 pages left to be read. Since she wants to read half of the remaining pages tomorrow, then she should read 84/2 = 84/2=4242 pages.
-        Final answer: $\boxed{42}$
-        ---
-        Question: Mark has a garden with flowers. He planted plants of three different colors in it. Ten of them are yellow, and there are 80% more of those in purple. There are only 25% as many green flowers as there are yellow and purple flowers. How many flowers does Mark have in his garden?
-        Reasoning: There are 80/100 * 10 = 80/100*10=88 more purple flowers than yellow flowers. So in Mark's garden, there are 10 + 8 = 10+8=1818 purple flowers. Purple and yellow flowers sum up to 10 + 18 = 10+18=2828 flowers. That means in Mark's garden there are 25/100 * 28 = 25/100*28=77 green flowers. So in total Mark has 28 + 7 = 28+7=3535 plants in his garden.
-        Final answer: $\boxed{35}$
-        ---
-        Question:
+      base_3_shot: 
+          text: |-
+            Give your answer in this format: $\boxed{answer}$
+            Here are some examples to help you understand the format:
+            ---
+            Question: Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?
+            Answer: $\boxed{10}$
+            ---
+            Question: Julie is reading a 120-page book. Yesterday, she was able to read 12 pages and today, she read twice as many pages as yesterday. If she wants to read half of the remaining pages tomorrow, how many pages should she read?
+            Answer: $\boxed{42}$
+            ---
+            Question: Mark has a garden with flowers. He planted plants of three different colors in it. Ten of them are yellow, and there are 80% more of those in purple. There are only 25% as many green flowers as there are yellow and purple flowers. How many flowers does Mark have in his garden?
+            Answer: $\boxed{35}$
+            ---
+            Question:
+          generation_delimiter: "Answer:"
+      cot_3_shot: 
+        text: |-
+          Think step by step about the following problem.
+          Give your answer in this format: $\boxed{answer}$
+          Here are some examples to help you understand the format:
+          ---
+          Question: Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?
+          Reasoning: Weng earns 12/60 = $12/60=0.20.2 per minute. Working 50 minutes, she earned 0.2 x 50 = $0.2*50=1010.
+          Final answer: $\boxed{10}$
+          ---
+          Question: Julie is reading a 120-page book. Yesterday, she was able to read 12 pages and today, she read twice as many pages as yesterday. If she wants to read half of the remaining pages tomorrow, how many pages should she read?
+          Reasoning: Julie read 12 x 2 = 12*2=2424 pages today. So she was able to read a total of 12 + 24 = 12+24=3636 pages since yesterday. There are 120 - 36 = 120-36=8484 pages left to be read. Since she wants to read half of the remaining pages tomorrow, then she should read 84/2 = 84/2=4242 pages.
+          Final answer: $\boxed{42}$
+          ---
+          Question: Mark has a garden with flowers. He planted plants of three different colors in it. Ten of them are yellow, and there are 80% more of those in purple. There are only 25% as many green flowers as there are yellow and purple flowers. How many flowers does Mark have in his garden?
+          Reasoning: There are 80/100 * 10 = 80/100*10=88 more purple flowers than yellow flowers. So in Mark's garden, there are 10 + 8 = 10+8=1818 purple flowers. Purple and yellow flowers sum up to 10 + 18 = 10+18=2828 flowers. That means in Mark's garden there are 25/100 * 28 = 25/100*28=77 green flowers. So in total Mark has 28 + 7 = 28+7=3535 plants in his garden.
+          Final answer: $\boxed{35}$
+          ---
+          Question:
+        generation_delimiter: "Reasoning:"
+
 
 models:
   llama3.1_8b_chat:

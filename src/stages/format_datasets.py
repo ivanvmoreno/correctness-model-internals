@@ -31,7 +31,8 @@ def format_dataset(
                 elif dataset_name == "gsm8k":
                     dataset_f = format_gsm8k(
                         f"{config.base.datasets_dir}/{config.format_datasets.raw_dir_path}/{dataset_name}/{subset}",
-                        prompt,
+                        prompt.text,
+                        generation_delimiter=prompt.generation_delimiter
                     )
                 else:
                     dataset_f = format_generic(
