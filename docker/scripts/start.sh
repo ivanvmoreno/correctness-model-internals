@@ -58,6 +58,35 @@ setup_ssh() {
     fi
 }
 
+# Download specified repo and install dependencies 
+download_repo() {
+    local repo_url=$1
+    local repo_dir=$2
+
+    echo "Downloading repo..."
+    git clone ${repo_url} ${repo_dir}
+    cd ${repo_dir}
+
+    if [[ -f "uv.lock" ]]; then
+        echo "Installing dependencies with uv..."
+        uv python install
+        uv venv
+        uv sync
+    fi
+}
+
+
+# Set git username and email
+setup_git() {
+    local git_email=$1
+    local git_name=$2
+
+    echo "Setting up git..."
+    git config --global user.email "${git_email}"
+    git config --global user.name "${git_name}"
+}
+
+
 # Export env vars
 export_env_vars() {
     echo "Exporting environment variables..."
@@ -73,6 +102,8 @@ echo "Pod Started"
 
 setup_ssh
 export_env_vars
+download_repo $REPO_URL $REPO_DIR
+setup_git $GIT_EMAIL $GIT_NAME
 
 execute_script "/post_start.sh" "Running post-start script..."
 
