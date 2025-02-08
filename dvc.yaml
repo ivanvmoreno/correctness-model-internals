@@ -13,7 +13,7 @@ stages:
       - format_datasets
   generate_answers:
     desc: Generate answers for the formatted datasets with the specified model
-    cmd: python -m src.stages.generate_answers --config=params.yaml --model=${generate_answers.model} --batch-size=${generate_answers.batch_size}
+    cmd: python -m src.stages.generate_answers --config=params.yaml --model=${generate_answers.model} --batch-size=${generate_answers.generation_batch_size}
     deps:
       - ${base.datasets_dir}/${format_datasets.formatted_dir_path}/
       - src/stages/generate_answers.py
@@ -40,7 +40,7 @@ stages:
       - format_datasets
   capture_activations:
     desc: Capture activations at the specified layers for all generated answers
-    cmd: python -m src.stages.capture_activations --config=params.yaml --model=${generate_answers.model} --batch-size=${generate_answers.batch_size}
+    cmd: python -m src.stages.capture_activations --config=params.yaml --model=${generate_answers.model} --batch-size=${generate_answers.activations_batch_size}
     deps:
       - ${base.generations_dir}/
       - src/stages/capture_activations.py
