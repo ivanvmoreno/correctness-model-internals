@@ -5,13 +5,13 @@ stages:
     deps:
     - path: ./datasets/raw/
       hash: md5
-      md5: 6c820ba7f1280a9e91e0b015ebdc13bd.dir
-      size: 277885975
-      nfiles: 570
+      md5: dc007414179c80b25fa562388134de22.dir
+      size: 277862800
+      nfiles: 194
     - path: src/stages/format_datasets.py
       hash: md5
-      md5: 60e286109cc57530df5a9d6abc744ed1
-      size: 2513
+      md5: 4621c30e8ce731ccc342e103de5c6ff0
+      size: 2591
     params:
       params.yaml:
         base:
@@ -24,138 +24,60 @@ stages:
           activations_dir: ./activations
           classification_stats_dir: ./classification_stats
         datasets:
-          mmlu:
-            answer_type: multiple_choice
-            answer_map:
-            - A
-            - B
-            - C
-            - D
-            eval_type: constrained_tokens
-            subsets:
-            - high_school_mathematics
-            - college_mathematics
-            - abstract_algebra
-            prompts:
-              base: The following is a multiple choice question (with answers). Give
-                your answer with a single letter corresponding to the correct answer.
-          cities_10k:
-            answer_type: open_ended
-            subsets:
-            - main
-            format: csv
-            eval_type: answers_map
-            answers_map_path: eval_map.json
-            col_map:
-              prompt: question
-              answer: correct_answer
-            prompts:
-              base: "I am going to ask you a question about cities. End your sentence
-                with <|eot_id|>.\nHere are some examples of questions that might help
-                you:\n---\nQuestion: In which country is the city of Barcelona located?\n
-                Answer: Spain<|eot_id|>\n---\nQuestion: In which country is the city
-                of Berlin located?\nAnswer: Germany<|eot_id|>\n---\nQuestion: In which
-                country is the city of Beijing located?\nAnswer: China<|eot_id|>\n\
-                ---\nQuestion:"
-          birth_years_4k:
-            answer_type: open_ended
-            subsets:
-            - main
-            format: csv
-            eval_type: exact_match
-            col_map:
-              prompt: question
-              answer: correct_answer
-            prompts:
-              base: "I am going to ask you what year a person was born. End your sentence
-                with <|eot_id|>.\nHere are some examples of questions that might help
-                you:\n---\nQuestion: What year was Barack Obama born? \nAnswer: 1961<|eot_id|>\n
-                ---\nQuestion: What year was Vladimir Putin born? \nAnswer: 1952<|eot_id|>\n
-                ---\nQuestion: What year was Xi Jinping born? \nAnswer: 1953<|eot_id|>\n\
-                ---\nQuestion:"
-          medals_9k:
-            answer_type: open_ended
-            subsets:
-            - main
-            format: csv
-            eval_type: answers_map
-            answers_map_path: eval_map.json
-            col_map:
-              prompt: question
-              answer: correct_answer
-            prompts:
-              base: "I am going to ask you a question about the olympics. End your
-                sentence with <|eot_id|>.\nHere are some examples of questions that
-                might help you:\n---\nQuestion: Which country won gold in Gymnastics
-                Women's Team All-Around in the 1928 Summer Olympics?\nAnswer: Netherlands<|eot_id|>
-                \n---\nQuestion: Which country won gold in Hockey Women's Hockey in
-                the 2004 Summer Olympics? Answer: Germany<|eot_id|> \n---\nQuestion:
-                Which country won gold in Fencing Men's Sabre, Individual in the 1964
-                Summer Olympics?\nAnswer: Hungary<|eot_id|>\n---\nQuestion:"
-          football_leagues_1k:
-            answer_type: open_ended
-            subsets:
-            - main
-            format: csv
-            eval_type: answers_map
-            answers_map_path: eval_map.json
-            col_map:
-              prompt: question
-              answer: correct_answer
-            prompts:
-              base: "I am going to ask you a question about football. End your sentence
-                with <|eot_id|>.\nHere are some examples of questions that might help
-                you:\n---\nQuestion: Which team finished in position 10 in the 2010-2011
-                Premier League?\nAnswer: Sunderland<|eot_id|> \n---\nQuestion: Which
-                team finished in position 19 in the 2020-2021 La Liga?\nAnswer: Valladolid<|eot_id|>
-                \n---\nQuestion: Which team finished in position 13 in the 2019-2020
-                Serie A?\nAnswer: Udinese<|eot_id|>\n---\nQuestion:"
           gsm8k:
             answer_type: open_ended
             answer_delim: '####'
             answer_regex: (?<=\$\\boxed\{)\d+(?=\}\$)
             eval_type: regex_match
+            max_new_tokens: 1024
+            stop_words:
+            - '}$'
             subsets:
             - main
             prompts:
-              base_3_shot: "Give your answer in this format: $\\boxed{answer}$\nHere
-                are some examples to help you understand the format:\n---\nQuestion:
-                Weng earns $12 an hour for babysitting. Yesterday, she just did 50
-                minutes of babysitting. How much did she earn?\nAnswer: $\\boxed{10}$\n
-                ---\nQuestion: Julie is reading a 120-page book. Yesterday, she was
-                able to read 12 pages and today, she read twice as many pages as yesterday.
-                If she wants to read half of the remaining pages tomorrow, how many
-                pages should she read?\nAnswer: $\\boxed{42}$\n---\nQuestion: Mark
-                has a garden with flowers. He planted plants of three different colors
-                in it. Ten of them are yellow, and there are 80% more of those in
-                purple. There are only 25% as many green flowers as there are yellow
-                and purple flowers. How many flowers does Mark have in his garden?\n
-                Answer: $\\boxed{35}$\n---\nQuestion:"
-              cot_3_shot: "Think step by step about the following problem.\nGive your
-                answer in this format: $\\boxed{answer}$\nHere are some examples to
-                help you understand the format:\n---\nQuestion: Weng earns $12 an
-                hour for babysitting. Yesterday, she just did 50 minutes of babysitting.
-                How much did she earn?\nReasoning: Weng earns 12/60 = $12/60=0.20.2
-                per minute. Working 50 minutes, she earned 0.2 x 50 = $0.2*50=1010.\n
-                Final answer: $\\boxed{10}$\n---\nQuestion: Julie is reading a 120-page
-                book. Yesterday, she was able to read 12 pages and today, she read
-                twice as many pages as yesterday. If she wants to read half of the
-                remaining pages tomorrow, how many pages should she read?\nReasoning:
-                Julie read 12 x 2 = 12*2=2424 pages today. So she was able to read
-                a total of 12 + 24 = 12+24=3636 pages since yesterday. There are 120
-                - 36 = 120-36=8484 pages left to be read. Since she wants to read
-                half of the remaining pages tomorrow, then she should read 84/2 =
-                84/2=4242 pages.\nFinal answer: $\\boxed{42}$\n---\nQuestion: Mark
-                has a garden with flowers. He planted plants of three different colors
-                in it. Ten of them are yellow, and there are 80% more of those in
-                purple. There are only 25% as many green flowers as there are yellow
-                and purple flowers. How many flowers does Mark have in his garden?\n
-                Reasoning: There are 80/100 * 10 = 80/100*10=88 more purple flowers
-                than yellow flowers. So in Mark's garden, there are 10 + 8 = 10+8=1818
-                purple flowers. Purple and yellow flowers sum up to 10 + 18 = 10+18=2828
-                flowers. That means in Mark's garden there are 25/100 * 28 = 25/100*28=77
-                green flowers. So in total Mark has 28 + 7 = 28+7=3535 plants in his
-                garden.\nFinal answer: $\\boxed{35}$\n---\nQuestion:"
+              base_3_shot:
+                text: "Give your answer in this format: $\\boxed{answer}$\nHere are
+                  some examples to help you understand the format:\n---\nQuestion:
+                  Weng earns $12 an hour for babysitting. Yesterday, she just did
+                  50 minutes of babysitting. How much did she earn?\nAnswer: $\\boxed{10}$\n
+                  ---\nQuestion: Julie is reading a 120-page book. Yesterday, she
+                  was able to read 12 pages and today, she read twice as many pages
+                  as yesterday. If she wants to read half of the remaining pages tomorrow,
+                  how many pages should she read?\nAnswer: $\\boxed{42}$\n---\nQuestion:
+                  Mark has a garden with flowers. He planted plants of three different
+                  colors in it. Ten of them are yellow, and there are 80% more of
+                  those in purple. There are only 25% as many green flowers as there
+                  are yellow and purple flowers. How many flowers does Mark have in
+                  his garden?\nAnswer: $\\boxed{35}$\n---\nQuestion:"
+                generation_delimiter: 'Answer:'
+              cot_3_shot:
+                text: "Think step by step about the following problem.\nGive your
+                  answer in this format: $\\boxed{answer}$\nHere are some examples
+                  to help you understand the format:\n---\nQuestion: Weng earns $12
+                  an hour for babysitting. Yesterday, she just did 50 minutes of babysitting.
+                  How much did she earn?\nReasoning: Weng earns 12/60 = $12/60=0.20.2
+                  per minute. Working 50 minutes, she earned 0.2 x 50 = $0.2*50=1010.\n
+                  Final answer: $\\boxed{10}$\n---\nQuestion: Julie is reading a 120-page
+                  book. Yesterday, she was able to read 12 pages and today, she read
+                  twice as many pages as yesterday. If she wants to read half of the
+                  remaining pages tomorrow, how many pages should she read?\nReasoning:
+                  Julie read 12 x 2 = 12*2=2424 pages today. So she was able to read
+                  a total of 12 + 24 = 12+24=3636 pages since yesterday. There are
+                  120 - 36 = 120-36=8484 pages left to be read. Since she wants to
+                  read half of the remaining pages tomorrow, then she should read
+                  84/2 = 84/2=4242 pages.\nFinal answer: $\\boxed{42}$\n---\nQuestion:
+                  Mark has a garden with flowers. He planted plants of three different
+                  colors in it. Ten of them are yellow, and there are 80% more of
+                  those in purple. There are only 25% as many green flowers as there
+                  are yellow and purple flowers. How many flowers does Mark have in
+                  his garden?\nReasoning: There are 80/100 * 10 = 80/100*10=88 more
+                  purple flowers than yellow flowers. So in Mark's garden, there are
+                  10 + 8 = 10+8=1818 purple flowers. Purple and yellow flowers sum
+                  up to 10 + 18 = 10+18=2828 flowers. That means in Mark's garden
+                  there are 25/100 * 28 = 25/100*28=77 green flowers. So in total
+                  Mark has 28 + 7 = 28+7=3535 plants in his garden.\nFinal answer:
+                  $\\boxed{35}$\n---\nQuestion:"
+                generation_delimiter: 'Reasoning:'
         format_datasets:
           raw_dir_path: raw
           formatted_dir_path: formatted
@@ -163,21 +85,22 @@ stages:
     outs:
     - path: ./datasets/formatted/
       hash: md5
-      md5: 4269e165c552c934a86a66ce11cf86d7.dir
-      size: 39841960
-      nfiles: 9
+      md5: 2deaca978faa21f9420e9721768417b3.dir
+      size: 26530422
+      nfiles: 2
   generate_answers:
-    cmd: python -m src.stages.generate_answers --config=params.yaml --model=llama3_3b_chat
+    cmd: python -m src.stages.generate_answers --config=params.yaml --model=llama3.1_8b_chat
+      --batch-size=100
     deps:
     - path: ./datasets/formatted/
       hash: md5
-      md5: 53876b756a47d0ba9e4b8454a3b63775.dir
-      size: 39904421
-      nfiles: 18
+      md5: 2deaca978faa21f9420e9721768417b3.dir
+      size: 26530422
+      nfiles: 2
     - path: src/stages/generate_answers.py
       hash: md5
-      md5: c4e452869ce16560a356124eeccd630b
-      size: 7993
+      md5: 8b4e65e9887f7411f50060d500b99b99
+      size: 9272
     params:
       params.yaml:
         base:
@@ -190,171 +113,94 @@ stages:
           activations_dir: ./activations
           classification_stats_dir: ./classification_stats
         datasets:
-          mmlu:
-            answer_type: multiple_choice
-            answer_map:
-            - A
-            - B
-            - C
-            - D
-            eval_type: constrained_tokens
-            subsets:
-            - high_school_mathematics
-            - college_mathematics
-            - abstract_algebra
-            prompts:
-              base: The following is a multiple choice question (with answers). Give
-                your answer with a single letter corresponding to the correct answer.
-          cities_10k:
-            answer_type: open_ended
-            subsets:
-            - main
-            format: csv
-            eval_type: answers_map
-            answers_map_path: eval_map.json
-            col_map:
-              prompt: question
-              answer: correct_answer
-            prompts:
-              base: "I am going to ask you a question about cities. End your sentence
-                with <|eot_id|>.\nHere are some examples of questions that might help
-                you:\n---\nQuestion: In which country is the city of Barcelona located?\n
-                Answer: Spain<|eot_id|>\n---\nQuestion: In which country is the city
-                of Berlin located?\nAnswer: Germany<|eot_id|>\n---\nQuestion: In which
-                country is the city of Beijing located?\nAnswer: China<|eot_id|>\n\
-                ---\nQuestion:"
-          birth_years_4k:
-            answer_type: open_ended
-            subsets:
-            - main
-            format: csv
-            eval_type: exact_match
-            col_map:
-              prompt: question
-              answer: correct_answer
-            prompts:
-              base: "I am going to ask you what year a person was born. End your sentence
-                with <|eot_id|>.\nHere are some examples of questions that might help
-                you:\n---\nQuestion: What year was Barack Obama born? \nAnswer: 1961<|eot_id|>\n
-                ---\nQuestion: What year was Vladimir Putin born? \nAnswer: 1952<|eot_id|>\n
-                ---\nQuestion: What year was Xi Jinping born? \nAnswer: 1953<|eot_id|>\n\
-                ---\nQuestion:"
-          medals_9k:
-            answer_type: open_ended
-            subsets:
-            - main
-            format: csv
-            eval_type: answers_map
-            answers_map_path: eval_map.json
-            col_map:
-              prompt: question
-              answer: correct_answer
-            prompts:
-              base: "I am going to ask you a question about the olympics. End your
-                sentence with <|eot_id|>.\nHere are some examples of questions that
-                might help you:\n---\nQuestion: Which country won gold in Gymnastics
-                Women's Team All-Around in the 1928 Summer Olympics?\nAnswer: Netherlands<|eot_id|>
-                \n---\nQuestion: Which country won gold in Hockey Women's Hockey in
-                the 2004 Summer Olympics? Answer: Germany<|eot_id|> \n---\nQuestion:
-                Which country won gold in Fencing Men's Sabre, Individual in the 1964
-                Summer Olympics?\nAnswer: Hungary<|eot_id|>\n---\nQuestion:"
-          football_leagues_1k:
-            answer_type: open_ended
-            subsets:
-            - main
-            format: csv
-            eval_type: answers_map
-            answers_map_path: eval_map.json
-            col_map:
-              prompt: question
-              answer: correct_answer
-            prompts:
-              base: "I am going to ask you a question about football. End your sentence
-                with <|eot_id|>.\nHere are some examples of questions that might help
-                you:\n---\nQuestion: Which team finished in position 10 in the 2010-2011
-                Premier League?\nAnswer: Sunderland<|eot_id|> \n---\nQuestion: Which
-                team finished in position 19 in the 2020-2021 La Liga?\nAnswer: Valladolid<|eot_id|>
-                \n---\nQuestion: Which team finished in position 13 in the 2019-2020
-                Serie A?\nAnswer: Udinese<|eot_id|>\n---\nQuestion:"
           gsm8k:
             answer_type: open_ended
             answer_delim: '####'
             answer_regex: (?<=\$\\boxed\{)\d+(?=\}\$)
             eval_type: regex_match
+            max_new_tokens: 1024
+            stop_words:
+            - '}$'
             subsets:
             - main
             prompts:
-              base_3_shot: "Give your answer in this format: $\\boxed{answer}$\nHere
-                are some examples to help you understand the format:\n---\nQuestion:
-                Weng earns $12 an hour for babysitting. Yesterday, she just did 50
-                minutes of babysitting. How much did she earn?\nAnswer: $\\boxed{10}$\n
-                ---\nQuestion: Julie is reading a 120-page book. Yesterday, she was
-                able to read 12 pages and today, she read twice as many pages as yesterday.
-                If she wants to read half of the remaining pages tomorrow, how many
-                pages should she read?\nAnswer: $\\boxed{42}$\n---\nQuestion: Mark
-                has a garden with flowers. He planted plants of three different colors
-                in it. Ten of them are yellow, and there are 80% more of those in
-                purple. There are only 25% as many green flowers as there are yellow
-                and purple flowers. How many flowers does Mark have in his garden?\n
-                Answer: $\\boxed{35}$\n---\nQuestion:"
-              cot_3_shot: "Think step by step about the following problem.\nGive your
-                answer in this format: $\\boxed{answer}$\nHere are some examples to
-                help you understand the format:\n---\nQuestion: Weng earns $12 an
-                hour for babysitting. Yesterday, she just did 50 minutes of babysitting.
-                How much did she earn?\nReasoning: Weng earns 12/60 = $12/60=0.20.2
-                per minute. Working 50 minutes, she earned 0.2 x 50 = $0.2*50=1010.\n
-                Final answer: $\\boxed{10}$\n---\nQuestion: Julie is reading a 120-page
-                book. Yesterday, she was able to read 12 pages and today, she read
-                twice as many pages as yesterday. If she wants to read half of the
-                remaining pages tomorrow, how many pages should she read?\nReasoning:
-                Julie read 12 x 2 = 12*2=2424 pages today. So she was able to read
-                a total of 12 + 24 = 12+24=3636 pages since yesterday. There are 120
-                - 36 = 120-36=8484 pages left to be read. Since she wants to read
-                half of the remaining pages tomorrow, then she should read 84/2 =
-                84/2=4242 pages.\nFinal answer: $\\boxed{42}$\n---\nQuestion: Mark
-                has a garden with flowers. He planted plants of three different colors
-                in it. Ten of them are yellow, and there are 80% more of those in
-                purple. There are only 25% as many green flowers as there are yellow
-                and purple flowers. How many flowers does Mark have in his garden?\n
-                Reasoning: There are 80/100 * 10 = 80/100*10=88 more purple flowers
-                than yellow flowers. So in Mark's garden, there are 10 + 8 = 10+8=1818
-                purple flowers. Purple and yellow flowers sum up to 10 + 18 = 10+18=2828
-                flowers. That means in Mark's garden there are 25/100 * 28 = 25/100*28=77
-                green flowers. So in total Mark has 28 + 7 = 28+7=3535 plants in his
-                garden.\nFinal answer: $\\boxed{35}$\n---\nQuestion:"
+              base_3_shot:
+                text: "Give your answer in this format: $\\boxed{answer}$\nHere are
+                  some examples to help you understand the format:\n---\nQuestion:
+                  Weng earns $12 an hour for babysitting. Yesterday, she just did
+                  50 minutes of babysitting. How much did she earn?\nAnswer: $\\boxed{10}$\n
+                  ---\nQuestion: Julie is reading a 120-page book. Yesterday, she
+                  was able to read 12 pages and today, she read twice as many pages
+                  as yesterday. If she wants to read half of the remaining pages tomorrow,
+                  how many pages should she read?\nAnswer: $\\boxed{42}$\n---\nQuestion:
+                  Mark has a garden with flowers. He planted plants of three different
+                  colors in it. Ten of them are yellow, and there are 80% more of
+                  those in purple. There are only 25% as many green flowers as there
+                  are yellow and purple flowers. How many flowers does Mark have in
+                  his garden?\nAnswer: $\\boxed{35}$\n---\nQuestion:"
+                generation_delimiter: 'Answer:'
+              cot_3_shot:
+                text: "Think step by step about the following problem.\nGive your
+                  answer in this format: $\\boxed{answer}$\nHere are some examples
+                  to help you understand the format:\n---\nQuestion: Weng earns $12
+                  an hour for babysitting. Yesterday, she just did 50 minutes of babysitting.
+                  How much did she earn?\nReasoning: Weng earns 12/60 = $12/60=0.20.2
+                  per minute. Working 50 minutes, she earned 0.2 x 50 = $0.2*50=1010.\n
+                  Final answer: $\\boxed{10}$\n---\nQuestion: Julie is reading a 120-page
+                  book. Yesterday, she was able to read 12 pages and today, she read
+                  twice as many pages as yesterday. If she wants to read half of the
+                  remaining pages tomorrow, how many pages should she read?\nReasoning:
+                  Julie read 12 x 2 = 12*2=2424 pages today. So she was able to read
+                  a total of 12 + 24 = 12+24=3636 pages since yesterday. There are
+                  120 - 36 = 120-36=8484 pages left to be read. Since she wants to
+                  read half of the remaining pages tomorrow, then she should read
+                  84/2 = 84/2=4242 pages.\nFinal answer: $\\boxed{42}$\n---\nQuestion:
+                  Mark has a garden with flowers. He planted plants of three different
+                  colors in it. Ten of them are yellow, and there are 80% more of
+                  those in purple. There are only 25% as many green flowers as there
+                  are yellow and purple flowers. How many flowers does Mark have in
+                  his garden?\nReasoning: There are 80/100 * 10 = 80/100*10=88 more
+                  purple flowers than yellow flowers. So in Mark's garden, there are
+                  10 + 8 = 10+8=1818 purple flowers. Purple and yellow flowers sum
+                  up to 10 + 18 = 10+18=2828 flowers. That means in Mark's garden
+                  there are 25/100 * 28 = 25/100*28=77 green flowers. So in total
+                  Mark has 28 + 7 = 28+7=3535 plants in his garden.\nFinal answer:
+                  $\\boxed{35}$\n---\nQuestion:"
+                generation_delimiter: 'Reasoning:'
         format_datasets:
           raw_dir_path: raw
           formatted_dir_path: formatted
           generation_delimiter: 'Answer:'
         generate_answers:
-          model: llama3_3b_chat
-          max_dataset_size: 10
+          model: llama3.1_8b_chat
+          max_dataset_size: false
           sample_strategy: first_n
-          max_new_tokens: 1024
-          stop_word: '}$'
+          generation_batch_size: 100
+          activations_batch_size: 10
+          inference_engine: vllm
     outs:
     - path: ./generations/
       hash: md5
-      md5: 34fe304bb7025699455a8622475309b7.dir
-      size: 77391
-      nfiles: 9
+      md5: 75824b676fdc5d78ab53c427d9f3e463.dir
+      size: 29065022
+      nfiles: 2
   evaluate_answers:
-    cmd: python -m src.stages.evaluate_answers --config=params.yaml --model=llama3_3b_chat
+    cmd: python -m src.stages.evaluate_answers --config=params.yaml --model=llama3.1_8b_chat
     deps:
     - path: ./datasets/formatted/
       hash: md5
-      md5: 53876b756a47d0ba9e4b8454a3b63775.dir
-      size: 39904421
-      nfiles: 18
+      md5: 2deaca978faa21f9420e9721768417b3.dir
+      size: 26530422
+      nfiles: 2
     - path: ./generations/
       hash: md5
-      md5: 34fe304bb7025699455a8622475309b7.dir
-      size: 77391
-      nfiles: 9
+      md5: 75824b676fdc5d78ab53c427d9f3e463.dir
+      size: 29065022
+      nfiles: 2
     - path: src/stages/evaluate_answers.py
       hash: md5
-      md5: c1f330e7fbb56bfd02fa09953f6421ca
-      size: 8295
+      md5: a3bca029e24153f2840bf0c87e12d608
+      size: 8544
     params:
       params.yaml:
         base:
@@ -367,166 +213,90 @@ stages:
           activations_dir: ./activations
           classification_stats_dir: ./classification_stats
         datasets:
-          mmlu:
-            answer_type: multiple_choice
-            answer_map:
-            - A
-            - B
-            - C
-            - D
-            eval_type: constrained_tokens
-            subsets:
-            - high_school_mathematics
-            - college_mathematics
-            - abstract_algebra
-            prompts:
-              base: The following is a multiple choice question (with answers). Give
-                your answer with a single letter corresponding to the correct answer.
-          cities_10k:
-            answer_type: open_ended
-            subsets:
-            - main
-            format: csv
-            eval_type: answers_map
-            answers_map_path: eval_map.json
-            col_map:
-              prompt: question
-              answer: correct_answer
-            prompts:
-              base: "I am going to ask you a question about cities. End your sentence
-                with <|eot_id|>.\nHere are some examples of questions that might help
-                you:\n---\nQuestion: In which country is the city of Barcelona located?\n
-                Answer: Spain<|eot_id|>\n---\nQuestion: In which country is the city
-                of Berlin located?\nAnswer: Germany<|eot_id|>\n---\nQuestion: In which
-                country is the city of Beijing located?\nAnswer: China<|eot_id|>\n\
-                ---\nQuestion:"
-          birth_years_4k:
-            answer_type: open_ended
-            subsets:
-            - main
-            format: csv
-            eval_type: exact_match
-            col_map:
-              prompt: question
-              answer: correct_answer
-            prompts:
-              base: "I am going to ask you what year a person was born. End your sentence
-                with <|eot_id|>.\nHere are some examples of questions that might help
-                you:\n---\nQuestion: What year was Barack Obama born? \nAnswer: 1961<|eot_id|>\n
-                ---\nQuestion: What year was Vladimir Putin born? \nAnswer: 1952<|eot_id|>\n
-                ---\nQuestion: What year was Xi Jinping born? \nAnswer: 1953<|eot_id|>\n\
-                ---\nQuestion:"
-          medals_9k:
-            answer_type: open_ended
-            subsets:
-            - main
-            format: csv
-            eval_type: answers_map
-            answers_map_path: eval_map.json
-            col_map:
-              prompt: question
-              answer: correct_answer
-            prompts:
-              base: "I am going to ask you a question about the olympics. End your
-                sentence with <|eot_id|>.\nHere are some examples of questions that
-                might help you:\n---\nQuestion: Which country won gold in Gymnastics
-                Women's Team All-Around in the 1928 Summer Olympics?\nAnswer: Netherlands<|eot_id|>
-                \n---\nQuestion: Which country won gold in Hockey Women's Hockey in
-                the 2004 Summer Olympics? Answer: Germany<|eot_id|> \n---\nQuestion:
-                Which country won gold in Fencing Men's Sabre, Individual in the 1964
-                Summer Olympics?\nAnswer: Hungary<|eot_id|>\n---\nQuestion:"
-          football_leagues_1k:
-            answer_type: open_ended
-            subsets:
-            - main
-            format: csv
-            eval_type: answers_map
-            answers_map_path: eval_map.json
-            col_map:
-              prompt: question
-              answer: correct_answer
-            prompts:
-              base: "I am going to ask you a question about football. End your sentence
-                with <|eot_id|>.\nHere are some examples of questions that might help
-                you:\n---\nQuestion: Which team finished in position 10 in the 2010-2011
-                Premier League?\nAnswer: Sunderland<|eot_id|> \n---\nQuestion: Which
-                team finished in position 19 in the 2020-2021 La Liga?\nAnswer: Valladolid<|eot_id|>
-                \n---\nQuestion: Which team finished in position 13 in the 2019-2020
-                Serie A?\nAnswer: Udinese<|eot_id|>\n---\nQuestion:"
           gsm8k:
             answer_type: open_ended
             answer_delim: '####'
             answer_regex: (?<=\$\\boxed\{)\d+(?=\}\$)
             eval_type: regex_match
+            max_new_tokens: 1024
+            stop_words:
+            - '}$'
             subsets:
             - main
             prompts:
-              base_3_shot: "Give your answer in this format: $\\boxed{answer}$\nHere
-                are some examples to help you understand the format:\n---\nQuestion:
-                Weng earns $12 an hour for babysitting. Yesterday, she just did 50
-                minutes of babysitting. How much did she earn?\nAnswer: $\\boxed{10}$\n
-                ---\nQuestion: Julie is reading a 120-page book. Yesterday, she was
-                able to read 12 pages and today, she read twice as many pages as yesterday.
-                If she wants to read half of the remaining pages tomorrow, how many
-                pages should she read?\nAnswer: $\\boxed{42}$\n---\nQuestion: Mark
-                has a garden with flowers. He planted plants of three different colors
-                in it. Ten of them are yellow, and there are 80% more of those in
-                purple. There are only 25% as many green flowers as there are yellow
-                and purple flowers. How many flowers does Mark have in his garden?\n
-                Answer: $\\boxed{35}$\n---\nQuestion:"
-              cot_3_shot: "Think step by step about the following problem.\nGive your
-                answer in this format: $\\boxed{answer}$\nHere are some examples to
-                help you understand the format:\n---\nQuestion: Weng earns $12 an
-                hour for babysitting. Yesterday, she just did 50 minutes of babysitting.
-                How much did she earn?\nReasoning: Weng earns 12/60 = $12/60=0.20.2
-                per minute. Working 50 minutes, she earned 0.2 x 50 = $0.2*50=1010.\n
-                Final answer: $\\boxed{10}$\n---\nQuestion: Julie is reading a 120-page
-                book. Yesterday, she was able to read 12 pages and today, she read
-                twice as many pages as yesterday. If she wants to read half of the
-                remaining pages tomorrow, how many pages should she read?\nReasoning:
-                Julie read 12 x 2 = 12*2=2424 pages today. So she was able to read
-                a total of 12 + 24 = 12+24=3636 pages since yesterday. There are 120
-                - 36 = 120-36=8484 pages left to be read. Since she wants to read
-                half of the remaining pages tomorrow, then she should read 84/2 =
-                84/2=4242 pages.\nFinal answer: $\\boxed{42}$\n---\nQuestion: Mark
-                has a garden with flowers. He planted plants of three different colors
-                in it. Ten of them are yellow, and there are 80% more of those in
-                purple. There are only 25% as many green flowers as there are yellow
-                and purple flowers. How many flowers does Mark have in his garden?\n
-                Reasoning: There are 80/100 * 10 = 80/100*10=88 more purple flowers
-                than yellow flowers. So in Mark's garden, there are 10 + 8 = 10+8=1818
-                purple flowers. Purple and yellow flowers sum up to 10 + 18 = 10+18=2828
-                flowers. That means in Mark's garden there are 25/100 * 28 = 25/100*28=77
-                green flowers. So in total Mark has 28 + 7 = 28+7=3535 plants in his
-                garden.\nFinal answer: $\\boxed{35}$\n---\nQuestion:"
+              base_3_shot:
+                text: "Give your answer in this format: $\\boxed{answer}$\nHere are
+                  some examples to help you understand the format:\n---\nQuestion:
+                  Weng earns $12 an hour for babysitting. Yesterday, she just did
+                  50 minutes of babysitting. How much did she earn?\nAnswer: $\\boxed{10}$\n
+                  ---\nQuestion: Julie is reading a 120-page book. Yesterday, she
+                  was able to read 12 pages and today, she read twice as many pages
+                  as yesterday. If she wants to read half of the remaining pages tomorrow,
+                  how many pages should she read?\nAnswer: $\\boxed{42}$\n---\nQuestion:
+                  Mark has a garden with flowers. He planted plants of three different
+                  colors in it. Ten of them are yellow, and there are 80% more of
+                  those in purple. There are only 25% as many green flowers as there
+                  are yellow and purple flowers. How many flowers does Mark have in
+                  his garden?\nAnswer: $\\boxed{35}$\n---\nQuestion:"
+                generation_delimiter: 'Answer:'
+              cot_3_shot:
+                text: "Think step by step about the following problem.\nGive your
+                  answer in this format: $\\boxed{answer}$\nHere are some examples
+                  to help you understand the format:\n---\nQuestion: Weng earns $12
+                  an hour for babysitting. Yesterday, she just did 50 minutes of babysitting.
+                  How much did she earn?\nReasoning: Weng earns 12/60 = $12/60=0.20.2
+                  per minute. Working 50 minutes, she earned 0.2 x 50 = $0.2*50=1010.\n
+                  Final answer: $\\boxed{10}$\n---\nQuestion: Julie is reading a 120-page
+                  book. Yesterday, she was able to read 12 pages and today, she read
+                  twice as many pages as yesterday. If she wants to read half of the
+                  remaining pages tomorrow, how many pages should she read?\nReasoning:
+                  Julie read 12 x 2 = 12*2=2424 pages today. So she was able to read
+                  a total of 12 + 24 = 12+24=3636 pages since yesterday. There are
+                  120 - 36 = 120-36=8484 pages left to be read. Since she wants to
+                  read half of the remaining pages tomorrow, then she should read
+                  84/2 = 84/2=4242 pages.\nFinal answer: $\\boxed{42}$\n---\nQuestion:
+                  Mark has a garden with flowers. He planted plants of three different
+                  colors in it. Ten of them are yellow, and there are 80% more of
+                  those in purple. There are only 25% as many green flowers as there
+                  are yellow and purple flowers. How many flowers does Mark have in
+                  his garden?\nReasoning: There are 80/100 * 10 = 80/100*10=88 more
+                  purple flowers than yellow flowers. So in Mark's garden, there are
+                  10 + 8 = 10+8=1818 purple flowers. Purple and yellow flowers sum
+                  up to 10 + 18 = 10+18=2828 flowers. That means in Mark's garden
+                  there are 25/100 * 28 = 25/100*28=77 green flowers. So in total
+                  Mark has 28 + 7 = 28+7=3535 plants in his garden.\nFinal answer:
+                  $\\boxed{35}$\n---\nQuestion:"
+                generation_delimiter: 'Reasoning:'
         format_datasets:
           raw_dir_path: raw
           formatted_dir_path: formatted
           generation_delimiter: 'Answer:'
         generate_answers:
-          model: llama3_3b_chat
-          max_dataset_size: 10
+          model: llama3.1_8b_chat
+          max_dataset_size: false
           sample_strategy: first_n
-          max_new_tokens: 1024
-          stop_word: '}$'
+          generation_batch_size: 100
+          activations_batch_size: 10
+          inference_engine: vllm
     outs:
     - path: ./evaluations/
       hash: md5
-      md5: ca2439ede8cb76d6ba5285b475aef19b.dir
-      size: 80462
-      nfiles: 19
+      md5: 0a348907a59947f52dea27521ad3b96b.dir
+      size: 29221990
+      nfiles: 5
   capture_activations:
-    cmd: python -m src.stages.capture_activations --config=params.yaml --model=llama3_3b_chat
+    cmd: python -m src.stages.capture_activations --config=params.yaml --model=llama3.1_8b_chat
+      --batch-size=10
     deps:
     - path: ./generations/
       hash: md5
-      md5: 34fe304bb7025699455a8622475309b7.dir
-      size: 77391
-      nfiles: 9
+      md5: 75824b676fdc5d78ab53c427d9f3e463.dir
+      size: 29065022
+      nfiles: 2
     - path: src/stages/capture_activations.py
       hash: md5
-      md5: 6d433ee82c9f0c1f0d56de4ec9c93ca3
-      size: 5479
+      md5: 74b16989da5bf2519dfef951b5777827
+      size: 5734
     params:
       params.yaml:
         base:
@@ -543,156 +313,82 @@ stages:
           - prompt_only
           - prompt_answer
         datasets:
-          mmlu:
-            answer_type: multiple_choice
-            answer_map:
-            - A
-            - B
-            - C
-            - D
-            eval_type: constrained_tokens
-            subsets:
-            - high_school_mathematics
-            - college_mathematics
-            - abstract_algebra
-            prompts:
-              base: The following is a multiple choice question (with answers). Give
-                your answer with a single letter corresponding to the correct answer.
-          cities_10k:
-            answer_type: open_ended
-            subsets:
-            - main
-            format: csv
-            eval_type: answers_map
-            answers_map_path: eval_map.json
-            col_map:
-              prompt: question
-              answer: correct_answer
-            prompts:
-              base: "I am going to ask you a question about cities. End your sentence
-                with <|eot_id|>.\nHere are some examples of questions that might help
-                you:\n---\nQuestion: In which country is the city of Barcelona located?\n
-                Answer: Spain<|eot_id|>\n---\nQuestion: In which country is the city
-                of Berlin located?\nAnswer: Germany<|eot_id|>\n---\nQuestion: In which
-                country is the city of Beijing located?\nAnswer: China<|eot_id|>\n\
-                ---\nQuestion:"
-          birth_years_4k:
-            answer_type: open_ended
-            subsets:
-            - main
-            format: csv
-            eval_type: exact_match
-            col_map:
-              prompt: question
-              answer: correct_answer
-            prompts:
-              base: "I am going to ask you what year a person was born. End your sentence
-                with <|eot_id|>.\nHere are some examples of questions that might help
-                you:\n---\nQuestion: What year was Barack Obama born? \nAnswer: 1961<|eot_id|>\n
-                ---\nQuestion: What year was Vladimir Putin born? \nAnswer: 1952<|eot_id|>\n
-                ---\nQuestion: What year was Xi Jinping born? \nAnswer: 1953<|eot_id|>\n\
-                ---\nQuestion:"
-          medals_9k:
-            answer_type: open_ended
-            subsets:
-            - main
-            format: csv
-            eval_type: answers_map
-            answers_map_path: eval_map.json
-            col_map:
-              prompt: question
-              answer: correct_answer
-            prompts:
-              base: "I am going to ask you a question about the olympics. End your
-                sentence with <|eot_id|>.\nHere are some examples of questions that
-                might help you:\n---\nQuestion: Which country won gold in Gymnastics
-                Women's Team All-Around in the 1928 Summer Olympics?\nAnswer: Netherlands<|eot_id|>
-                \n---\nQuestion: Which country won gold in Hockey Women's Hockey in
-                the 2004 Summer Olympics? Answer: Germany<|eot_id|> \n---\nQuestion:
-                Which country won gold in Fencing Men's Sabre, Individual in the 1964
-                Summer Olympics?\nAnswer: Hungary<|eot_id|>\n---\nQuestion:"
-          football_leagues_1k:
-            answer_type: open_ended
-            subsets:
-            - main
-            format: csv
-            eval_type: answers_map
-            answers_map_path: eval_map.json
-            col_map:
-              prompt: question
-              answer: correct_answer
-            prompts:
-              base: "I am going to ask you a question about football. End your sentence
-                with <|eot_id|>.\nHere are some examples of questions that might help
-                you:\n---\nQuestion: Which team finished in position 10 in the 2010-2011
-                Premier League?\nAnswer: Sunderland<|eot_id|> \n---\nQuestion: Which
-                team finished in position 19 in the 2020-2021 La Liga?\nAnswer: Valladolid<|eot_id|>
-                \n---\nQuestion: Which team finished in position 13 in the 2019-2020
-                Serie A?\nAnswer: Udinese<|eot_id|>\n---\nQuestion:"
           gsm8k:
             answer_type: open_ended
             answer_delim: '####'
             answer_regex: (?<=\$\\boxed\{)\d+(?=\}\$)
             eval_type: regex_match
+            max_new_tokens: 1024
+            stop_words:
+            - '}$'
             subsets:
             - main
             prompts:
-              base_3_shot: "Give your answer in this format: $\\boxed{answer}$\nHere
-                are some examples to help you understand the format:\n---\nQuestion:
-                Weng earns $12 an hour for babysitting. Yesterday, she just did 50
-                minutes of babysitting. How much did she earn?\nAnswer: $\\boxed{10}$\n
-                ---\nQuestion: Julie is reading a 120-page book. Yesterday, she was
-                able to read 12 pages and today, she read twice as many pages as yesterday.
-                If she wants to read half of the remaining pages tomorrow, how many
-                pages should she read?\nAnswer: $\\boxed{42}$\n---\nQuestion: Mark
-                has a garden with flowers. He planted plants of three different colors
-                in it. Ten of them are yellow, and there are 80% more of those in
-                purple. There are only 25% as many green flowers as there are yellow
-                and purple flowers. How many flowers does Mark have in his garden?\n
-                Answer: $\\boxed{35}$\n---\nQuestion:"
-              cot_3_shot: "Think step by step about the following problem.\nGive your
-                answer in this format: $\\boxed{answer}$\nHere are some examples to
-                help you understand the format:\n---\nQuestion: Weng earns $12 an
-                hour for babysitting. Yesterday, she just did 50 minutes of babysitting.
-                How much did she earn?\nReasoning: Weng earns 12/60 = $12/60=0.20.2
-                per minute. Working 50 minutes, she earned 0.2 x 50 = $0.2*50=1010.\n
-                Final answer: $\\boxed{10}$\n---\nQuestion: Julie is reading a 120-page
-                book. Yesterday, she was able to read 12 pages and today, she read
-                twice as many pages as yesterday. If she wants to read half of the
-                remaining pages tomorrow, how many pages should she read?\nReasoning:
-                Julie read 12 x 2 = 12*2=2424 pages today. So she was able to read
-                a total of 12 + 24 = 12+24=3636 pages since yesterday. There are 120
-                - 36 = 120-36=8484 pages left to be read. Since she wants to read
-                half of the remaining pages tomorrow, then she should read 84/2 =
-                84/2=4242 pages.\nFinal answer: $\\boxed{42}$\n---\nQuestion: Mark
-                has a garden with flowers. He planted plants of three different colors
-                in it. Ten of them are yellow, and there are 80% more of those in
-                purple. There are only 25% as many green flowers as there are yellow
-                and purple flowers. How many flowers does Mark have in his garden?\n
-                Reasoning: There are 80/100 * 10 = 80/100*10=88 more purple flowers
-                than yellow flowers. So in Mark's garden, there are 10 + 8 = 10+8=1818
-                purple flowers. Purple and yellow flowers sum up to 10 + 18 = 10+18=2828
-                flowers. That means in Mark's garden there are 25/100 * 28 = 25/100*28=77
-                green flowers. So in total Mark has 28 + 7 = 28+7=3535 plants in his
-                garden.\nFinal answer: $\\boxed{35}$\n---\nQuestion:"
+              base_3_shot:
+                text: "Give your answer in this format: $\\boxed{answer}$\nHere are
+                  some examples to help you understand the format:\n---\nQuestion:
+                  Weng earns $12 an hour for babysitting. Yesterday, she just did
+                  50 minutes of babysitting. How much did she earn?\nAnswer: $\\boxed{10}$\n
+                  ---\nQuestion: Julie is reading a 120-page book. Yesterday, she
+                  was able to read 12 pages and today, she read twice as many pages
+                  as yesterday. If she wants to read half of the remaining pages tomorrow,
+                  how many pages should she read?\nAnswer: $\\boxed{42}$\n---\nQuestion:
+                  Mark has a garden with flowers. He planted plants of three different
+                  colors in it. Ten of them are yellow, and there are 80% more of
+                  those in purple. There are only 25% as many green flowers as there
+                  are yellow and purple flowers. How many flowers does Mark have in
+                  his garden?\nAnswer: $\\boxed{35}$\n---\nQuestion:"
+                generation_delimiter: 'Answer:'
+              cot_3_shot:
+                text: "Think step by step about the following problem.\nGive your
+                  answer in this format: $\\boxed{answer}$\nHere are some examples
+                  to help you understand the format:\n---\nQuestion: Weng earns $12
+                  an hour for babysitting. Yesterday, she just did 50 minutes of babysitting.
+                  How much did she earn?\nReasoning: Weng earns 12/60 = $12/60=0.20.2
+                  per minute. Working 50 minutes, she earned 0.2 x 50 = $0.2*50=1010.\n
+                  Final answer: $\\boxed{10}$\n---\nQuestion: Julie is reading a 120-page
+                  book. Yesterday, she was able to read 12 pages and today, she read
+                  twice as many pages as yesterday. If she wants to read half of the
+                  remaining pages tomorrow, how many pages should she read?\nReasoning:
+                  Julie read 12 x 2 = 12*2=2424 pages today. So she was able to read
+                  a total of 12 + 24 = 12+24=3636 pages since yesterday. There are
+                  120 - 36 = 120-36=8484 pages left to be read. Since she wants to
+                  read half of the remaining pages tomorrow, then she should read
+                  84/2 = 84/2=4242 pages.\nFinal answer: $\\boxed{42}$\n---\nQuestion:
+                  Mark has a garden with flowers. He planted plants of three different
+                  colors in it. Ten of them are yellow, and there are 80% more of
+                  those in purple. There are only 25% as many green flowers as there
+                  are yellow and purple flowers. How many flowers does Mark have in
+                  his garden?\nReasoning: There are 80/100 * 10 = 80/100*10=88 more
+                  purple flowers than yellow flowers. So in Mark's garden, there are
+                  10 + 8 = 10+8=1818 purple flowers. Purple and yellow flowers sum
+                  up to 10 + 18 = 10+18=2828 flowers. That means in Mark's garden
+                  there are 25/100 * 28 = 25/100*28=77 green flowers. So in total
+                  Mark has 28 + 7 = 28+7=3535 plants in his garden.\nFinal answer:
+                  $\\boxed{35}$\n---\nQuestion:"
+                generation_delimiter: 'Reasoning:'
         generate_answers:
-          model: llama3_3b_chat
-          max_dataset_size: 10
+          model: llama3.1_8b_chat
+          max_dataset_size: false
           sample_strategy: first_n
-          max_new_tokens: 1024
-          stop_word: '}$'
+          generation_batch_size: 100
+          activations_batch_size: 10
+          inference_engine: vllm
         models:
-          llama3_8b_chat:
-            dir_path: llama3_8b_chat_hf
+          llama3.1_8b_chat:
+            dir_path: llama3.1_8b_chat
             eos_token: <\|eot_id\|>
+            max_length: 1024
           llama3_8b_cot:
             dir_path: llama3_8b_cot_numina_hf
             eos_token: <\|eot_id\|>
+            max_length: 1024
           llama3_3b_chat:
             dir_path: llama3_3b_chat_hf
+            max_length: 1024
     outs:
     - path: ./activations/
       hash: md5
-      md5: acc64d7dc42dabb0164ba826abab6645.dir
-      size: 68181120
-      nfiles: 5040
+      md5: a12e60cefddae4f6455bf274bc10c9bc.dir
+      size: 18585842304
+      nfiles: 112640
