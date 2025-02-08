@@ -1,3 +1,4 @@
+import json
 import argparse
 import os
 import shutil
@@ -27,7 +28,7 @@ def capture_activations(
         device (str, optional): Device to run inference on. Defaults to 'cuda:0'.
     """
     config = load_config(config_path)
-    logger = get_logger("GENERATE_ACTS", config.base.log_level)
+    logger = get_logger("CAPTURE_ACTS", config.base.log_level)
 
     logger.info(f"Generating activations for model {model_id}")
 
@@ -41,10 +42,15 @@ def capture_activations(
 
     # Capture activations for all layers
     if layers is None:
-        layers = list(range(len(model.model.layers)))
+        raise ValueError(
+            "Please provide a list of layers to extract activations."
+        )
 
-    if isinstance(layers, int):
-        layers = [layers]
+    if isinstance(layers, str):
+        try:
+            layers = json.loads(layers)
+        except json.JSONDecodeError:
+            layers = [layers]
     layers = [int(layer) for layer in layers]
 
     logger.info(f"Extracting activations from layers {layers}")
@@ -53,6 +59,7 @@ def capture_activations(
         for prompt_version, _ in dataset_conf.prompts.items():
             save_dir = os.path.join(
                 config.base.activations_dir,
+                config.capture_activations.raw_dir_path,
                 model_id,
                 dataset_name,
                 prompt_version,
@@ -139,9 +146,7 @@ if __name__ == "__main__":
     args_parser = argparse.ArgumentParser()
     args_parser.add_argument("--config", dest="config", required=True)
     args_parser.add_argument("--model", dest="model", required=True)
-    args_parser.add_argument(
-        "--layers", dest="layers", nargs="+", default=None, type=int
-    )
+    args_parser.add_argument("--layers", dest="layers", default=None, type=str)
     args_parser.add_argument(
         "--batch-size", dest="batch_size", default=5, type=int
     )

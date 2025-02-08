@@ -40,17 +40,32 @@ stages:
       - format_datasets
   capture_activations:
     desc: Capture activations at the specified layers for all generated answers
-    cmd: python -m src.stages.capture_activations --config=params.yaml --model=${generate_answers.model} --batch-size=${generate_answers.activations_batch_size}
+    cmd: python -m src.stages.capture_activations --config=params.yaml --model=${generate_answers.model} --batch-size=${capture_activations.batch_size} --layers="${capture_activations.layers}"
     deps:
       - ${base.generations_dir}/
       - src/stages/capture_activations.py
     outs:
-      - ${base.activations_dir}/
+      - ${base.activations_dir}/raw
     params:
       - base
       - models
       - datasets
       - generate_answers
       - capture_activations
+  postprocess_activations:
+    desc: Postprocess activations at the specified layers for all generated answers
+    cmd: python -m src.stages.postprocess_activations --config=params.yaml --model=${generate_answers.model} --layers="${capture_activations.layers}"
+    deps:
+      - ${base.activations_dir}/raw
+      - src/stages/postprocess_activations.py
+    outs:
+      - ${base.activations_dir}/postprocessed
+    params:
+      - base
+      - models
+      - datasets
+      - generate_answers
+      - capture_activations
+      - postprocess_activations
 metrics:
   - ${base.evaluations_dir}/${generate_answers.model}/metrics.json
