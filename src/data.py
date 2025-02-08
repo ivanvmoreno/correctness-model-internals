@@ -14,9 +14,12 @@ def load_statements(dataset_path: str) -> list[tuple[str, str]]:
 
 def load_activations(
     activations_path: str,
+    src_device="cuda",
 ) -> np.ndarray:
     """Load activations from a given file containing a torch.Tensor."""
     activations = torch.load(activations_path)
+    if src_device == "cuda":
+        activations = activations.cpu()
     return activations.numpy()
 
 

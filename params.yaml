@@ -193,18 +193,21 @@ format_datasets:
   generation_delimiter: "Answer:" # {str (e.g., "Answer:"), false}
 
 generate_answers:
-  model: llama3.1_8b_chat
-  max_dataset_size: false # false or integer
+  model: llama3_3b_chat
+  max_dataset_size: 100 # false or integer
   sample_strategy: first_n # {first_n, random}
-  generation_batch_size: 100
-  activations_batch_size: 10
+  batch_size: 100
   inference_engine: vllm # {vllm, hf}
 
 capture_activations:
+  raw_dir_path: raw
+  batch_size: 5
   input_type: [prompt_only, prompt_answer] # {prompt_only, prompt_answer}
+  layers: "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]" # must be a string due to dvc limitations
 
 
 postprocess_activations:
+  postprocessed_dir_path: postprocessed
   methods: [pca, tsne] # {pca, tsne}
   tsne:
     n_components: 2
