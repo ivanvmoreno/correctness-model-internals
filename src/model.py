@@ -176,14 +176,31 @@ class Hook:
             self.out = module_outputs
 
 
+def get_transformer_layers(model: AutoModelForCausalLM):
+    """
+    Return the transformer layers from the model.
+    This helper supports models that store their layers under either `model.model.layers` or `model.model.h`.
+    """
+    if hasattr(model, "model"):
+        if hasattr(model.model, "layers"):
+            return model.model.layers
+        elif hasattr(model.model, "h"):
+            return model.model.h
+    raise ValueError("Could not locate transformer layers in the given model.")
+
+
 def get_acts(statements, tokenizer, model, layers, device="cuda:0"):
     """
     Get the given layer activations for all statements processed in one batch.
+    This version uses the helper get_transformer_layers to support models that might store
+    their transformer blocks in different attributes. It shouldn't change anything if the model was previously compatible.
     """
-    hooks, handles = [], []
+    hooks = []
+    handles = []
+    transformer_layers = get_transformer_layers(model)
     for layer in layers:
         hook = Hook()
-        handle = model.model.layers[layer].register_forward_hook(hook)
+        handle = transformer_layers[layer].register_forward_hook(hook)
         hooks.append(hook)
         handles.append(handle)
 
@@ -192,17 +209,3 @@ def get_acts(statements, tokenizer, model, layers, device="cuda:0"):
     )
     batch = {key: tensor.to(device) for key, tensor in batch.items()}
     model(**batch)
-
-    attention_mask = batch["attention_mask"]
-    seq_lengths = attention_mask.sum(dim=1) - 1  # shape: (batch_size,)
-
-    acts = {}
-    for layer, hook in zip(layers, hooks):
-        batch_indices = torch.arange(hook.out.size(0), device=hook.out.device)
-        selected_acts = hook.out[batch_indices, seq_lengths]
-        acts[layer] = selected_acts.float()
-
-    for handle in handles:
-        handle.remove()
-
-    return acts
