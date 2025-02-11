@@ -3,9 +3,16 @@ from typing import Optional, Tuple, List
 import torch
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from vllm import LLM, SamplingParams
-from vllm.model_executor.guided_decoding.guided_fields import LLMGuidedOptions
 
+## If you unconditionally import vllm, it throws errors if you don't have the unix resource module
+## Instead, we can just wrap them and call an import vLLM in the load_model function
+def maybe_import_vllm():
+    try:
+        from vllm import LLM, SamplingParams
+        from vllm.model_executor.guided_decoding.guided_fields import LLMGuidedOptions
+        return LLM, SamplingParams, LLMGuidedOptions
+    except ImportError:
+        return None, None, None
 
 def load_hf_model(
     models_path: str, model_dir: str, device="cuda:0"
@@ -23,10 +30,13 @@ def load_hf_model(
 
 def load_vllm_model(
     models_path: str, model_dir: str, max_model_len=1024
-) -> LLM:
+):
     """
     Load vLLM model from local weights.
     """
+    LLM, SamplingParams, LLMGuidedOptions = maybe_import_vllm()
+    if LLM is None:
+        raise ImportError("vLLM is not installed (or not importable on this platform).")    
     tokenizer = AutoTokenizer.from_pretrained(f"{models_path}/{model_dir}")
     model = LLM(
         model=f"{models_path}/{model_dir}",
@@ -65,13 +75,16 @@ def generate_const_hf(
 
 
 def generate_const_vllm(
-    model: LLM,
+    model,
     prompts: List[str],
     choices_ids: List[int],
 ) -> List[str]:
     """
     Generate constrained answers for a batch of prompts (multiple-choice) using vLLM.
     """
+    LLM, SamplingParams, LLMGuidedOptions = maybe_import_vllm()
+    if LLM is None:
+        raise ImportError("vLLM is not installed (or not importable on this platform).")
     sampling_params = SamplingParams(
         max_tokens=1,
         temperature=0.0,
@@ -86,12 +99,15 @@ def generate_const_vllm(
 
 
 def generate_unconst_vllm(
-    llm: LLM,
+    llm,
     prompts: List[str],
     max_new_tokens: int = 1024,
     stop_words: Optional[List[str]] = None,
 ) -> List[str]:
     """Generate unconstrained answers using vLLM, stopping on any stop word substrings."""
+    LLM, SamplingParams, LLMGuidedOptions = maybe_import_vllm()
+    if LLM is None:
+        raise ImportError("vLLM is not installed (or not importable on this platform).")
     sampling_params = SamplingParams(
         temperature=0.0,
         top_p=1.0,
@@ -176,14 +192,31 @@ class Hook:
             self.out = module_outputs
 
 
+def get_transformer_layers(model: AutoModelForCausalLM):
+    """
+    Return the transformer layers from the model.
+    This helper supports models that store their layers under either `model.model.layers` or `model.model.h`.
+    """
+    if hasattr(model, "model"):
+        if hasattr(model.model, "layers"):
+            return model.model.layers
+        elif hasattr(model.model, "h"):
+            return model.model.h
+    raise ValueError("Could not locate transformer layers in the given model.")
+
+
 def get_acts(statements, tokenizer, model, layers, device="cuda:0"):
     """
     Get the given layer activations for all statements processed in one batch.
+    This version uses the helper get_transformer_layers to support models that might store
+    their transformer blocks in different attributes. It shouldn't change anything if the model was previously compatible.
     """
-    hooks, handles = [], []
+    hooks = []
+    handles = []
+    transformer_layers = get_transformer_layers(model)
     for layer in layers:
         hook = Hook()
-        handle = model.model.layers[layer].register_forward_hook(hook)
+        handle = transformer_layers[layer].register_forward_hook(hook)
         hooks.append(hook)
         handles.append(handle)
 
@@ -192,17 +225,3 @@ def get_acts(statements, tokenizer, model, layers, device="cuda:0"):
     )
     batch = {key: tensor.to(device) for key, tensor in batch.items()}
     model(**batch)
-
-    attention_mask = batch["attention_mask"]
-    seq_lengths = attention_mask.sum(dim=1) - 1  # shape: (batch_size,)
-
-    acts = {}
-    for layer, hook in zip(layers, hooks):
-        batch_indices = torch.arange(hook.out.size(0), device=hook.out.device)
-        selected_acts = hook.out[batch_indices, seq_lengths]
-        acts[layer] = selected_acts.float()
-
-    for handle in handles:
-        handle.remove()
-
-    return acts
