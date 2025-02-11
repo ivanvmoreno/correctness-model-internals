@@ -3,9 +3,16 @@ from typing import Optional, Tuple, List
 import torch
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from vllm import LLM, SamplingParams
-from vllm.model_executor.guided_decoding.guided_fields import LLMGuidedOptions
 
+## If you unconditionally import vllm, it throws errors if you don't have the unix resource module
+## Instead, we can just wrap them and call an import vLLM in the load_model function
+def maybe_import_vllm():
+    try:
+        from vllm import LLM, SamplingParams
+        from vllm.model_executor.guided_decoding.guided_fields import LLMGuidedOptions
+        return LLM, SamplingParams, LLMGuidedOptions
+    except ImportError:
+        return None, None, None
 
 def load_hf_model(
     models_path: str, model_dir: str, device="cuda:0"
@@ -23,10 +30,13 @@ def load_hf_model(
 
 def load_vllm_model(
     models_path: str, model_dir: str, max_model_len=1024
-) -> LLM:
+):
     """
     Load vLLM model from local weights.
     """
+    LLM, SamplingParams, LLMGuidedOptions = maybe_import_vllm()
+    if LLM is None:
+        raise ImportError("vLLM is not installed (or not importable on this platform).")    
     tokenizer = AutoTokenizer.from_pretrained(f"{models_path}/{model_dir}")
     model = LLM(
         model=f"{models_path}/{model_dir}",
@@ -65,13 +75,16 @@ def generate_const_hf(
 
 
 def generate_const_vllm(
-    model: LLM,
+    model,
     prompts: List[str],
     choices_ids: List[int],
 ) -> List[str]:
     """
     Generate constrained answers for a batch of prompts (multiple-choice) using vLLM.
     """
+    LLM, SamplingParams, LLMGuidedOptions = maybe_import_vllm()
+    if LLM is None:
+        raise ImportError("vLLM is not installed (or not importable on this platform).")
     sampling_params = SamplingParams(
         max_tokens=1,
         temperature=0.0,
@@ -86,12 +99,15 @@ def generate_const_vllm(
 
 
 def generate_unconst_vllm(
-    llm: LLM,
+    llm,
     prompts: List[str],
     max_new_tokens: int = 1024,
     stop_words: Optional[List[str]] = None,
 ) -> List[str]:
     """Generate unconstrained answers using vLLM, stopping on any stop word substrings."""
+    LLM, SamplingParams, LLMGuidedOptions = maybe_import_vllm()
+    if LLM is None:
+        raise ImportError("vLLM is not installed (or not importable on this platform).")
     sampling_params = SamplingParams(
         temperature=0.0,
         top_p=1.0,
