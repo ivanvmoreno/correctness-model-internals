@@ -111,6 +111,31 @@ class ActivationsHandler:
             [self.get_groups(labels=group) for group in labels]
         )
 
+    def sample(self, frac: float, random: bool = False) -> ActivationsHandler:
+        """
+        Sample a fraction of the dataset.
+
+        Parameters
+        ----------
+        frac: float
+            The fraction of the dataset to sample
+        random: bool
+            Whether to shuffle the dataset before sampling
+
+        Returns
+        -------
+        ActivationsHandler
+            A sampled ActivationsHandler
+        """
+        if random:
+            indices = list(self.labels.sample(frac=frac, replace=False).index)
+        else:
+            indices = list(self.labels.iloc[: int(self.count * frac)].index)
+        return self.__class__(
+            activations=self.activations[indices],
+            labels=self.labels[indices],
+        )
+
     def shuffle(self) -> ActivationsHandler:
         """
         Shuffle the dataset.
@@ -120,11 +145,7 @@ class ActivationsHandler:
         ActivationsHandler
             A shuffled ActivationsHandler
         """
-        indices = list(self.labels.sample(frac=1, replace=False).index)
-        return self.__class__(
-            activations=self.activations[indices],
-            labels=self.labels[indices],
-        )
+        return self.sample(frac=1.0, random=True)
 
     def split_dataset(
         self, split_sizes: list | tuple, random: bool = False
@@ -184,6 +205,7 @@ class ActivationsHandler:
         self,
         group_labels: list | set | tuple,
         random: bool = False,
+        interleave: bool = False,
     ) -> ActivationsHandler:
         """
         Get an ActivationsHandler with an equal number of samples from each group.
@@ -202,7 +224,7 @@ class ActivationsHandler:
         """
         if random:
             return self.shuffle().sample_equally_across_groups(
-                group_labels=group_labels, random=False
+                group_labels=group_labels, random=False, interleave=interleave
             )
 
         group_handlers = [
@@ -211,24 +233,45 @@ class ActivationsHandler:
         n_per_group = min(
             len(group_handler.labels) for group_handler in group_handlers
         )
-        return self.__class__(
-            activations=pt.cat(
-                [
-                    group_handler.activations[:n_per_group]
-                    for group_handler in group_handlers
-                ]
-            ),
-            labels=pd.concat(
-                [
-                    group_handler.labels.iloc[:n_per_group]
-                    for group_handler in group_handlers
-                ]
-            ),
+        if not interleave:
+            return self.__class__(
+                activations=pt.cat(
+                    [
+                        group_handler.activations[:n_per_group]
+                        for group_handler in group_handlers
+                    ]
+                ),
+                labels=pd.concat(
+                    [
+                        group_handler.labels.iloc[:n_per_group]
+                        for group_handler in group_handlers
+                    ]
+                ),
+            )
+
+        activations = pt.zeros(
+            (
+                len(group_handlers) * n_per_group,
+                group_handlers[0].activations.shape[-1],
+            )
         )
+        labels = pd.Series(
+            dtype=bool, index=range(len(group_handlers) * n_per_group)
+        )
+
+        for i in range(n_per_group):
+            for j, group_handler in enumerate(group_handlers):
+                activations[i * len(group_handlers) + j, :] = (
+                    group_handler.activations[i, :]
+                )
+                labels.iloc[i * len(group_handlers) + j] = (
+                    group_handler.labels.iloc[i]
+                )
+        return self.__class__(activations=activations, labels=labels)
 
 
 def combine_activations_handlers(
-    activations_handlers: list[ActivationsHandler],
+    activations_handlers: list[ActivationsHandler], equal_counts: bool = False
 ) -> ActivationsHandler:
     """
     Combine a list of ActivationsHandlers into a single ActivationsHandler.
@@ -245,6 +288,12 @@ def combine_activations_handlers(
     """
     if len(activations_handlers) == 1:
         return activations_handlers[0]
+
+    if equal_counts:
+        min_len = min(len(ah.labels) for ah in activations_handlers)
+        activations_handlers = [
+            ah.sample(min_len / len(ah.labels)) for ah in activations_handlers
+        ]
     return sum(
         activations_handlers,
         start=ActivationsHandler(

@@ -177,7 +177,8 @@ def get_correctness_direction_classifier(
 def get_logistic_regression_classifier(
     activations_handler_train: ActivationsHandler,
     activations_handler_test: ActivationsHandler,
-    classification_cut=0.5,
+    classification_cut: float = 0.5,
+    scaler_model_tuple: tuple | None = None,
 ) -> tuple[BinaryClassifier, LogisticRegression]:
     """
     Build a logistic regression classifier that uses the activations as features.
@@ -196,14 +197,20 @@ def get_logistic_regression_classifier(
     tuple[BinaryClassifier, LogisticRegression]
         The logistic regression classifier and LR model
     """
-    scaler = StandardScaler()
-    X_train = scaler.fit_transform(activations_handler_train.activations)
+    if scaler_model_tuple is None:
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(activations_handler_train.activations)
+        model = LogisticRegression(
+            random_state=42,
+            solver="lbfgs",
+            max_iter=1000,
+            class_weight="balanced",
+        )
+        model.fit(X_train, activations_handler_train.labels)
+    else:
+        scaler, model = scaler_model_tuple
+        X_train = scaler.transform(activations_handler_train.activations)
     X_test = scaler.transform(activations_handler_test.activations)
-
-    model = LogisticRegression(
-        random_state=42, solver="lbfgs", max_iter=1000, class_weight="balanced"
-    )
-    model.fit(X_train, activations_handler_train.labels)
 
     logistic_regression_classifier = BinaryClassifier(
         train_labels=activations_handler_train.labels,
@@ -212,4 +219,31 @@ def get_logistic_regression_classifier(
         test_classification_score=model.predict_proba(X_test)[:, 1],
         classification_cut=classification_cut,
     )
-    return logistic_regression_classifier, model
+    return logistic_regression_classifier, (scaler, model)
+
+
+def get_between_class_variance_and_within_class_variance(
+    ah: ActivationsHandler, groups: tuple = (False, True)
+):
+    ah = ah.get_groups(groups)
+
+    global_mean = ah.activations.mean(dim=0)
+
+    between_class_variance, within_class_variance = 0.0, 0.0
+    for group in groups:
+        group_activations = ah.get_groups(group).activations
+        group_mean = group_activations.mean(dim=0)
+        group_weight = group_activations.shape[0] / ah.activations.shape[0]
+
+        group_diff = group_mean - global_mean
+        between_class_variance += (group_weight * (group_diff**2).sum()).item()
+
+        within_class_variance += (
+            group_weight
+            * ((group_activations - group_mean) ** 2).sum(dim=1).mean()
+        ).item()
+
+    if within_class_variance < 1e-8:
+        return float("inf")
+
+    return between_class_variance, within_class_variance

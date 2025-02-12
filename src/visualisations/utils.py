@@ -4,12 +4,13 @@ from typing import Any
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import plotly.graph_objects as go
 import seaborn as sns
 from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-from classifying import (
+from src.classifying import (
     ActivationsHandler,
     BinaryClassifier,
     DirectionCalculator,
@@ -151,3 +152,143 @@ def visualise_roc(binary_classifier, experiment_path: None | Path = None):
     else:
         plt.show()
     plt.clf()
+
+
+def plot_interactive_lineplot(
+    df_dict, x_label, y_label, title=None, save_path=None
+):
+    """
+    df_dict: Dictionary mapping labels to dataframes, where each dataframe contains multiple columns
+            for the same measurement (e.g., {'Metric 1': df1, 'Metric 2': df2})
+    """
+    fig = go.Figure()
+
+    # Define a color palette for different metrics
+    colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b"]
+
+    for metric_idx, (metric_name, df) in enumerate(df_dict.items()):
+        color = colors[metric_idx % len(colors)]
+
+        # Calculate statistics for each column
+        means = df.mean(axis=1)
+
+        # Add mean line
+        fig.add_trace(
+            go.Scatter(
+                x=df.index,
+                y=means,
+                mode="lines+markers",
+                line=dict(color=color, width=2),
+                marker=dict(size=8),
+                name=f"{metric_name}",
+                legendgroup=metric_name,
+            )
+        )
+
+        if df.shape[1] > 1:
+            stds = df.std(axis=1)
+            mins = df.min(axis=1)
+            maxs = df.max(axis=1)
+
+            # Add min/max range (very faint)
+            fig.add_trace(
+                go.Scatter(
+                    x=df.index,
+                    y=maxs,
+                    mode="lines",
+                    line=dict(width=0),
+                    showlegend=False,
+                    name=f"{metric_name} Max",
+                    legendgroup=metric_name,
+                )
+            )
+            fig.add_trace(
+                go.Scatter(
+                    x=df.index,
+                    y=mins,
+                    mode="lines",
+                    line=dict(width=0),
+                    fillcolor=f'rgba{tuple(list(int(color.lstrip("#")[i:i+2], 16) for i in (0, 2, 4)) + [0.1])}',
+                    fill="tonexty",
+                    showlegend=False,
+                    name=f"{metric_name} Min",
+                    legendgroup=metric_name,
+                )
+            )
+
+            # Add ±1 std range (moderately faint)
+            fig.add_trace(
+                go.Scatter(
+                    x=df.index,
+                    y=means + stds,
+                    mode="lines",
+                    line=dict(width=0),
+                    showlegend=False,
+                    name=f"{metric_name} +1 STD",
+                    legendgroup=metric_name,
+                )
+            )
+            fig.add_trace(
+                go.Scatter(
+                    x=df.index,
+                    y=means - stds,
+                    mode="lines",
+                    line=dict(width=0),
+                    fillcolor=f'rgba{tuple(list(int(color.lstrip("#")[i:i+2], 16) for i in (0, 2, 4)) + [0.3])}',
+                    fill="tonexty",
+                    showlegend=False,
+                    name=f"{metric_name} -1 STD",
+                    legendgroup=metric_name,
+                )
+            )
+
+            # Add individual points for each fold
+            for col in df.columns:
+                fig.add_trace(
+                    go.Scatter(
+                        x=df.index,
+                        y=df[col],
+                        mode="markers",
+                        marker=dict(color=color, size=6, opacity=0.5),
+                        showlegend=False,
+                        name=f"{metric_name} Fold {col}",
+                        legendgroup=metric_name,
+                    )
+                )
+
+    fig.update_layout(
+        title=title,
+        yaxis_title=y_label,
+        xaxis_title=x_label,
+        template="plotly_dark",
+        plot_bgcolor="rgba(32, 32, 32, 1)",
+        paper_bgcolor="rgba(32, 32, 32, 1)",
+        font=dict(color="white"),
+        margin=dict(
+            t=100, l=50, r=30, b=50
+        ),  # Increased top margin to accommodate legend
+        showlegend=True,
+        legend=dict(
+            orientation="h",  # Horizontal legend
+            yanchor="bottom",
+            y=1.02,  # Position above the plot
+            xanchor="center",  # Center horizontally
+            x=0.5,
+            bgcolor="rgba(32, 32, 32, 0.8)",  # Semi-transparent background
+        ),
+        width=1000,  # Set explicit width in pixels
+        height=600,  # Set explicit height in pixels
+    )
+
+    # Update axes for consistency with dark theme
+    fig.update_xaxes(gridcolor="rgba(128, 128, 128, 0.2)", zeroline=False)
+    fig.update_yaxes(gridcolor="rgba(128, 128, 128, 0.2)", zeroline=False)
+
+    # Save the plot if path is provided
+    if save_path:
+        if save_path.endswith(".html"):
+            fig.write_html(save_path)
+        elif save_path.endswith(".png"):
+            fig.write_image(save_path)
+
+    return fig
