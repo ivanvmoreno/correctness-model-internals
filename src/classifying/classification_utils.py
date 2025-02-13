@@ -225,8 +225,21 @@ def get_logistic_regression_classifier(
 def get_between_class_variance_and_within_class_variance(
     ah: ActivationsHandler, groups: tuple = (False, True)
 ):
-    ah = ah.get_groups(groups)
+    """
+    Calculate the between class variance and within class variance of the activations.
 
+    Parameters
+    ----------
+    ah : ActivationsHandler
+        The activations handler to calculate the variances for
+    groups : tuple
+        The groups labels to calculate the variances for
+
+    Returns
+    -------
+    tuple[float, float]
+        The between class variance and within class variance
+    """
     global_mean = ah.activations.mean(dim=0)
 
     between_class_variance, within_class_variance = 0.0, 0.0
