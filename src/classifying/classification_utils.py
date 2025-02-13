@@ -2,8 +2,16 @@ from typing import Callable
 
 import numpy as np
 import pandas as pd
+import torch as pt
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, auc, f1_score, roc_curve
+from sklearn.metrics import (
+    accuracy_score,
+    auc,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_curve,
+)
 from sklearn.preprocessing import StandardScaler
 
 from .activations_handler import ActivationsHandler
@@ -59,6 +67,8 @@ class BinaryClassifier:
         classification_metric_funcs: tuple[Callable, ...] = (
             accuracy_score,
             f1_score,
+            precision_score,
+            recall_score,
         ),
         classification_cut: None | float = None,
     ):
@@ -168,7 +178,8 @@ def get_correctness_direction_classifier(
 def get_logistic_regression_classifier(
     activations_handler_train: ActivationsHandler,
     activations_handler_test: ActivationsHandler,
-    classification_cut=0.5,
+    classification_cut: float = 0.5,
+    scaler_model_tuple: tuple | None = None,
 ) -> tuple[BinaryClassifier, LogisticRegression]:
     """
     Build a logistic regression classifier that uses the activations as features.
@@ -187,14 +198,20 @@ def get_logistic_regression_classifier(
     tuple[BinaryClassifier, LogisticRegression]
         The logistic regression classifier and LR model
     """
-    scaler = StandardScaler()
-    X_train = scaler.fit_transform(activations_handler_train.activations)
+    if scaler_model_tuple is None:
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(activations_handler_train.activations)
+        model = LogisticRegression(
+            random_state=42,
+            solver="lbfgs",
+            max_iter=1000,
+            class_weight="balanced",
+        )
+        model.fit(X_train, activations_handler_train.labels)
+    else:
+        scaler, model = scaler_model_tuple
+        X_train = scaler.transform(activations_handler_train.activations)
     X_test = scaler.transform(activations_handler_test.activations)
-
-    model = LogisticRegression(
-        random_state=42, solver="lbfgs", max_iter=1000, class_weight="balanced"
-    )
-    model.fit(X_train, activations_handler_train.labels)
 
     logistic_regression_classifier = BinaryClassifier(
         train_labels=activations_handler_train.labels,
@@ -203,4 +220,48 @@ def get_logistic_regression_classifier(
         test_classification_score=model.predict_proba(X_test)[:, 1],
         classification_cut=classification_cut,
     )
-    return logistic_regression_classifier, model
+    return logistic_regression_classifier, (scaler, model)
+
+
+def get_between_class_variance_and_within_class_variance(
+    ah: ActivationsHandler, group_labels: tuple = (False, True)
+):
+    """
+    Calculate the between class variance and within class variance of the activations.
+
+    Parameters
+    ----------
+    ah : ActivationsHandler
+        The activations handler to calculate the variances for
+    group_labels : tuple
+        The groups labels to calculate the variances for
+
+    Returns
+    -------
+    tuple[float, float]
+        The between class variance and within class variance
+    """
+
+    global_mean = ah.activations.mean(dim=0)
+    between_class_variances = pt.zeros_like(global_mean)
+    within_class_variances = pt.zeros_like(global_mean)
+
+    for group in group_labels:
+        group_activations = ah.get_groups(group).activations
+        group_mean = group_activations.mean(dim=0)
+        group_weight = group_activations.shape[0] / ah.activations.shape[0]
+
+        # Calculate between class variance for all dimensions at once
+        group_diff = group_mean - global_mean
+        between_class_variances += group_weight * (group_diff**2)
+
+        # Calculate within class variance for all dimensions at once
+        within_class_variances += group_weight * (
+            (group_activations - group_mean) ** 2
+        ).mean(dim=0)
+
+    # Average across dimensions
+    between_class_variance = between_class_variances.mean().item()
+    within_class_variance = within_class_variances.mean().item()
+
+    return between_class_variance, within_class_variance
