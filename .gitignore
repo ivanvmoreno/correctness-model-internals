@@ -3,6 +3,7 @@ generations/
 experiment_results/
 activations/
 datasets/
+data_for_classification/
 
 # Custom datasets
 !./datasets/raw/birth_years_4k/
@@ -183,3 +184,5 @@ cython_debug/
 .vscode/
 .dvc/config
 .dvc/config.local
+.DS_Store
+**/.DS_Store
