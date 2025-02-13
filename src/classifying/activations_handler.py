@@ -269,6 +269,51 @@ class ActivationsHandler:
                 )
         return self.__class__(activations=activations, labels=labels)
 
+    def reduce_dims(
+        self,
+        pca_components: int | None,
+        pca_info: tuple[pt.Tensor, pt.Tensor] | None = None,
+    ) -> tuple[ActivationsHandler, pt.Tensor]:
+        """
+        Reduce the dimensionality of the activations by taking the top PCA components.
+
+        Parameters
+        ----------
+        pca_components: int | None
+            The number of components to reduce the dimensionality to
+
+        Returns
+        -------
+        ActivationsHandler
+            The reduced ActivationsHandler
+        tuple[pt.Tensor, pt.Tensor]
+            The Vh matrix from the SVD, and the mean of the activations
+            used to center the data.
+            Use this for example if the PCA had been done on another
+            train set and this is the test set.
+        """
+        if pca_components is None:
+            return self, None
+
+        if pca_info is None:
+            # Center the data
+            mean_activations = self.activations.mean(dim=0)
+            activations = self.activations - mean_activations
+            # Perform SVD directly on centered data
+            U, S, Vh = pt.linalg.svd(activations, full_matrices=False)
+            # Take top components
+        else:
+            Vh, mean_activations = pca_info
+            activations = self.activations - mean_activations
+
+        return (
+            self.__class__(
+                activations=activations @ Vh.T[:, :pca_components],
+                labels=self.labels,
+            ),
+            (Vh, mean_activations),
+        )
+
 
 def combine_activations_handlers(
     activations_handlers: list[ActivationsHandler], equal_counts: bool = False

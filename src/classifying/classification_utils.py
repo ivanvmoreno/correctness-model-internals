@@ -2,6 +2,7 @@ from typing import Callable
 
 import numpy as np
 import pandas as pd
+import torch as pt
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
     accuracy_score,
@@ -240,7 +241,6 @@ def get_between_class_variance_and_within_class_variance(
     tuple[float, float]
         The between class variance and within class variance
     """
-    import torch as pt
 
     global_mean = ah.activations.mean(dim=0)
     between_class_variances = pt.zeros_like(global_mean)

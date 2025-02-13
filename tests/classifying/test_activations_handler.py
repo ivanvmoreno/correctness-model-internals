@@ -296,3 +296,22 @@ def test_combine_activations_handlers(activations_handler):
     single_combined = combine_activations_handlers([parts[0]])
     assert pt.equal(single_combined.activations, parts[0].activations)
     assert single_combined.labels.equals(parts[0].labels)
+
+
+def test_reduce_dims(activations_handler):
+    reduced, (Vh, mean_activations) = activations_handler.reduce_dims(
+        pca_components=2
+    )
+    assert reduced.activations.shape[1] == 2
+    assert Vh.shape[0] == activations_handler.activations.shape[1]
+    assert mean_activations.shape[0] == activations_handler.activations.shape[1]
+
+
+def test_reduce_dims_with_pca_info(activations_handler):
+    reduced, (Vh, mean_activations) = activations_handler.reduce_dims(
+        pca_components=2
+    )
+    reduced_again, _ = activations_handler.reduce_dims(
+        pca_components=2, pca_info=(Vh, mean_activations)
+    )
+    assert pt.equal(reduced.activations, reduced_again.activations)
