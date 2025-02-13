@@ -223,7 +223,7 @@ def get_logistic_regression_classifier(
 
 
 def get_between_class_variance_and_within_class_variance(
-    ah: ActivationsHandler, groups: tuple = (False, True)
+    ah: ActivationsHandler, group_labels: tuple = (False, True)
 ):
     """
     Calculate the between class variance and within class variance of the activations.
@@ -232,7 +232,7 @@ def get_between_class_variance_and_within_class_variance(
     ----------
     ah : ActivationsHandler
         The activations handler to calculate the variances for
-    groups : tuple
+    group_labels : tuple
         The groups labels to calculate the variances for
 
     Returns
@@ -240,23 +240,28 @@ def get_between_class_variance_and_within_class_variance(
     tuple[float, float]
         The between class variance and within class variance
     """
-    global_mean = ah.activations.mean(dim=0)
+    import torch as pt
 
-    between_class_variance, within_class_variance = 0.0, 0.0
-    for group in groups:
+    global_mean = ah.activations.mean(dim=0)
+    between_class_variances = pt.zeros_like(global_mean)
+    within_class_variances = pt.zeros_like(global_mean)
+
+    for group in group_labels:
         group_activations = ah.get_groups(group).activations
         group_mean = group_activations.mean(dim=0)
         group_weight = group_activations.shape[0] / ah.activations.shape[0]
 
+        # Calculate between class variance for all dimensions at once
         group_diff = group_mean - global_mean
-        between_class_variance += (group_weight * (group_diff**2).sum()).item()
+        between_class_variances += group_weight * (group_diff**2)
 
-        within_class_variance += (
-            group_weight
-            * ((group_activations - group_mean) ** 2).sum(dim=1).mean()
-        ).item()
+        # Calculate within class variance for all dimensions at once
+        within_class_variances += group_weight * (
+            (group_activations - group_mean) ** 2
+        ).mean(dim=0)
 
-    if within_class_variance < 1e-8:
-        return float("inf")
+    # Average across dimensions
+    between_class_variance = between_class_variances.mean().item()
+    within_class_variance = within_class_variances.mean().item()
 
     return between_class_variance, within_class_variance

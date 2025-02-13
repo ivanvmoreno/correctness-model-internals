@@ -129,9 +129,11 @@ def load_activations(
         key=lambda p: int(p.stem.split("_")[-1]),
     )
 
+    args_str = f"{model_id}/{dataset_id}/{prompt_id}/{subset_id}/{input_type}/layer_{layer}"
+
     activations_list, indices = [], []
     batch_size = None
-    for batch_file in paths:
+    for path_idx, batch_file in enumerate(paths):
         batch_id = int(batch_file.stem.split("_")[-1])
         if batch_ids and batch_id not in batch_ids:
             continue
@@ -139,12 +141,19 @@ def load_activations(
         activations = pt.load(batch_file, map_location=pt.device("cpu"))
         activations_list.append(activations)
 
-        batch_size = activations.shape[0]
+        if batch_size is not None:
+            if path_idx != len(paths) - 1:
+                assert batch_size == activations.shape[0], (
+                    f"Batch size is not consistent: {batch_size=}, "
+                    f"{activations.shape[0]=}, {args_str=}, {batch_file=}, {batch_id=}"
+                )
 
-        if batch_size is None:
-            batch_size = activations.shape[0]
-        else:
-            assert batch_size == activations.shape[0]
+            assert batch_id % batch_size == 0, (
+                f"Batch id is not a multiple of the batch size: {batch_id=}, "
+                f" {batch_size=}, {args_str=}, {batch_file=}, {batch_id=}"
+            )
+
+        batch_size = activations.shape[0]
 
         indices.append(pd.Series(range(batch_size), name="index") + batch_id)
 
