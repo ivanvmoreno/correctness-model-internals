@@ -76,6 +76,7 @@ def postprocess_activations(
 
                         activations_path = os.path.join(
                             config.base.activations_dir,
+                            'raw',
                             model_id,
                             dataset_name,
                             prompt_version,
