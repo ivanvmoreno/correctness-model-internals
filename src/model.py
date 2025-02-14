@@ -2,7 +2,7 @@ from typing import Optional, Tuple, List
 
 import torch
 from tqdm import tqdm
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
 ## If you unconditionally import vllm, it throws errors if you don't have the unix resource module
 ## Instead, we can just wrap them and call an import vLLM in the load_model function
@@ -20,8 +20,11 @@ def load_hf_model(
     """
     Load model from local weights.
     """
+    quant_config = BitsAndBytesConfig(load_in_4bit=True)
     model = AutoModelForCausalLM.from_pretrained(
-        f"{models_path}/{model_dir}"
+        f"{models_path}/{model_dir}",
+        quantization_config=quant_config,
+        device_map="auto"
     ).to(device)
     model.eval()
     tokenizer = AutoTokenizer.from_pretrained(f"{models_path}/{model_dir}")
@@ -101,7 +104,7 @@ def generate_const_vllm(
 def generate_unconst_vllm(
     llm,
     prompts: List[str],
-    max_new_tokens: int = 1024,
+    max_new_tokens: int = 512,
     stop_words: Optional[List[str]] = None,
 ) -> List[str]:
     """Generate unconstrained answers using vLLM, stopping on any stop word substrings."""
@@ -225,3 +228,17 @@ def get_acts(statements, tokenizer, model, layers, device="cuda:0"):
     )
     batch = {key: tensor.to(device) for key, tensor in batch.items()}
     model(**batch)
+
+    attention_mask = batch["attention_mask"]
+    seq_lengths = attention_mask.sum(dim=1) - 1  # shape: (batch_size,)
+
+    acts = {}
+    for layer, hook in zip(layers, hooks):
+        batch_indices = torch.arange(hook.out.size(0), device=hook.out.device)
+        selected_acts = hook.out[batch_indices, seq_lengths]
+        acts[layer] = selected_acts.float()
+
+    for handle in handles:
+        handle.remove()
+
+    return acts
