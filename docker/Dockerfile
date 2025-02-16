@@ -93,6 +93,9 @@ RUN sh -c "$(curl -L https://github.com/deluan/zsh-in-docker/releases/download/v
 # Remove existing SSH host keys
 RUN rm -f /etc/ssh/ssh_host_*
 
+# Add the new host keys to the list of known hosts
+RUN ssh-keyscan -t rsa github.com >> /etc/ssh/ssh_known_hosts
+
 # Start Scripts
 COPY scripts/start.sh /
 COPY scripts/post_start.sh /
