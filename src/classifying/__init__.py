@@ -4,6 +4,7 @@ from .activations_handler import (
 )
 from .classification_utils import (
     BinaryClassifier,
+    get_between_class_variance_and_within_class_variance,
     get_correctness_direction_classifier,
     get_logistic_regression_classifier,
 )
@@ -16,4 +17,5 @@ __all__ = [
     "get_correctness_direction_classifier",
     "get_logistic_regression_classifier",
     "DirectionCalculator",
+    "get_between_class_variance_and_within_class_variance",
 ]

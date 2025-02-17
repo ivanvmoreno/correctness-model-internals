@@ -171,7 +171,11 @@ class DirectionCalculator:
             The signed magnitude of the projection along the classifying direction
         """
         direction = self.classifying_direction
-        normalized_direction = direction / pt.norm(direction)
+        norm = pt.norm(direction)
+        if norm < 1e-8:
+            normalized_direction = pt.zeros_like(direction)
+        else:
+            normalized_direction = direction / norm
         return (
             batch_activations - self.mean_activations
         ) @ normalized_direction

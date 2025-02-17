@@ -2,7 +2,10 @@ import pandas as pd
 import pytest
 import torch as pt
 
-from src.classifying.activations_handler import ActivationsHandler
+from src.classifying.activations_handler import (
+    ActivationsHandler,
+    combine_activations_handlers,
+)
 
 
 @pytest.fixture
@@ -149,3 +152,166 @@ def test_sample_equally_across_groups(activations_handler, shuffle):
             [True, False], random=True
         )
         assert not pt.equal(sample1.activations, sample2.activations)
+
+
+def test_sample_equally_across_groups_interleave(activations_handler):
+    sampled = activations_handler.sample_equally_across_groups(
+        [True, False], random=False, interleave=True
+    )
+
+    # Check we get equal numbers from each group
+    true_count = sum(sampled.labels)
+    false_count = sum(~sampled.labels)
+    assert true_count == false_count
+
+    # Check total size matches smallest group size * 2
+    assert len(sampled.labels) == 10  # 5 from each group
+
+    # Check interleaving
+    for i in range(0, len(sampled.labels), 2):
+        assert sampled.labels.iloc[i]  # True
+        assert not sampled.labels.iloc[i + 1]  # False
+
+
+def test_sample_equally_across_groups_interleave_random(activations_handler):
+    # Test that random interleaved samples are different
+    sample1 = activations_handler.sample_equally_across_groups(
+        [True, False], random=True, interleave=True
+    )
+    sample2 = activations_handler.sample_equally_across_groups(
+        [True, False], random=True, interleave=True
+    )
+
+    # Check we still get equal numbers from each group
+    true_count = sum(sample1.labels)
+    false_count = sum(~sample1.labels)
+    assert true_count == false_count
+
+    # Check total size matches smallest group size * 2
+    assert len(sample1.labels) == 10  # 5 from each group
+
+    # Check samples are different
+    assert not pt.equal(sample1.activations, sample2.activations)
+
+    # Check interleaving is still maintained
+    for i in range(0, len(sample1.labels), 2):
+        assert sample1.labels.iloc[i]  # True
+        assert not sample1.labels.iloc[i + 1]  # False
+
+
+def test_sample(activations_handler):
+    # Test with fraction = 0.5
+    sampled = activations_handler.sample(frac=0.5, random=False)
+    assert len(sampled.labels) == 10
+    assert sampled.activations.shape[0] == 10
+
+    # Test with random=True
+    sample1 = activations_handler.sample(frac=0.5, random=True)
+    sample2 = activations_handler.sample(frac=0.5, random=True)
+    assert not pt.equal(sample1.activations, sample2.activations)
+
+    # Test with fraction = 1.0
+    sampled = activations_handler.sample(frac=1.0, random=False)
+    assert len(sampled.labels) == 20
+    assert sampled.activations.shape[0] == 20
+    assert pt.equal(sampled.activations, activations_handler.activations)
+
+
+def test_add(activations_handler):
+    # Split the handler into two parts
+    part1, part2 = list(
+        activations_handler.split_dataset([0.5, 0.5], random=False)
+    )
+
+    # Test adding them back together
+    combined = part1 + part2
+    pd.testing.assert_series_equal(combined.labels, activations_handler.labels)
+    pt.testing.assert_close(
+        combined.activations, activations_handler.activations
+    )
+
+    # Check labels match
+    assert combined.labels.equals(activations_handler.labels)
+
+    # Test adding empty handler raises error
+    empty_handler = ActivationsHandler(
+        activations=pt.tensor([]), labels=pd.Series([]), _allow_empty=True
+    )
+    with pytest.raises(ValueError):
+        activations_handler + empty_handler
+
+
+def test_init_edge_cases():
+    # Test misaligned activations and labels
+    with pytest.raises(ValueError):
+        ActivationsHandler(
+            activations=pt.tensor([[1.0, 2.0]]), labels=[True, False]
+        )
+
+    # Test empty activations and labels without _allow_empty
+    with pytest.raises(ValueError):
+        ActivationsHandler(activations=pt.tensor([]), labels=[])
+
+    # Test empty activations and labels with _allow_empty
+    handler = ActivationsHandler(
+        activations=pt.tensor([]), labels=[], _allow_empty=True
+    )
+    assert len(handler.labels) == 0
+    assert handler.activations.shape[0] == 0
+
+
+def test_combine_activations_handlers(activations_handler):
+    # Split into three parts
+    parts = list(
+        activations_handler.split_dataset([0.4, 0.3, 0.3], random=False)
+    )
+
+    # Test combining with equal_counts=False
+    combined = combine_activations_handlers(parts)
+    assert len(combined.labels) == len(activations_handler.labels)
+    assert combined.activations.shape == activations_handler.activations.shape
+    pd.testing.assert_series_equal(combined.labels, activations_handler.labels)
+    pt.testing.assert_close(
+        combined.activations, activations_handler.activations
+    )
+
+    # Test combining with equal_counts=True
+    combined_equal = combine_activations_handlers(parts, equal_counts=True)
+    min_count = min(len(part.labels) for part in parts)
+    assert len(combined_equal.labels) == min_count * len(parts)
+    # Verify each part has min_count samples
+    for i in range(len(parts)):
+        start_idx = i * min_count
+        end_idx = (i + 1) * min_count
+        pd.testing.assert_series_equal(
+            combined_equal.labels[start_idx:end_idx].reset_index(drop=True),
+            parts[i].labels[:min_count],
+        )
+        pt.testing.assert_close(
+            combined_equal.activations[start_idx:end_idx],
+            parts[i].activations[:min_count],
+        )
+
+    # Test combining single handler
+    single_combined = combine_activations_handlers([parts[0]])
+    assert pt.equal(single_combined.activations, parts[0].activations)
+    assert single_combined.labels.equals(parts[0].labels)
+
+
+def test_reduce_dims(activations_handler):
+    reduced, (Vh, mean_activations) = activations_handler.reduce_dims(
+        pca_components=2
+    )
+    assert reduced.activations.shape[1] == 2
+    assert Vh.shape[0] == activations_handler.activations.shape[1]
+    assert mean_activations.shape[0] == activations_handler.activations.shape[1]
+
+
+def test_reduce_dims_with_pca_info(activations_handler):
+    reduced, (Vh, mean_activations) = activations_handler.reduce_dims(
+        pca_components=2
+    )
+    reduced_again, _ = activations_handler.reduce_dims(
+        pca_components=2, pca_info=(Vh, mean_activations)
+    )
+    assert pt.equal(reduced.activations, reduced_again.activations)

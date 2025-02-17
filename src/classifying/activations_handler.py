@@ -24,7 +24,10 @@ class ActivationsHandler:
     """
 
     def __init__(
-        self, activations: BatchActivationsVector, labels: np.typing.ArrayLike
+        self,
+        activations: BatchActivationsVector,
+        labels: np.typing.ArrayLike,
+        _allow_empty: bool = False,
     ):
         """
         Setup
@@ -36,8 +39,14 @@ class ActivationsHandler:
         labels: np.typing.ArrayLike
             Must align with activations
         """
+        if activations.shape[0] != len(labels):
+            raise ValueError("activations and labels must have the same length")
+        if len(labels) == 0 and not _allow_empty:
+            raise ValueError("labels and activations must not be empty")
+
         self.activations = activations
         self.labels = pd.Series(labels).copy().reset_index(drop=True)
+        self.count = len(self.labels)
 
     def __add__(self, other: ActivationsHandler) -> ActivationsHandler:
         """
@@ -53,9 +62,22 @@ class ActivationsHandler:
         ActivationsHandler
             The combined ActivationsHandler
         """
+        if other.labels.empty:
+            raise ValueError("other.labels is empty")
+
+        if self.labels.empty:
+            activations = other.activations
+            labels = other.labels
+        elif other.labels.empty:
+            activations = self.activations
+            labels = self.labels
+        else:
+            activations = pt.cat([self.activations, other.activations], dim=0)
+            labels = pd.concat([self.labels, other.labels])
+
         return self.__class__(
-            activations=pt.cat([self.activations, other.activations], dim=0),
-            labels=pd.concat([self.labels, other.labels]),
+            activations=activations,
+            labels=labels,
         )
 
     def get_groups(
@@ -89,6 +111,31 @@ class ActivationsHandler:
             [self.get_groups(labels=group) for group in labels]
         )
 
+    def sample(self, frac: float, random: bool = False) -> ActivationsHandler:
+        """
+        Sample a fraction of the dataset.
+
+        Parameters
+        ----------
+        frac: float
+            The fraction of the dataset to sample
+        random: bool
+            Whether to shuffle the dataset before sampling
+
+        Returns
+        -------
+        ActivationsHandler
+            A sampled ActivationsHandler
+        """
+        if random:
+            indices = list(self.labels.sample(frac=frac, replace=False).index)
+        else:
+            indices = list(self.labels.iloc[: int(self.count * frac)].index)
+        return self.__class__(
+            activations=self.activations[indices],
+            labels=self.labels[indices],
+        )
+
     def shuffle(self) -> ActivationsHandler:
         """
         Shuffle the dataset.
@@ -98,14 +145,10 @@ class ActivationsHandler:
         ActivationsHandler
             A shuffled ActivationsHandler
         """
-        indices = list(self.labels.sample(frac=1, replace=False).index)
-        return self.__class__(
-            activations=self.activations[indices],
-            labels=self.labels[indices],
-        )
+        return self.sample(frac=1.0, random=True)
 
     def split_dataset(
-        self, split_sizes: list | tuple, random: bool = True
+        self, split_sizes: list | tuple, random: bool = False
     ) -> Generator[ActivationsHandler, None, None]:
         """
         A generator of ActivationsHandlers depending on the split.
@@ -161,7 +204,8 @@ class ActivationsHandler:
     def sample_equally_across_groups(
         self,
         group_labels: list | set | tuple,
-        random: bool = True,
+        random: bool = False,
+        interleave: bool = False,
     ) -> ActivationsHandler:
         """
         Get an ActivationsHandler with an equal number of samples from each group.
@@ -180,7 +224,7 @@ class ActivationsHandler:
         """
         if random:
             return self.shuffle().sample_equally_across_groups(
-                group_labels=group_labels, random=False
+                group_labels=group_labels, random=False, interleave=interleave
             )
 
         group_handlers = [
@@ -189,24 +233,90 @@ class ActivationsHandler:
         n_per_group = min(
             len(group_handler.labels) for group_handler in group_handlers
         )
-        return self.__class__(
-            activations=pt.cat(
-                [
-                    group_handler.activations[:n_per_group]
-                    for group_handler in group_handlers
-                ]
+        if not interleave:
+            return self.__class__(
+                activations=pt.cat(
+                    [
+                        group_handler.activations[:n_per_group]
+                        for group_handler in group_handlers
+                    ]
+                ),
+                labels=pd.concat(
+                    [
+                        group_handler.labels.iloc[:n_per_group]
+                        for group_handler in group_handlers
+                    ]
+                ),
+            )
+
+        activations = pt.zeros(
+            (
+                len(group_handlers) * n_per_group,
+                group_handlers[0].activations.shape[-1],
+            )
+        )
+        labels = pd.Series(
+            dtype=bool, index=range(len(group_handlers) * n_per_group)
+        )
+
+        for i in range(n_per_group):
+            for j, group_handler in enumerate(group_handlers):
+                activations[i * len(group_handlers) + j, :] = (
+                    group_handler.activations[i, :]
+                )
+                labels.iloc[i * len(group_handlers) + j] = (
+                    group_handler.labels.iloc[i]
+                )
+        return self.__class__(activations=activations, labels=labels)
+
+    def reduce_dims(
+        self,
+        pca_components: int | None,
+        pca_info: tuple[pt.Tensor, pt.Tensor] | None = None,
+    ) -> tuple[ActivationsHandler, pt.Tensor]:
+        """
+        Reduce the dimensionality of the activations by taking the top PCA components.
+
+        Parameters
+        ----------
+        pca_components: int | None
+            The number of components to reduce the dimensionality to
+
+        Returns
+        -------
+        ActivationsHandler
+            The reduced ActivationsHandler
+        tuple[pt.Tensor, pt.Tensor]
+            The Vh matrix from the SVD, and the mean of the activations
+            used to center the data.
+            Use this for example if the PCA had been done on another
+            train set and this is the test set.
+        """
+        if pca_components is None:
+            return self, None
+
+        if pca_info is None:
+            # Center the data
+            mean_activations = self.activations.mean(dim=0)
+            activations = self.activations - mean_activations
+            # Perform SVD directly on centered data
+            U, S, Vh = pt.linalg.svd(activations, full_matrices=False)
+            # Take top components
+        else:
+            Vh, mean_activations = pca_info
+            activations = self.activations - mean_activations
+
+        return (
+            self.__class__(
+                activations=activations @ Vh.T[:, :pca_components],
+                labels=self.labels,
             ),
-            labels=pd.concat(
-                [
-                    group_handler.labels.iloc[:n_per_group]
-                    for group_handler in group_handlers
-                ]
-            ),
+            (Vh, mean_activations),
         )
 
 
 def combine_activations_handlers(
-    activations_handlers: list[ActivationsHandler],
+    activations_handlers: list[ActivationsHandler], equal_counts: bool = False
 ) -> ActivationsHandler:
     """
     Combine a list of ActivationsHandlers into a single ActivationsHandler.
@@ -221,9 +331,17 @@ def combine_activations_handlers(
     ActivationsHandler
         The combined ActivationsHandler
     """
+    if len(activations_handlers) == 1:
+        return activations_handlers[0]
+
+    if equal_counts:
+        min_len = min(len(ah.labels) for ah in activations_handlers)
+        activations_handlers = [
+            ah.sample(min_len / len(ah.labels)) for ah in activations_handlers
+        ]
     return sum(
         activations_handlers,
         start=ActivationsHandler(
-            activations=pt.tensor([]), labels=pd.Series([])
+            activations=pt.tensor([]), labels=pd.Series([]), _allow_empty=True
         ),
     )
