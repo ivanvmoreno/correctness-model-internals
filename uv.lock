@@ -451,6 +451,7 @@ dependencies = [
     { name = "datasets" },
     { name = "dvc", extra = ["gs"] },
     { name = "evaluate" },
+    { name = "huggingface" },
     { name = "isort" },
     { name = "markupsafe" },
     { name = "matplotlib" },
@@ -486,6 +487,7 @@ requires-dist = [
     { name = "datasets" },
     { name = "dvc", extras = ["gs"] },
     { name = "evaluate" },
+    { name = "huggingface", specifier = ">=0.0.1" },
     { name = "isort" },
     { name = "isort", marker = "extra == 'dev'" },
     { name = "markupsafe", specifier = "<3.0.2" },
@@ -1271,6 +1273,15 @@ wheels = [
 ]
 
 [[package]]
+name = "huggingface"
+version = "0.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/9d/a4/168b574a23c1841fab5b24ecac98a88ea626ea3c746c481f79eb360c81f2/huggingface-0.0.1.tar.gz", hash = "sha256:0a2f228fd956801d68b7c6a8bef478dfa60c4b7d7eba572ea7de39ecf87e505a", size = 2320 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f4/8c/e61fbc39c0a37140e1d4941c4af29e2d53bacf9f4559e3de24d8f4e484f0/huggingface-0.0.1-py3-none-any.whl", hash = "sha256:98a3409537557cd2fd768997ef94cab08529f86c5e106e6d54bbabdd5ee03910", size = 2455 },
+]
+
+[[package]]
 name = "huggingface-hub"
 version = "0.28.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1918,7 +1929,7 @@ name = "nvidia-cudnn-cu12"
 version = "9.1.0.70"
 source = { registry = "https://download.pytorch.org/whl/cu121" }
 dependencies = [
-    { name = "nvidia-cublas-cu12" },
+    { name = "nvidia-cublas-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
 ]
 wheels = [
     { url = "https://download.pytorch.org/whl/cu121/nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl", hash = "sha256:165764f44ef8c61fcdfdfdbe769d687e06374059fbb388b6c89ecb0e28793a6f" },
@@ -1945,9 +1956,9 @@ name = "nvidia-cusolver-cu12"
 version = "11.4.5.107"
 source = { registry = "https://download.pytorch.org/whl/cu121" }
 dependencies = [
-    { name = "nvidia-cublas-cu12" },
-    { name = "nvidia-cusparse-cu12" },
-    { name = "nvidia-nvjitlink-cu12" },
+    { name = "nvidia-cublas-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
+    { name = "nvidia-cusparse-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
+    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
 ]
 wheels = [
     { url = "https://download.pytorch.org/whl/cu121/nvidia_cusolver_cu12-11.4.5.107-py3-none-manylinux1_x86_64.whl", hash = "sha256:8a7ec542f0412294b15072fa7dab71d31334014a69f953004ea7a118206fe0dd" },
@@ -1958,7 +1969,7 @@ name = "nvidia-cusparse-cu12"
 version = "12.1.0.106"
 source = { registry = "https://download.pytorch.org/whl/cu121" }
 dependencies = [
-    { name = "nvidia-nvjitlink-cu12" },
+    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
 ]
 wheels = [
     { url = "https://download.pytorch.org/whl/cu121/nvidia_cusparse_cu12-12.1.0.106-py3-none-manylinux1_x86_64.whl", hash = "sha256:f3b50f42cf363f86ab21f720998517a659a48131e8d538dc02f8768237bd884c" },
@@ -3501,7 +3512,7 @@ name = "triton"
 version = "3.0.0"
 source = { registry = "https://download.pytorch.org/whl/cu121" }
 dependencies = [
-    { name = "filelock" },
+    { name = "filelock", marker = "(python_full_version < '3.13' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.13' and sys_platform != 'darwin' and sys_platform != 'linux')" },
 ]
 wheels = [
     { url = "https://download.pytorch.org/whl/triton-3.0.0-1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:5ce8520437c602fb633f1324cc3871c47bee3b67acf9756c1a66309b60e3216c" },
@@ -3680,9 +3691,8 @@ name = "vllm-flash-attn"
 version = "2.6.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "torch", version = "2.4.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-27-correctness-model-internals-cpu' and extra != 'extra-27-correctness-model-internals-gpu') or (sys_platform == 'darwin' and extra != 'extra-27-correctness-model-internals-cpu' and extra != 'extra-27-correctness-model-internals-gpu') or (extra == 'extra-27-correctness-model-internals-cpu' and extra == 'extra-27-correctness-model-internals-gpu')" },
-    { name = "torch", version = "2.4.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "extra == 'extra-27-correctness-model-internals-cpu'" },
-    { name = "torch", version = "2.4.0+cu121", source = { registry = "https://download.pytorch.org/whl/cu121" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra != 'extra-27-correctness-model-internals-cpu') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-27-correctness-model-internals-gpu') or (platform_machine != 'aarch64' and extra == 'extra-27-correctness-model-internals-cpu' and extra == 'extra-27-correctness-model-internals-gpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra != 'extra-27-correctness-model-internals-cpu') or (sys_platform == 'darwin' and extra == 'extra-27-correctness-model-internals-gpu') or (sys_platform != 'linux' and extra == 'extra-27-correctness-model-internals-cpu' and extra == 'extra-27-correctness-model-internals-gpu')" },
+    { name = "torch", version = "2.4.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-27-correctness-model-internals-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-27-correctness-model-internals-cpu') or (sys_platform == 'darwin' and extra == 'extra-27-correctness-model-internals-cpu' and extra == 'extra-27-correctness-model-internals-gpu') or (sys_platform == 'linux' and extra == 'extra-27-correctness-model-internals-cpu' and extra == 'extra-27-correctness-model-internals-gpu')" },
+    { name = "torch", version = "2.4.0+cu121", source = { registry = "https://download.pytorch.org/whl/cu121" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra != 'extra-27-correctness-model-internals-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra != 'extra-27-correctness-model-internals-cpu') or (extra == 'extra-27-correctness-model-internals-cpu' and extra == 'extra-27-correctness-model-internals-gpu')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ae/07/a15428870bdda702d5df49743c5b48eddc6b83faa3171aee16d11a6c133f/vllm_flash_attn-2.6.1-cp311-cp311-manylinux1_x86_64.whl", hash = "sha256:2ce0a1ca09bc07dca4b59a56f0db98f5f6a93f8392377fbfd2979e639bc91e88", size = 75867440 },
@@ -3803,10 +3813,9 @@ name = "xformers"
 version = "0.0.27.post2"
 source = { registry = "https://download.pytorch.org/whl/cu121" }
 dependencies = [
-    { name = "numpy" },
-    { name = "torch", version = "2.4.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-27-correctness-model-internals-cpu' and extra != 'extra-27-correctness-model-internals-gpu') or (sys_platform == 'darwin' and extra != 'extra-27-correctness-model-internals-cpu' and extra != 'extra-27-correctness-model-internals-gpu') or (extra == 'extra-27-correctness-model-internals-cpu' and extra == 'extra-27-correctness-model-internals-gpu')" },
-    { name = "torch", version = "2.4.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "extra == 'extra-27-correctness-model-internals-cpu'" },
-    { name = "torch", version = "2.4.0+cu121", source = { registry = "https://download.pytorch.org/whl/cu121" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra != 'extra-27-correctness-model-internals-cpu') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-27-correctness-model-internals-gpu') or (platform_machine != 'aarch64' and extra == 'extra-27-correctness-model-internals-cpu' and extra == 'extra-27-correctness-model-internals-gpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra != 'extra-27-correctness-model-internals-cpu') or (sys_platform == 'darwin' and extra == 'extra-27-correctness-model-internals-gpu') or (sys_platform != 'linux' and extra == 'extra-27-correctness-model-internals-cpu' and extra == 'extra-27-correctness-model-internals-gpu')" },
+    { name = "numpy", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux') or (sys_platform == 'darwin' and extra == 'extra-27-correctness-model-internals-cpu' and extra == 'extra-27-correctness-model-internals-gpu') or (sys_platform == 'linux' and extra == 'extra-27-correctness-model-internals-cpu' and extra == 'extra-27-correctness-model-internals-gpu')" },
+    { name = "torch", version = "2.4.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra == 'extra-27-correctness-model-internals-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra == 'extra-27-correctness-model-internals-cpu') or (sys_platform == 'darwin' and extra == 'extra-27-correctness-model-internals-cpu' and extra == 'extra-27-correctness-model-internals-gpu') or (sys_platform == 'linux' and extra == 'extra-27-correctness-model-internals-cpu' and extra == 'extra-27-correctness-model-internals-gpu')" },
+    { name = "torch", version = "2.4.0+cu121", source = { registry = "https://download.pytorch.org/whl/cu121" }, marker = "(platform_machine != 'aarch64' and sys_platform == 'linux' and extra != 'extra-27-correctness-model-internals-cpu') or (sys_platform != 'darwin' and sys_platform != 'linux' and extra != 'extra-27-correctness-model-internals-cpu') or (extra == 'extra-27-correctness-model-internals-cpu' and extra == 'extra-27-correctness-model-internals-gpu')" },
 ]
 wheels = [
     { url = "https://download.pytorch.org/whl/cu121/xformers-0.0.27.post2-cp311-cp311-manylinux2014_x86_64.whl", hash = "sha256:373a1c5d65dab89ea058d17a37c07e5da5ff3b9bebf61425e26a0a5293b0d4a9" },

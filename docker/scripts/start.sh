@@ -102,6 +102,13 @@ export_env_vars() {
     echo 'source /etc/rp_environment' >> ~/.bashrc
 }
 
+download_hf() {
+    local repo_dir=$1
+    cd "${repo_dir}"
+    source .venv/bin/activate
+    HF_AUTH_TOKEN=${HF_AUTH_TOKEN} python -m src.stages.download_hf --config ./params.yaml
+}
+
 # ---------------------------------------------------------------------------- #
 #                               Main Program                                   #
 # ---------------------------------------------------------------------------- #
@@ -112,6 +119,7 @@ setup_ssh
 export_env_vars
 download_repo "$REPO_URL" "$REPO_DIR" "$PYTHON_VERSION"
 setup_git "$GIT_EMAIL" "$GIT_NAME"
+download_hf "$REPO_DIR"
 
 execute_script "/post_start.sh" "Running post-start script..."
 

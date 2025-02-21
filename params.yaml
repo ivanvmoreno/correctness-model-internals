@@ -9,7 +9,22 @@ base:
   classification_stats_dir: ./classification_stats
 
 datasets:
+  # trivia_qa:
+  #   hf_repo_id: mandarjoshi/trivia_qa
+  #   answer_type: open_ended
+  #   subsets:
+  #     - rc
+  #   prompts:
+  #     base: |-
+  #       I am going to ask you a question. End your sentence with <|eot_id|>.
+  #       Here are some examples of questions that might help you:
+  #       ---
+  #       Which American-born Sinclair won the Nobel Prize for Literature in 1930?
+  #       Answer: Upton Sinclair<|eot_id|> 
+  #       ---
+  #       Question:
   mmlu:
+    hf_repo_id: cais/mmlu
     answer_type: multiple_choice
     answer_map: [A, B, C, D]
     eval_type: constrained_tokens
@@ -126,6 +141,7 @@ datasets:
         ---
         Question:
   gsm8k:
+    hf_repo_id: openai/gsm8k
     answer_type: open_ended
     answer_delim: "####"
     answer_regex: (?<=\$\\boxed\{)\d+(?=\}\$)
@@ -176,31 +192,33 @@ datasets:
 
 models:
   llama3.1_8b_chat:
+    hf_repo_id: meta-llama/Llama-3.1-8B 
     dir_path: llama3.1_8b_chat
-    eos_token: <\|eot_id\|>
-    max_length: 1024
-  llama3_8b_cot:
-    dir_path: llama3_8b_cot_numina_hf
-    eos_token: <\|eot_id\|>
+    eos_token: <|eot_id|>
     max_length: 1024
   llama3_3b_chat:
+    hf_repo_id: meta-llama/Llama-3.2-3B 
     dir_path: llama3_3b_chat_hf
     max_length: 1024
   mistral_7b_instruct:
-    dir_path: mistralai_Mistral-7B-Instruct-v0.3
-    eos_token: "<|eot_id|>"
+    hf_repo_id: mistralai/Mistral-7B-Instruct-v0.3
+    dir_path: mistral_7b_instruct
+    eos_token: <|eot_id|>
     max_length: 1024
   gemma_2_9b_it:
-    dir_path: google/gemma-2-9b-it
-    eos_token: "<|eot_id|>"
+    hf_repo_id: google/gemma-2-9b-it
+    dir_path: gemma_2_9b_it
+    eos_token: <|eot_id|>
     max_length: 1024
   deepseek_qwen_32b:
-    dir_path: deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
-    eos_token: "<|eot_id|>"
+    hf_repo_id: deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+    dir_path: deepseek_qwen_32b
+    eos_token: <|eot_id|>
     max_length: 1024 
   llama3.3_70b:
-    dir_path: meta-llama/Llama-3.3-70B
-    eos_token: "<|eot_id|>"
+    hf_repo_id: meta-llama/Llama-3.3-70B
+    dir_path: llama3.3_70b
+    eos_token: <|eot_id|>
     max_length: 1024
 
 format_datasets:
@@ -209,7 +227,8 @@ format_datasets:
   generation_delimiter: "Answer:" # {str (e.g., "Answer:"), false}
 
 generate_answers:
-  model: llama3_3b_chat
+  models: 
+  - llama3_3b_chat
   max_dataset_size: 100 # false or integer
   sample_strategy: first_n # {first_n, random}
   batch_size: 100

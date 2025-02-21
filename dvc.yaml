@@ -12,60 +12,66 @@ stages:
       - datasets
       - format_datasets
   generate_answers:
-    desc: Generate answers for the formatted datasets with the specified model
-    cmd: python -m src.stages.generate_answers --config=params.yaml --model=${generate_answers.model} --batch-size=${generate_answers.batch_size}
-    deps:
-      - ${base.datasets_dir}/${format_datasets.formatted_dir_path}/
-      - src/stages/generate_answers.py
-    outs:
-      - ${base.generations_dir}/
-    params:
-      - base
-      - datasets
-      - format_datasets
-      - generate_answers
+    foreach: ${generate_answers.models}
+    do:
+      desc: Generate answers for the formatted datasets with the specified model
+      cmd: python -m src.stages.generate_answers --config=params.yaml --model=${item} --batch-size=${generate_answers.batch_size}
+      deps:
+        - ${base.datasets_dir}/${format_datasets.formatted_dir_path}/
+        - src/stages/generate_answers.py
+      outs:
+        - ${base.generations_dir}/
+      params:
+        - base
+        - datasets
+        - format_datasets
+        - generate_answers
   evaluate_answers:
-    desc: Evaluate generations against the ground truth
-    cmd: python -m src.stages.evaluate_answers --config=params.yaml --model=${generate_answers.model}
-    deps:
-      - ${base.datasets_dir}/${format_datasets.formatted_dir_path}/
-      - ${base.generations_dir}/
-      - src/stages/evaluate_answers.py
-    outs:
-      - ${base.evaluations_dir}/
-    params:
-      - base
-      - datasets
-      - generate_answers
-      - format_datasets
+    foreach: ${generate_answers.models}
+    do:
+      desc: Evaluate generations against the ground truth
+      cmd: python -m src.stages.evaluate_answers --config=params.yaml --model=${item}
+      deps:
+        - ${base.datasets_dir}/${format_datasets.formatted_dir_path}/
+        - ${base.generations_dir}/
+        - src/stages/evaluate_answers.py
+      outs:
+        - ${base.evaluations_dir}/
+      params:
+        - base
+        - datasets
+        - generate_answers
+        - format_datasets
   capture_activations:
-    desc: Capture activations at the specified layers for all generated answers
-    cmd: python -m src.stages.capture_activations --config=params.yaml --model=${generate_answers.model} --batch-size=${capture_activations.batch_size} --layers="${capture_activations.layers}"
-    deps:
-      - ${base.generations_dir}/
-      - src/stages/capture_activations.py
-    outs:
-      - ${base.activations_dir}/raw
-    params:
-      - base
-      - models
-      - datasets
-      - generate_answers
-      - capture_activations
+    foreach: ${generate_answers.models}
+    do:
+      desc: Capture activations at the specified layers for all generated answers
+      cmd: python -m src.stages.capture_activations --config=params.yaml --model=${item} --batch-size=${capture_activations.batch_size} --layers="${capture_activations.layers}"
+      deps:
+        - ${base.generations_dir}/
+        - src/stages/capture_activations.py
+      outs:
+        - ${base.activations_dir}/raw
+      params:
+        - base
+        - models
+        - datasets
+        - generate_answers
+        - capture_activations
   postprocess_activations:
-    desc: Postprocess activations at the specified layers for all generated answers
-    cmd: python -m src.stages.postprocess_activations --config=params.yaml --model=${generate_answers.model} --layers="${capture_activations.layers}"
-    deps:
-      - ${base.activations_dir}/raw
-      - src/stages/postprocess_activations.py
-    outs:
-      - ${base.activations_dir}/postprocessed
-    params:
-      - base
-      - models
-      - datasets
-      - generate_answers
-      - capture_activations
-      - postprocess_activations
-metrics:
-  - ${base.evaluations_dir}/${generate_answers.model}/metrics.json
+    foreach: ${generate_answers.models}
+    do:
+      desc: Postprocess activations at the specified layers for all generated answers
+      cmd: python -m src.stages.postprocess_activations --config=params.yaml --model=${item} --layers="${capture_activations.layers}"
+      deps:
+        - ${base.activations_dir}/raw
+        - src/stages/postprocess_activations.py
+      outs:
+        - ${base.activations_dir}/postprocessed
+      params:
+        - base
+        - models
+        - datasets
+        - generate_answers
+        - capture_activations
+        - postprocess_activations
