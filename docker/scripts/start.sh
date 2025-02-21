@@ -103,10 +103,11 @@ export_env_vars() {
 }
 
 download_hf() {
-    local repo_dir=$1
+    local repo_dir="$1"
+    
     cd "${repo_dir}"
     source .venv/bin/activate
-    HF_AUTH_TOKEN=${HF_AUTH_TOKEN} python -m src.stages.download_hf --config ./params.yaml
+    HF_AUTH_TOKEN="${HF_AUTH_TOKEN}" python -m src.stages.download_hf --config ./params.yaml
 }
 
 # ---------------------------------------------------------------------------- #
