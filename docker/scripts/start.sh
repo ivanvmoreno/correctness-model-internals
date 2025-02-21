@@ -24,7 +24,7 @@ setup_ssh() {
         echo "$PUBLIC_KEY" >> ~/.ssh/authorized_keys
         chmod 700 -R ~/.ssh
 
-         if [ ! -f /etc/ssh/ssh_host_rsa_key ]; then
+        if [ ! -f /etc/ssh/ssh_host_rsa_key ]; then
             ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -q -N ''
             echo "RSA key fingerprint:"
             ssh-keygen -lf /etc/ssh/ssh_host_rsa_key.pub
@@ -64,22 +64,26 @@ download_repo() {
     local repo_dir=$2
     local python_version=$3
 
-    if [[ ! -d ${repo_dir} ]]; then
-        echo "Cloning repo..."
-        git clone ${repo_url} ${repo_dir}
+    if [[ -n "${GIT_TOKEN}" ]]; then
+        # Assumes REPO_URL is in HTTPS format
+        repo_url=$(echo "${repo_url}" | sed -e "s#https://#https://${GIT_TOKEN}@#")
     fi
 
-    cd ${repo_dir}
+    if [[ ! -d ${repo_dir} ]]; then
+        echo "Cloning repo..."
+        git clone "${repo_url}" "${repo_dir}"
+    fi
+
+    cd "${repo_dir}"
 
     if [[ -f "uv.lock" ]]; then
         echo "Installing dependencies with uv..."
-        uv python install ${python_version}
+        uv python install "${python_version}"
         uv venv
         source .venv/bin/activate
         uv sync
     fi
 }
-
 
 # Set git username and email
 setup_git() {
@@ -90,7 +94,6 @@ setup_git() {
     git config --global user.email "${git_email}"
     git config --global user.name "${git_name}"
 }
-
 
 # Export env vars
 export_env_vars() {
@@ -107,8 +110,8 @@ echo "Pod Started"
 
 setup_ssh
 export_env_vars
-download_repo $REPO_URL $REPO_DIR $PYTHON_VERSION
-setup_git $GIT_EMAIL $GIT_NAME
+download_repo "$REPO_URL" "$REPO_DIR" "$PYTHON_VERSION"
+setup_git "$GIT_EMAIL" "$GIT_NAME"
 
 execute_script "/post_start.sh" "Running post-start script..."
 
