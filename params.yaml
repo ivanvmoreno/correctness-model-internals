@@ -230,7 +230,6 @@ generate_answers:
   models: 
   - llama3.1_8b_chat
   - mistral_7b_instruct
-  - llama3_3b_chat
   max_dataset_size: 100 # false or integer
   sample_strategy: first_n # {first_n, random}
   batch_size: 100
