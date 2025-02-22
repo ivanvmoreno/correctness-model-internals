@@ -228,9 +228,7 @@ format_datasets:
 
 generate_answers:
   models: 
-  - llama3_3b_chat
   - llama3.1_8b_chat
-  - mistral_7b_instruct
   max_dataset_size: 100 # false or integer
   sample_strategy: first_n # {first_n, random}
   batch_size: 100
