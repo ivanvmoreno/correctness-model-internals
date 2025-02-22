@@ -20,11 +20,11 @@ def load_hf_model(
     """
     Load model from local weights.
     """
-    quant_config = BitsAndBytesConfig(load_in_4bit=True)
+    # quant_config = BitsAndBytesConfig(load_in_4bit=True)
     model = AutoModelForCausalLM.from_pretrained(
         f"{models_path}/{model_dir}",
-        quantization_config=quant_config,
-        device_map="auto"
+        # quantization_config=quant_config,
+        # device_map="auto"
     ).to(device)
     model.eval()
     tokenizer = AutoTokenizer.from_pretrained(f"{models_path}/{model_dir}")
