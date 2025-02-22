@@ -34,87 +34,7 @@ datasets:
   #     - abstract_algebra
   #   prompts:
   #     base: The following is a multiple choice question (with answers). Give your answer with a single letter corresponding to the correct answer.
-  cities_10k:
-    answer_type: open_ended
-    subsets:
-      - main
-    format: csv
-    eval_type: answers_map
-    max_new_tokens: 128
-    stop_words: ["<|end_of_text|>", "\n"]
-    answers_map_path: eval_map.json
-    col_map:
-      prompt: question
-      answer: correct_answer
-    prompts:
-      base: |-
-        I am going to ask you a question about cities. End your sentence with <|end_of_text|>.
-        Here are some examples of questions that might help you:
-        ---
-        Question: In which country is the city of Barcelona located?
-        Answer: Spain<|end_of_text|>
-        ---
-        Question: In which country is the city of Berlin located?
-        Answer: Germany<|end_of_text|>
-        ---
-        Question: In which country is the city of Beijing located?
-        Answer: China<|end_of_text|>
-        ---
-        Question:
-  birth_years_4k:
-    answer_type: open_ended
-    subsets:
-      - main
-    format: csv
-    eval_type: exact_match
-    max_new_tokens: 128
-    stop_words: ["<|end_of_text|>", "\n"]
-    col_map:
-      prompt: question
-      answer: correct_answer
-    prompts:
-      base: |-
-        I am going to ask you what year a person was born. End your sentence with <|end_of_text|>.
-        Here are some examples of questions that might help you:
-        ---
-        Question: What year was Barack Obama born? 
-        Answer: 1961<|end_of_text|>
-        ---
-        Question: What year was Vladimir Putin born? 
-        Answer: 1952<|end_of_text|>
-        ---
-        Question: What year was Xi Jinping born? 
-        Answer: 1953<|end_of_text|>
-        ---
-        Question:
-  medals_9k:
-    answer_type: open_ended
-    subsets:
-      - main
-    format: csv
-    eval_type: answers_map
-    max_new_tokens: 128
-    stop_words: ["<|end_of_text|>", "\n"]
-    answers_map_path: eval_map.json
-    col_map:
-      prompt: question
-      answer: correct_answer
-    prompts:
-      base: |-
-        I am going to ask you a question about the olympics. End your sentence with <|end_of_text|>.
-        Here are some examples of questions that might help you:
-        ---
-        Question: Which country won gold in Gymnastics Women's Team All-Around in the 1928 Summer Olympics?
-        Answer: Netherlands<|end_of_text|>
-        ---
-        Question: Which country won gold in Hockey Women's Hockey in the 2004 Summer Olympics?
-        Answer: Germany<|end_of_text|>
-        ---
-        Question: Which country won gold in Fencing Men's Sabre, Individual in the 1964 Summer Olympics?
-        Answer: Hungary<|end_of_text|>
-        ---
-        Question:
-  # football_leagues_1k:
+  # cities_10k:
   #   answer_type: open_ended
   #   subsets:
   #     - main
@@ -128,19 +48,125 @@ datasets:
   #     answer: correct_answer
   #   prompts:
   #     base: |-
-  #       I am going to ask you a question about football. End your sentence with <|end_of_text|>.
+  #       I am going to ask you a question about cities. End your sentence with <|end_of_text|>.
   #       Here are some examples of questions that might help you:
   #       ---
-  #       Question: Which team finished in position 10 in the 2010-2011 Premier League?
-  #       Answer: Sunderland<|end_of_text|> 
+  #       Question: In which country is the city of Barcelona located?
+  #       Answer: Spain<|end_of_text|>
   #       ---
-  #       Question: Which team finished in position 19 in the 2020-2021 La Liga?
-  #       Answer: Valladolid<|end_of_text|> 
+  #       Question: In which country is the city of Berlin located?
+  #       Answer: Germany<|end_of_text|>
   #       ---
-  #       Question: Which team finished in position 13 in the 2019-2020 Serie A?
-  #       Answer: Udinese<|end_of_text|>
+  #       Question: In which country is the city of Beijing located?
+  #       Answer: China<|end_of_text|>
   #       ---
   #       Question:
+  # birth_years_4k:
+  #   answer_type: open_ended
+  #   subsets:
+  #     - main
+  #   format: csv
+  #   eval_type: exact_match
+  #   max_new_tokens: 128
+  #   stop_words: ["<|end_of_text|>", "\n"]
+  #   col_map:
+  #     prompt: question
+  #     answer: correct_answer
+  #   prompts:
+  #     base: |-
+  #       I am going to ask you what year a person was born. End your sentence with <|end_of_text|>.
+  #       Here are some examples of questions that might help you:
+  #       ---
+  #       Question: What year was Barack Obama born? 
+  #       Answer: 1961<|end_of_text|>
+  #       ---
+  #       Question: What year was Vladimir Putin born? 
+  #       Answer: 1952<|end_of_text|>
+  #       ---
+  #       Question: What year was Xi Jinping born? 
+  #       Answer: 1953<|end_of_text|>
+  #       ---
+  #       Question:
+  # medals_9k:
+  #   answer_type: open_ended
+  #   subsets:
+  #     - main
+  #   format: csv
+  #   eval_type: answers_map
+  #   max_new_tokens: 128
+  #   stop_words: ["<|end_of_text|>", "\n"]
+  #   answers_map_path: eval_map.json
+  #   col_map:
+  #     prompt: question
+  #     answer: correct_answer
+  #   prompts:
+  #     base: |-
+  #       I am going to ask you a question about the olympics. End your sentence with <|end_of_text|>.
+  #       Here are some examples of questions that might help you:
+  #       ---
+  #       Question: Which country won gold in Gymnastics Women's Team All-Around in the 1928 Summer Olympics?
+  #       Answer: Netherlands<|end_of_text|>
+  #       ---
+  #       Question: Which country won gold in Hockey Women's Hockey in the 2004 Summer Olympics?
+  #       Answer: Germany<|end_of_text|>
+  #       ---
+  #       Question: Which country won gold in Fencing Men's Sabre, Individual in the 1964 Summer Olympics?
+  #       Answer: Hungary<|end_of_text|>
+  #       ---
+  #       Question:
+  football_leagues_1k:
+    answer_type: open_ended
+    subsets:
+      - main
+    format: csv
+    eval_type: answers_map
+    max_new_tokens: 128
+    stop_words: ["<|end_of_text|>", "\n"]
+    answers_map_path: eval_map.json
+    col_map:
+      prompt: question
+      answer: correct_answer
+    prompts:
+      base: |-
+        I am going to ask you a question about football. End your sentence with <|end_of_text|>.
+        Here are some examples of questions that might help you:
+        ---
+        Question: Which team finished in position 10 in the 2010-2011 Premier League?
+        Answer: Sunderland<|end_of_text|> 
+        ---
+        Question: Which team finished in position 19 in the 2020-2021 La Liga?
+        Answer: Valladolid<|end_of_text|> 
+        ---
+        Question: Which team finished in position 13 in the 2019-2020 Serie A?
+        Answer: Udinese<|end_of_text|>
+        ---
+        Question:
+  trivia_qa_1_80k:
+    answer_type: open_ended
+    subsets:
+      - main
+    format: csv
+    eval_type: list_of_answers
+    max_new_tokens: 128
+    stop_words: ["<|end_of_text|>", "\n"]
+    col_map:
+      prompt: question
+      answer: correct_answer
+    prompts:
+      base: |-
+        I am going to ask you a question. Answer concisely. End your sentence with <|end_of_text|>.
+        Here are some examples of questions that might help you:
+        ---
+        Question: In which month are St David’s Day and St Patrick’s Day celebrated in the UK? 
+        Answer: March<|end_of_text|>
+        ---
+        Question: What is the common English name of Mozart’s Serenade for Strings in d major?
+        Answer: A little night music<|end_of_text|>
+        ---
+        Question: In which US State do teams play baseball in the Cactus League?
+        Answer: Arizona<|end_of_text|>
+        ---
+        Question:
   # gsm8k:
   #   hf_repo_id: openai/gsm8k
   #   answer_type: open_ended
@@ -231,14 +257,14 @@ generate_answers:
   models: 
   - llama3.1_8b_chat
   # - mistral_7b_instruct
-  max_dataset_size: 251 # false or integer
+  max_dataset_size: false # false or integer
   sample_strategy: first_n # {first_n, random}
-  batch_size: 20
+  batch_size: 100
   inference_engine: vllm # {vllm, hf}
 
 capture_activations:
   raw_dir_path: raw
-  batch_size: 10
+  batch_size: 20
   input_type: [prompt_only, prompt_answer] # {prompt_only, prompt_answer}
   layers: "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]" # must be a string due to dvc limitations
 
