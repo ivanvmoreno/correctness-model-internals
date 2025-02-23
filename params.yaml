@@ -271,7 +271,7 @@ capture_activations:
 
 postprocess_activations:
   postprocessed_dir_path: postprocessed
-  methods: [pca, tsne] # {pca, tsne}
+  methods: [pca] # {pca, tsne}
   tsne:
     n_components: 2
     perplexity: 30
