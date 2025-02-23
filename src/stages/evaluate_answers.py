@@ -153,13 +153,14 @@ def evaluate_answers(
                 elif dataset_conf.eval_type == "list_of_answers":
                     y_true = list(ground_truth_df["answer"])
                     y_pred = generations_df["answer"].astype(str)
-                    print(y_pred)
-                    print([[a for a in re.findall(r"""['"]([^'"]+)['"]""", sol)] for sol in y_true])
                     y_correct = pd.Series([
                         int(s.lower() in [item.lower() for item in re.findall(r"""['"]([^'"]+)['"]""", lst)])
                         for s, lst in zip(y_pred, y_true)
                     ])
-                    # re.findall("""r['"]([^'"]+)['"]""", s)
+                    
+                    metrics = {
+                        "accuracy": y_correct.mean(),
+                    }
                     
                     metrics = {
                         "accuracy": y_correct.mean(),
