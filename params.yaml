@@ -114,34 +114,60 @@ datasets:
   #       Answer: Hungary<|end_of_text|>
   #       ---
   #       Question:
-  football_leagues_1k:
-    answer_type: open_ended
-    subsets:
-      - main
-    format: csv
-    eval_type: answers_map
-    max_new_tokens: 128
-    stop_words: ["<|end_of_text|>", "\n"]
-    answers_map_path: eval_map.json
-    col_map:
-      prompt: question
-      answer: correct_answer
-    prompts:
-      base: |-
-        I am going to ask you a question about football. End your sentence with <|end_of_text|>.
-        Here are some examples of questions that might help you:
-        ---
-        Question: Which team finished in position 10 in the 2010-2011 Premier League?
-        Answer: Sunderland<|end_of_text|> 
-        ---
-        Question: Which team finished in position 19 in the 2020-2021 La Liga?
-        Answer: Valladolid<|end_of_text|> 
-        ---
-        Question: Which team finished in position 13 in the 2019-2020 Serie A?
-        Answer: Udinese<|end_of_text|>
-        ---
-        Question:
-  trivia_qa_1_80k:
+  # football_leagues_1k:
+  #   answer_type: open_ended
+  #   subsets:
+  #     - main
+  #   format: csv
+  #   eval_type: answers_map
+  #   max_new_tokens: 128
+  #   stop_words: ["<|end_of_text|>", "\n"]
+  #   answers_map_path: eval_map.json
+  #   col_map:
+  #     prompt: question
+  #     answer: correct_answer
+  #   prompts:
+  #     base: |-
+  #       I am going to ask you a question about football. End your sentence with <|end_of_text|>.
+  #       Here are some examples of questions that might help you:
+  #       ---
+  #       Question: Which team finished in position 10 in the 2010-2011 Premier League?
+  #       Answer: Sunderland<|end_of_text|> 
+  #       ---
+  #       Question: Which team finished in position 19 in the 2020-2021 La Liga?
+  #       Answer: Valladolid<|end_of_text|> 
+  #       ---
+  #       Question: Which team finished in position 13 in the 2019-2020 Serie A?
+  #       Answer: Udinese<|end_of_text|>
+  #       ---
+  #       Question:
+  # trivia_qa_1_80k:
+  #   answer_type: open_ended
+  #   subsets:
+  #     - main
+  #   format: csv
+  #   eval_type: list_of_answers
+  #   max_new_tokens: 128
+  #   stop_words: ["<|end_of_text|>", "\n"]
+  #   col_map:
+  #     prompt: question
+  #     answer: correct_answer
+  #   prompts:
+  #     base: |-
+  #       I am going to ask you a question. Answer concisely. End your sentence with <|end_of_text|>.
+  #       Here are some examples of questions that might help you:
+  #       ---
+  #       Question: In which month are St David’s Day and St Patrick’s Day celebrated in the UK? 
+  #       Answer: March<|end_of_text|>
+  #       ---
+  #       Question: What is the common English name of Mozart’s Serenade for Strings in d major?
+  #       Answer: A little night music<|end_of_text|>
+  #       ---
+  #       Question: In which US State do teams play baseball in the Cactus League?
+  #       Answer: Arizona<|end_of_text|>
+  #       ---
+  #       Question:
+  trivia_qa_2_60k:
     answer_type: open_ended
     subsets:
       - main
@@ -165,6 +191,32 @@ datasets:
         ---
         Question: In which US State do teams play baseball in the Cactus League?
         Answer: Arizona<|end_of_text|>
+        ---
+        Question:
+  math_operations_4k:
+    answer_type: open_ended
+    subsets:
+      - main
+    format: csv
+    eval_type: exact_match
+    max_new_tokens: 128
+    stop_words: ["<|end_of_text|>", "\n"]
+    col_map:
+      prompt: question
+      answer: correct_answer
+    prompts:
+      base: |-
+        I am going to ask you to questions about maths. Answer with an integer value, without decimal places. End your sentence with <|end_of_text|>.
+        Here are some examples of questions that might help you:
+        ---
+        Question: What is 604 minus 866?
+        Answer: -262<|end_of_text|>
+        ---
+        Question: What is 927 plus 855?
+        Answer: 1782<|end_of_text|>
+        ---
+        Question: What is 531 times 955?
+        Answer: 507105<|end_of_text|>
         ---
         Question:
   # gsm8k:
@@ -271,7 +323,7 @@ capture_activations:
 
 postprocess_activations:
   postprocessed_dir_path: postprocessed
-  methods: [pca, tsne] # {pca, tsne}
+  methods: [pca] # {pca, tsne}
   tsne:
     n_components: 2
     perplexity: 30
