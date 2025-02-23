@@ -230,7 +230,7 @@ models:
   mistral_7b_instruct:
     hf_repo_id: mistralai/Mistral-7B-Instruct-v0.3
     dir_path: mistral_7b_instruct
-    eos_token: <|eot_id|>
+    eos_token: </s>
     max_length: 1024
   gemma_2_9b_it:
     hf_repo_id: google/gemma-2-9b-it
