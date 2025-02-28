@@ -73,16 +73,13 @@ download_repo() {
         echo "Cloning repo..."
         git clone "${repo_url}" "${repo_dir}"
     fi
-
+    
     cd "${repo_dir}"
-
-    if [[ -f "uv.lock" ]]; then
-        echo "Installing dependencies with uv..."
-        uv python install "${python_version}"
-        uv venv
-        source .venv/bin/activate
-        uv sync
-    fi
+    echo "Installing dependencies with uv..."
+    uv python install "${python_version}"
+    uv venv
+    source .venv/bin/activate
+    uv sync --extra gpu
 }
 
 # Set git username and email
