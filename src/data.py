@@ -1,8 +1,8 @@
 from typing import Literal
 
-import torch
 import numpy as np
 import pandas as pd
+import torch
 
 
 def load_statements(dataset_path: str) -> list[tuple[str, str]]:

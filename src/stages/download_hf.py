@@ -1,9 +1,11 @@
 import argparse
-from src.utils.config import load_config
-from src.utils.logging import get_logger
 import os
 import sys
+
 import huggingface_hub as hf
+
+from src.utils.config import load_config
+from src.utils.logging import get_logger
 
 """
 Reads 'params.yaml' to determine which datasets and models to download from HuggingFace.

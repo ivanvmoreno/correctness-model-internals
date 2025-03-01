@@ -1,8 +1,8 @@
-from typing import Union
-import json
 import argparse
+import json
 import os
 import shutil
+from typing import Union
 
 import numpy as np
 from sklearn.decomposition import PCA

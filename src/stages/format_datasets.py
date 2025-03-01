@@ -1,7 +1,7 @@
 import argparse
 import os
 
-from src.data import format_gsm8k, format_mmlu, format_generic
+from src.data import format_generic, format_gsm8k, format_mmlu
 from src.utils.config import load_config
 from src.utils.logging import get_logger
 
