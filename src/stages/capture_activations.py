@@ -16,7 +16,7 @@ def capture_activations(
     model_id: str,
     layers: list,
     batch_size: int = 25,
-    device: str = "cuda:0",
+    device: str = "cuda",
 ) -> None:
     """Format datasets for question-answering tasks by capturing model activations.
 
@@ -25,7 +25,7 @@ def capture_activations(
         model_id (str): Model to use for generation
         layers (list): List of layers to extract activations from
         batch_size (int, optional): Batch size for generation. Defaults to 25.
-        device (str, optional): Device to run inference on. Defaults to 'cuda:0'.
+        device (str, optional): Device to run inference on. Defaults to 'cuda'.
     """
     config = load_config(config_path)
     logger = get_logger("CAPTURE_ACTS", config.base.log_level)

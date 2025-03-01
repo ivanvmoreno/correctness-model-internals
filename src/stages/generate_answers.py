@@ -37,9 +37,12 @@ def generate_answers(
     logger.info(f"Generating answers for model {model_id}")
 
     if config.generate_answers.inference_engine == "hf":
-        logger.info(f"Loading model into GPU")
+        device = getattr(config.generate_answers, "device", "cuda")
+        logger.info(f"Loading model onto GPU (device={device})")
         tokenizer, model = load_hf_model(
-            config.base.models_dir, config.models[model_id].dir_path
+            config.base.models_dir,
+            config.models[model_id].dir_path,
+            device=device,
         )
         tokenizer.pad_token = tokenizer.eos_token
         tokenizer.padding_side = "left"  # decoder-only model

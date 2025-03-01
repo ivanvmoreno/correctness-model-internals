@@ -1,49 +1,61 @@
 from typing import Optional, Tuple, List
 
 import torch
-from tqdm import tqdm
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
 
 ## If you unconditionally import vllm, it throws errors if you don't have the unix resource module
 ## Instead, we can just wrap them and call an import vLLM in the load_model function
 def maybe_import_vllm():
     try:
         from vllm import LLM, SamplingParams
-        from vllm.model_executor.guided_decoding.guided_fields import LLMGuidedOptions
+        from vllm.model_executor.guided_decoding.guided_fields import (
+            LLMGuidedOptions,
+        )
+
         return LLM, SamplingParams, LLMGuidedOptions
     except ImportError:
         return None, None, None
 
+
 def load_hf_model(
-    models_path: str, model_dir: str, device="cuda:0"
+    models_path: str, model_dir: str, device="cuda"
 ) -> Tuple[AutoTokenizer, AutoModelForCausalLM]:
     """
     Load model from local weights.
     """
-    # quant_config = BitsAndBytesConfig(load_in_4bit=True)
-    model = AutoModelForCausalLM.from_pretrained(
-        f"{models_path}/{model_dir}",
-        # quantization_config=quant_config,
-        # device_map="auto"
-    ).to(device)
+    model_options = {
+        "pretrained_model_name_or_path": f"{models_path}/{model_dir}",
+    }
+    if device.startswith("cuda") and torch.cuda.device_count() > 1:
+        model_options["device_map"] = "auto"  # multi-GPU
+        model_options["tp_plan"] = "auto"  # tensor parallelism
+    model = AutoModelForCausalLM.from_pretrained(**model_options)
     model.eval()
     tokenizer = AutoTokenizer.from_pretrained(f"{models_path}/{model_dir}")
     return tokenizer, model
 
 
 def load_vllm_model(
-    models_path: str, model_dir: str, max_model_len=1024
+    models_path: str, model_dir: str, max_model_len=1024, device="cuda"
 ):
     """
     Load vLLM model from local weights.
     """
     LLM, SamplingParams, LLMGuidedOptions = maybe_import_vllm()
     if LLM is None:
-        raise ImportError("vLLM is not installed (or not importable on this platform).")    
+        raise ImportError(
+            "vLLM is not installed (or not importable on this platform)."
+        )
+    model_options = {
+        "model": f"{models_path}/{model_dir}",
+        "max_model_len": max_model_len,
+    }
+    if device.startswith("cuda") and torch.cuda.device_count() > 1:
+        model_options["tensor_parallel_size"] = torch.cuda.device_count()
     tokenizer = AutoTokenizer.from_pretrained(f"{models_path}/{model_dir}")
     model = LLM(
-        model=f"{models_path}/{model_dir}",
-        max_model_len=max_model_len,
+        **model_options,
     )
     return tokenizer, model
 
@@ -87,7 +99,9 @@ def generate_const_vllm(
     """
     LLM, SamplingParams, LLMGuidedOptions = maybe_import_vllm()
     if LLM is None:
-        raise ImportError("vLLM is not installed (or not importable on this platform).")
+        raise ImportError(
+            "vLLM is not installed (or not importable on this platform)."
+        )
     sampling_params = SamplingParams(
         max_tokens=1,
         temperature=0.0,
@@ -110,7 +124,9 @@ def generate_unconst_vllm(
     """Generate unconstrained answers using vLLM, stopping on any stop word substrings."""
     LLM, SamplingParams, LLMGuidedOptions = maybe_import_vllm()
     if LLM is None:
-        raise ImportError("vLLM is not installed (or not importable on this platform).")
+        raise ImportError(
+            "vLLM is not installed (or not importable on this platform)."
+        )
     sampling_params = SamplingParams(
         temperature=0.0,
         top_p=1.0,
@@ -208,7 +224,7 @@ def get_transformer_layers(model: AutoModelForCausalLM):
     raise ValueError("Could not locate transformer layers in the given model.")
 
 
-def get_acts(statements, tokenizer, model, layers, device="cuda:0"):
+def get_acts(statements, tokenizer, model, layers, device="cuda"):
     """
     Get the given layer activations for all statements processed in one batch.
     This version uses the helper get_transformer_layers to support models that might store
