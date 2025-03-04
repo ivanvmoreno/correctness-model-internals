@@ -101,10 +101,11 @@ export_env_vars() {
 
 download_hf() {
     local repo_dir="$1"
+    local model="$2"
     
     cd "${repo_dir}"
     source .venv/bin/activate
-    HF_AUTH_TOKEN="${HF_AUTH_TOKEN}" python -m src.stages.download_hf --config ./params.yaml
+    HF_AUTH_TOKEN="${HF_AUTH_TOKEN}" python -m src.stages.download_hf --config ./params.yaml --model "${model}"
 }
 
 # ---------------------------------------------------------------------------- #
@@ -117,7 +118,7 @@ setup_ssh
 export_env_vars
 download_repo "$REPO_URL" "$REPO_DIR" "$PYTHON_VERSION"
 setup_git "$GIT_EMAIL" "$GIT_NAME"
-download_hf "$REPO_DIR"
+download_hf "$REPO_DIR" "$EXP_MODEL_ID"
 
 execute_script "/post_start.sh" "Running post-start script..."
 

@@ -51,7 +51,6 @@ def download_hf(config_path: str, models: list = None) -> None:
         )
 
     logger.info("Downloading models from Hugging Face...")
-    # Use models list if available, otherwise use config
     models_to_download = models if models else config.generate_answers.models
     for model_name in models_to_download:
         model_conf = config.models[model_name]
@@ -76,12 +75,11 @@ if __name__ == "__main__":
     args_parser = argparse.ArgumentParser()
     args_parser.add_argument("--config", dest="config", required=True)
     args_parser.add_argument(
-        "--model", 
-        dest="model", 
-        nargs='+',  # Allow multiple models
-        help="Optional: Specific model(s) to download. If not provided, uses models from config."
+        "--model",
+        dest="model",
+        nargs="+",
+        help="Optional: Specific model(s) to download. If not provided, uses models from config.",
     )
     args = args_parser.parse_args()
-    
-    # Pass models list to download_hf if provided
+
     download_hf(args.config, args.model if args.model else None)
