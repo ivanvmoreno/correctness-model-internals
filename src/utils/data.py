@@ -23,8 +23,9 @@ def get_all_experiment_activations_configs_df(
     records = []
     base = Path(base_path)
 
-    for path in base.glob("activations/*/*/*/*/*/*"):  # 6 directory levels deep
-        parts = path.parts
+    for path in base.glob("activations/raw/*/*/*/*/*/*"):  # 6 directory levels deep
+        parts = path.relative_to(base).parts
+        print(f"{parts=}")
         records.append(
             {
                 "model_id": parts[-6],  # activations/[model]
@@ -122,7 +123,7 @@ def load_activations(
     paths = sorted(
         list(
             Path(
-                f"{base_path}/activations/{model_id}/{dataset_id}/{prompt_id}"
+                f"{base_path}/activations/raw/{model_id}/{dataset_id}/{prompt_id}"
                 f"/{subset_id}/{input_type}/layer_{layer}"
             ).iterdir()
         ),
