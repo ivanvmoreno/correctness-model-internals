@@ -19,7 +19,7 @@ Expects the following environment variable(s):
 """
 
 
-def download_hf(config_path: str) -> None:
+def download_hf(config_path: str, models: list = None) -> None:
     config = load_config(config_path)
     logger = get_logger("DOWNLOAD_HF", config.base.log_level)
 
@@ -51,7 +51,9 @@ def download_hf(config_path: str) -> None:
         )
 
     logger.info("Downloading models from Hugging Face...")
-    for model_name in config.generate_answers.models:
+    # Use models list if available, otherwise use config
+    models_to_download = models if models else config.generate_answers.models
+    for model_name in models_to_download:
         model_conf = config.models[model_name]
         if not hasattr(model_conf, "hf_repo_id"):
             logger.warning(
@@ -73,6 +75,13 @@ def download_hf(config_path: str) -> None:
 if __name__ == "__main__":
     args_parser = argparse.ArgumentParser()
     args_parser.add_argument("--config", dest="config", required=True)
+    args_parser.add_argument(
+        "--model", 
+        dest="model", 
+        nargs='+',  # Allow multiple models
+        help="Optional: Specific model(s) to download. If not provided, uses models from config."
+    )
     args = args_parser.parse_args()
-
-    download_hf(args.config)
+    
+    # Pass models list to download_hf if provided
+    download_hf(args.config, args.model if args.model else None)
