@@ -79,7 +79,8 @@ if __name__ == "__main__":
         dest="model",
         nargs="+",
         help="Optional: Specific model(s) to download. If not provided, uses models from config.",
+        default=None,
     )
     args = args_parser.parse_args()
 
-    download_hf(args.config, args.model if args.model else None)
+    download_hf(args.config, args.model)
