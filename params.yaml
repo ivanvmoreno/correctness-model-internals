@@ -157,10 +157,10 @@ datasets:
   #       I am going to ask you a question. Answer concisely. End your sentence with <|end_of_text|>.
   #       Here are some examples of questions that might help you:
   #       ---
-  #       Question: In which month are St David’s Day and St Patrick’s Day celebrated in the UK? 
+  #       Question: In which month are St David's Day and St Patrick's Day celebrated in the UK? 
   #       Answer: March<|end_of_text|>
   #       ---
-  #       Question: What is the common English name of Mozart’s Serenade for Strings in d major?
+  #       Question: What is the common English name of Mozart's Serenade for Strings in d major?
   #       Answer: A little night music<|end_of_text|>
   #       ---
   #       Question: In which US State do teams play baseball in the Cactus League?
@@ -183,10 +183,10 @@ datasets:
         I am going to ask you a question. Answer concisely. End your sentence with </s>.
         Here are some examples of questions that might help you:
         ---
-        Question: In which month are St David’s Day and St Patrick’s Day celebrated in the UK? 
+        Question: In which month are St David's Day and St Patrick's Day celebrated in the UK? 
         Answer: March</s>
         ---
-        Question: What is the common English name of Mozart’s Serenade for Strings in d major?
+        Question: What is the common English name of Mozart's Serenade for Strings in d major?
         Answer: A little night music</s>
         ---
         Question: In which US State do teams play baseball in the Cactus League?
@@ -307,12 +307,15 @@ format_datasets:
 
 generate_answers:
   models: 
-#  - llama3.1_8b_chat
-  - mistral_7b_instruct
-  max_dataset_size: false # false or integer
-  sample_strategy: first_n # {first_n, random}
+    - mistral_7b_instruct  # Can be a single model
+    # Or multiple models e.g:
+    # - llama3.1_8b_chat
+    # - mistral_7b_instruct
+    # - gemma_2_9b_it
+  max_dataset_size: false
+  sample_strategy: first_n
   batch_size: 100
-  inference_engine: vllm # {vllm, hf}
+  inference_engine: vllm
 
 capture_activations:
   raw_dir_path: raw

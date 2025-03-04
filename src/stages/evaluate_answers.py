@@ -221,9 +221,20 @@ def evaluate_answers(
 
 
 if __name__ == "__main__":
-
     args_parser = argparse.ArgumentParser()
     args_parser.add_argument("--config", dest="config", required=True)
-    args_parser.add_argument("--model", dest="model", required=True)
+    args_parser.add_argument(
+        "--model", 
+        dest="model", 
+        required=True,
+        nargs='+',  # Allow multiple models
+        help="Model ID(s) to use for evaluation. Can be single or multiple models."
+    )
     args = args_parser.parse_args()
-    evaluate_answers(args.config, args.model)
+    
+    # Handle both single model and multiple models
+    models = args.model if isinstance(args.model, list) else [args.model]
+    
+    # Run evaluation for each model
+    for model_id in models:
+        evaluate_answers(args.config, model_id)
