@@ -42,7 +42,6 @@ def generate_answers(
         tokenizer, model = load_hf_model(
             config.base.models_dir,
             config.models[model_id].dir_path,
-            device=device,
         )
         tokenizer.pad_token = tokenizer.eos_token
         tokenizer.padding_side = "left"  # decoder-only model

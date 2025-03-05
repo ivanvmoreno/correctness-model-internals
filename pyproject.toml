@@ -24,6 +24,7 @@ dependencies = [
     "vllm>=0.5.4",
     "huggingface>=0.0.1",
     "hf-transfer>=0.1.9",
+    "accelerate>=0.26.0",
 ]
 name = "correctness-model-internals"
 version = "0.1.0"

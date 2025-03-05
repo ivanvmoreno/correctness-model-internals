@@ -19,25 +19,26 @@ def maybe_import_vllm():
 
 
 def load_hf_model(
-    models_path: str, model_dir: str, device="cuda"
+    models_path: str, model_dir: str
 ) -> Tuple[AutoTokenizer, AutoModelForCausalLM]:
     """
     Load model from local weights.
     """
     model_options = {
         "pretrained_model_name_or_path": f"{models_path}/{model_dir}",
+        "torch_dtype": torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16,
+        "offload_state_dict": True,
     }
-    if device.startswith("cuda") and torch.cuda.device_count() > 1:
+    if torch.cuda.device_count() > 1:
         model_options["device_map"] = "auto"  # multi-GPU
-        model_options["tp_plan"] = "auto"  # tensor parallelism
     model = AutoModelForCausalLM.from_pretrained(**model_options)
-    model.eval()
+    # model.eval()
     tokenizer = AutoTokenizer.from_pretrained(f"{models_path}/{model_dir}")
     return tokenizer, model
 
 
 def load_vllm_model(
-    models_path: str, model_dir: str, max_model_len=1024, device="cuda"
+    models_path: str, model_dir: str, max_model_len=1024
 ):
     """
     Load vLLM model from local weights.
@@ -51,7 +52,7 @@ def load_vllm_model(
         "model": f"{models_path}/{model_dir}",
         "max_model_len": max_model_len,
     }
-    if device.startswith("cuda") and torch.cuda.device_count() > 1:
+    if torch.cuda.device_count() > 1:
         model_options["tensor_parallel_size"] = torch.cuda.device_count()
     tokenizer = AutoTokenizer.from_pretrained(f"{models_path}/{model_dir}")
     model = LLM(
