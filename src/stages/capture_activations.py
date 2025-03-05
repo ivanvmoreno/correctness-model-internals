@@ -38,7 +38,6 @@ def capture_activations(
     )
     tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "left"  # decoder-only model
-    model.to(device)
 
     # Capture activations for all layers
     if layers is None:
