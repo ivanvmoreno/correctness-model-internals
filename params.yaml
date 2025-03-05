@@ -295,7 +295,7 @@ models:
     eos_token: <|eot_id|>
     max_length: 1024 
   llama3.3_70b:
-    hf_repo_id: meta-llama/Llama-3.3-70B
+    hf_repo_id: meta-llama/Llama-3.3-70B-Instruct
     dir_path: llama3.3_70b
     eos_token: <|eot_id|>
     max_length: 1024
