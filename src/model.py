@@ -26,20 +26,22 @@ def load_hf_model(
     """
     model_options = {
         "pretrained_model_name_or_path": f"{models_path}/{model_dir}",
-        "torch_dtype": torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16,
+        "torch_dtype": (
+            torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+        ),
         "offload_state_dict": True,
     }
     if torch.cuda.device_count() > 1:
         model_options["device_map"] = "auto"  # multi-GPU
     model = AutoModelForCausalLM.from_pretrained(**model_options)
-    # model.eval()
+    if torch.cuda.device_count() == 1:
+        model = model.to("cuda")
+    model.eval()
     tokenizer = AutoTokenizer.from_pretrained(f"{models_path}/{model_dir}")
     return tokenizer, model
 
 
-def load_vllm_model(
-    models_path: str, model_dir: str, max_model_len=1024
-):
+def load_vllm_model(models_path: str, model_dir: str, max_model_len=1024):
     """
     Load vLLM model from local weights.
     """
