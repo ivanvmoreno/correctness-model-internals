@@ -19,7 +19,7 @@ Expects the following environment variable(s):
 """
 
 
-def download_hf(config_path: str, model: str = None) -> None:
+def download_hf(config_path: str, models: list = None) -> None:
     config = load_config(config_path)
     logger = get_logger("DOWNLOAD_HF", config.base.log_level)
 
@@ -50,9 +50,9 @@ def download_hf(config_path: str, model: str = None) -> None:
             local_dir=f"{config.base.datasets_dir}/{config.format_datasets.raw_dir_path}/{dataset_name}",
         )
 
-    logger.info("Downloading model(s) from Hugging Face...")
-    models = [model] if model else config.generate_answers.models
-    for model_name in models:
+    logger.info("Downloading models from Hugging Face...")
+    models_to_download = models if models else config.generate_answers.models
+    for model_name in models_to_download:
         model_conf = config.models[model_name]
         if not hasattr(model_conf, "hf_repo_id"):
             logger.warning(
@@ -74,7 +74,13 @@ def download_hf(config_path: str, model: str = None) -> None:
 if __name__ == "__main__":
     args_parser = argparse.ArgumentParser()
     args_parser.add_argument("--config", dest="config", required=True)
-    args_parser.add_argument("--model", dest="model", default=None)
+    args_parser.add_argument(
+        "--model",
+        dest="model",
+        nargs="+",
+        help="Optional: Specific model(s) to download. If not provided, uses models from config.",
+        default=None,
+    )
     args = args_parser.parse_args()
 
     download_hf(args.config, args.model)

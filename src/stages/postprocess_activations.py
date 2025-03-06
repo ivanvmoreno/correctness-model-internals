@@ -149,14 +149,21 @@ def postprocess_activations(
 
 
 if __name__ == "__main__":
-
     args_parser = argparse.ArgumentParser()
     args_parser.add_argument("--config", dest="config", required=True)
-    args_parser.add_argument("--model", dest="model", required=True)
+    args_parser.add_argument(
+        "--model", 
+        dest="model", 
+        required=True,
+        nargs='+',  # Allow multiple models
+        help="Model ID(s) to use for postprocessing. Can be single or multiple models."
+    )
     args_parser.add_argument("--layers", dest="layers", default=None, type=str)
     args = args_parser.parse_args()
-    postprocess_activations(
-        args.config,
-        args.model,
-        args.layers,
-    )
+    
+    # Handle both single model and multiple models
+    models = args.model if isinstance(args.model, list) else [args.model]
+    
+    # Run postprocessing for each model
+    for model_id in models:
+        postprocess_activations(args.config, model_id, args.layers)

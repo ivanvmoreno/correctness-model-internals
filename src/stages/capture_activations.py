@@ -141,13 +141,27 @@ def capture_activations(
 
 
 if __name__ == "__main__":
-
     args_parser = argparse.ArgumentParser()
     args_parser.add_argument("--config", dest="config", required=True)
-    args_parser.add_argument("--model", dest="model", required=True)
+    args_parser.add_argument(
+        "--model", 
+        dest="model", 
+        required=True,
+        nargs='+',  # Allow multiple models
+        help="Model ID(s) to use for capturing activations. Can be single or multiple models."
+    )
     args_parser.add_argument("--layers", dest="layers", default=None, type=str)
     args_parser.add_argument(
-        "--batch-size", dest="batch_size", default=5, type=int
+        "--batch-size", 
+        dest="batch_size", 
+        default=5, 
+        type=int
     )
     args = args_parser.parse_args()
-    capture_activations(args.config, args.model, args.layers, args.batch_size)
+    
+    # Handle both single model and multiple models
+    models = args.model if isinstance(args.model, list) else [args.model]
+    
+    # Run activation capture for each model
+    for model_id in models:
+        capture_activations(args.config, model_id, args.layers, args.batch_size)

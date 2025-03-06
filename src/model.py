@@ -1,20 +1,32 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Any
+from logging import getLogger
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
+# Constants
+MAX_NEW_TOKENS_VLLM = 512
+MAX_NEW_TOKENS_HF = 1024
+TEMPERATURE = 0.0
+TOP_P = 1.0
+
+logger = getLogger(__name__)
 
 ## If you unconditionally import vllm, it throws errors if you don't have the unix resource module
 ## Instead, we can just wrap them and call an import vLLM in the load_model function
-def maybe_import_vllm():
+def maybe_import_vllm() -> Tuple[Optional[Any], Optional[Any], Optional[Any]]:
+    """
+    Attempt to import vLLM components safely.
+    
+    Returns:
+        Tuple of (LLM, SamplingParams, LLMGuidedOptions) or (None, None, None) if import fails
+    """
     try:
         from vllm import LLM, SamplingParams
-        from vllm.model_executor.guided_decoding.guided_fields import (
-            LLMGuidedOptions,
-        )
-
+        from vllm.model_executor.guided_decoding.guided_fields import LLMGuidedOptions
         return LLM, SamplingParams, LLMGuidedOptions
-    except ImportError:
+    except ImportError as e:
+        logger.warning(f"Failed to import vLLM: {str(e)}. This may be due to missing unix resource module or other dependencies.")
         return None, None, None
 
 
@@ -119,20 +131,38 @@ def generate_const_vllm(
 
 
 def generate_unconst_vllm(
-    llm,
+    llm: Any,
     prompts: List[str],
-    max_new_tokens: int = 512,
+    max_new_tokens: int = MAX_NEW_TOKENS_VLLM,
     stop_words: Optional[List[str]] = None,
+    temperature: float = TEMPERATURE,
+    top_p: float = TOP_P
 ) -> List[str]:
-    """Generate unconstrained answers using vLLM, stopping on any stop word substrings."""
+    """
+    Generate unconstrained answers using vLLM.
+    
+    Args:
+        llm: The vLLM model instance
+        prompts: List of input prompts
+        max_new_tokens: Maximum number of tokens to generate
+        stop_words: Optional list of stop words to end generation
+        temperature: Sampling temperature
+        top_p: Top-p sampling parameter
+        
+    Returns:
+        List of generated text responses
+        
+    Raises:
+        ImportError: If vLLM is not installed or importable
+    """
     LLM, SamplingParams, LLMGuidedOptions = maybe_import_vllm()
     if LLM is None:
         raise ImportError(
             "vLLM is not installed (or not importable on this platform)."
         )
     sampling_params = SamplingParams(
-        temperature=0.0,
-        top_p=1.0,
+        temperature=temperature,
+        top_p=top_p,
         max_tokens=max_new_tokens,
     )
 
@@ -160,7 +190,7 @@ def generate_unconst_hf(
     tokenizer: AutoTokenizer,
     model: AutoModelForCausalLM,
     prompts: List[str],
-    max_new_tokens: int = 1024,
+    max_new_tokens: int = MAX_NEW_TOKENS_HF,
     stop_words: Optional[List[str]] = None,
 ) -> List[str]:
     """Generate unconstrained answers for a batch of prompts (open-ended), stopping on any of a list of stop words if provided."""
