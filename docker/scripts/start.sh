@@ -1,127 +1,173 @@
 #!/bin/bash
+set -euo pipefail
 
-set -e  # Exit the script if any statement returns a non-true return value
-
-# ---------------------------------------------------------------------------- #
-#                          Function Definitions                                #
-# ---------------------------------------------------------------------------- #
-
-# Execute script if exists
-execute_script() {
-    local script_path=$1
-    local script_msg=$2
-    if [[ -f ${script_path} ]]; then
-        echo "${script_msg}"
-        bash ${script_path}
+gh_authenticate() {
+    if [[ -n "${GIT_TOKEN}" ]]; then
+        echo "🔐 Authenticating with GitHub..."
+        
+        echo "${GIT_TOKEN}" | gh auth login --with-token
+        local auth_status=$?
+        
+        if [ $auth_status -ne 0 ]; then
+            echo "❌ Authentication failed. Verifying:"
+            echo "Token prefix: ${GIT_TOKEN:0:4}..."
+            echo "Expiration: $(curl -sH "Authorization: token ${GIT_TOKEN}" https://api.github.com | jq -r '.expires_at')"
+            exit 1
+        fi
+        
+        gh auth setup-git
+        git config --global credential.helper 'cache --timeout=7200'
     fi
 }
 
-# Setup ssh
 setup_ssh() {
     if [[ $PUBLIC_KEY ]]; then
-        echo "Setting up SSH..."
+        echo "🔑 Configuring SSH access..."
         mkdir -p ~/.ssh
         echo "$PUBLIC_KEY" >> ~/.ssh/authorized_keys
-        chmod 700 -R ~/.ssh
+        chmod 600 ~/.ssh/authorized_keys
 
-        if [ ! -f /etc/ssh/ssh_host_rsa_key ]; then
-            ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -q -N ''
-            echo "RSA key fingerprint:"
-            ssh-keygen -lf /etc/ssh/ssh_host_rsa_key.pub
-        fi
-
-        if [ ! -f /etc/ssh/ssh_host_dsa_key ]; then
-            ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key -q -N ''
-            echo "DSA key fingerprint:"
-            ssh-keygen -lf /etc/ssh/ssh_host_dsa_key.pub
-        fi
-
-        if [ ! -f /etc/ssh/ssh_host_ecdsa_key ]; then
-            ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -q -N ''
-            echo "ECDSA key fingerprint:"
-            ssh-keygen -lf /etc/ssh/ssh_host_ecdsa_key.pub
-        fi
-
-        if [ ! -f /etc/ssh/ssh_host_ed25519_key ]; then
-            ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -q -N ''
-            echo "ED25519 key fingerprint:"
-            ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub
-        fi
-
-        service ssh start
-
-        echo "SSH host keys:"
-        for key in /etc/ssh/*.pub; do
-            echo "Key: $key"
-            ssh-keygen -lf $key
+        for type in ed25519 rsa; do
+            [[ -f "/etc/ssh/ssh_host_${type}_key" ]] || ssh-keygen -t $type -f "/etc/ssh/ssh_host_${type}_key" -q -N ""
         done
+        
+        service ssh start
     fi
 }
 
-# Download specified repo and install dependencies 
 download_repo() {
     local repo_url=$1
     local repo_dir=$2
     local python_version=$3
 
-    if [[ -n "${GIT_TOKEN}" ]]; then
-        # Assumes REPO_URL is in HTTPS format
-        repo_url=$(echo "${repo_url}" | sed -e "s#https://#https://${GIT_TOKEN}@#")
+    local repo_identifier
+    repo_identifier=$(echo "$repo_url" | sed -E 's#^https://github.com/([^/]+/[^/.]+).*#\1#')
+
+    if [[ ! -d $repo_dir ]]; then
+        echo "📥 Cloning ${repo_identifier}..."
+        if ! gh repo clone "$repo_identifier" "$repo_dir" -- --depth=1 --recurse-submodules; then
+            echo "⚠️ Cloning failed for '$repo_identifier'. Skipping this repo, but continuing the script..."
+            return 0
+        fi
+    else
+        echo "🔄 Validating existing repository..."
+        cleanup_git_locks "$repo_dir"
+
+        if [[ ! -d "$repo_dir/.git" ]]; then
+            echo "⚠️ Corrupted repository detected - reinitializing..."
+            if ! backup_and_reclone "$repo_dir" "$repo_identifier"; then
+                echo "⚠️ Re-clone failed for '$repo_identifier'. Skipping this repo, but continuing..."
+                return 0
+            fi
+        else
+            echo "♻️ Updating repository..."
+            cd "$repo_dir" || return 0
+
+            if ! git fetch --depth=1; then
+                echo "⚠️ 'git fetch' failed. Continuing with existing code..."
+            fi
+
+            if ! git reset --hard "@{u}"; then
+                echo "⚠️ 'git reset' failed. Continuing with existing code..."
+            fi
+
+            if ! git lfs pull; then
+                echo "⚠️ 'git lfs pull' failed. Continuing without LFS sync..."
+            fi
+        fi
     fi
 
-    if [[ ! -d ${repo_dir} ]]; then
-        echo "Cloning repo..."
-        git clone "${repo_url}" "${repo_dir}"
-    fi
+    # Always set up environment after update attempts
+    cd "$repo_dir" || return 0
+    setup_virtualenv "$python_version"
+    install_dependencies
+}
+
+cleanup_git_locks() {
+    local repo_dir=$1
     
-    cd "${repo_dir}"
-    echo "Installing dependencies with uv..."
-    uv python install "${python_version}"
-    uv venv
+    if [[ -d "${repo_dir}/.git" ]]; then
+        echo "Cleaning up any stale git lock files..."
+        find "${repo_dir}/.git" -name "*.lock" -print -delete
+    fi
+}
+
+backup_and_reclone() {
+    local repo_dir=$1
+    local repo_identifier=$2
+    local backup_dir="${repo_dir}_backup_$(date +%s)"
+    
+    echo "🔄 Backing up to ${backup_dir}..."
+    mv -f "$repo_dir" "$backup_dir"
+    gh repo clone "$repo_identifier" "$repo_dir" -- --depth=1 --recurse-submodules
+}
+
+setup_virtualenv() {
+    local python_version=$1
+    echo "🐍 Creating Python ${python_version} environment..."
+    
+    rm -rf .venv
+    uv venv --python="$python_version" .venv
     source .venv/bin/activate
-    uv sync --extra gpu
 }
 
-# Set git username and email
-setup_git() {
-    local git_email=$1
-    local git_name=$2
+install_dependencies() {
+    echo "📦 Installing dependencies..."
+    uv pip install --upgrade pip setuptools wheel
 
-    echo "Setting up git..."
-    git config --global user.email "${git_email}"
-    git config --global user.name "${git_name}"
-}
+    # Verify critical files exist
+    if [[ ! -f "pyproject.toml" && ! -f "requirements.txt" ]]; then
+        echo "❌ Missing dependency files - checking backups..."
+        restore_from_backup
+    fi
 
-# Export env vars
-export_env_vars() {
-    echo "Exporting environment variables..."
-    printenv | grep -E '^RUNPOD_|^PATH=|^_=' | awk -F = '{ print "export " $1 "=\"" $2 "\"" }' >> /etc/rp_environment
-    echo 'source /etc/rp_environment' >> ~/.bashrc
+    if [[ -f pyproject.toml ]]; then
+        uv pip install -e . --extra-index-url https://download.pytorch.org/whl/cu121
+    elif [[ -f requirements.txt ]]; then
+        uv pip install -r requirements.txt
+    fi
 }
 
 download_hf() {
     local repo_dir="$1"
     local model="$2"
     
+    echo "🤗 Downloading Hugging Face resources..."
     cd "${repo_dir}"
     source .venv/bin/activate
-    HF_AUTH_TOKEN="${HF_AUTH_TOKEN}" python -m src.stages.download_hf --config ./params.yaml --model "${model}"
+    HF_AUTH_TOKEN="${HF_AUTH_TOKEN}" .venv/bin/python -m \
+        src.stages.download_hf --config ./params.yaml --model "${model}" || {
+        echo "⚠️ Model download failed - continuing with existing files"
+    }
+}
+
+setup_git() {
+    [[ -n "$GIT_EMAIL" ]] && git config --global user.email "${GIT_EMAIL}"
+    [[ -n "$GIT_NAME" ]] && git config --global user.name "${GIT_NAME}"
+}
+
+export_env_vars() {
+    echo "🌐 Exporting environment variables..."
+    printenv | grep -E '^RUNPOD_|^PATH=|^_=' | awk -F = '{ print "export " $1 "=\"" $2 "\"" }' >> /etc/rp_environment
+    echo 'source /etc/rp_environment' >> ~/.bashrc
 }
 
 # ---------------------------------------------------------------------------- #
-#                               Main Program                                   #
+#                               Main Execution                                 #
 # ---------------------------------------------------------------------------- #
 
-echo "Pod Started"
-
+echo "🚀 Starting Pod Initialization"
 setup_ssh
+gh_authenticate
+setup_git
 export_env_vars
 download_repo "$REPO_URL" "$REPO_DIR" "$PYTHON_VERSION"
-setup_git "$GIT_EMAIL" "$GIT_NAME"
 download_hf "$REPO_DIR" "$EXP_MODEL_ID"
 
-execute_script "/post_start.sh" "Running post-start script..."
+[[ -f "/post_start.sh" ]] && {
+    echo "🔧 Running post-start script..."
+    bash "/post_start.sh"
+}
 
-echo "Start script(s) finished, pod is ready to use."
-
+echo "✅ Initialization Complete - Pod Ready"
 sleep infinity
