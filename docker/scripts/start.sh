@@ -162,7 +162,11 @@ gh_authenticate
 setup_git
 export_env_vars
 download_repo "$REPO_URL" "$REPO_DIR" "$PYTHON_VERSION"
-download_hf "$REPO_DIR" "$EXP_MODEL_ID"
+if [[ -n "${EXP_MODEL_ID:-}" ]]; then
+    download_hf "$REPO_DIR" "$EXP_MODEL_ID"
+else
+    echo "ℹ️ No model ID specified, skipping Hugging Face model download."
+fi
 
 [[ -f "/post_start.sh" ]] && {
     echo "🔧 Running post-start script..."

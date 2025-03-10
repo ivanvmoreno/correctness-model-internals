@@ -17,6 +17,7 @@ ENV PYTHON_VERSION 3.11
 ENV HOME /root
 ENV PATH "$HOME/.local/bin/:$PATH"
 ENV UV_HTTP_TIMEOUT 600
+ENV UV_CACHE_DIR "/runpod-volume/.cache/uv"
 
 WORKDIR /
 
@@ -84,6 +85,7 @@ RUN apt-get update --yes && \
 
 # uv
 RUN sh -c "$(curl -fsSL https://astral.sh/uv/install.sh)"
+RUN mkdir -p $UV_CACHE_DIR
 
 # gcloud CLI
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg && apt-get update -y && apt-get install google-cloud-cli -y
