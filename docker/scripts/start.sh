@@ -166,9 +166,10 @@ setup_git
 export_env_vars
 download_repo "$REPO_URL" "$REPO_DIR" "$PYTHON_VERSION"
 if [[ -n "${EXP_MODEL_ID:-}" ]]; then
+    echo "ℹ️ Overriding default model download (generate_answers.models @ params.yaml) with: ${EXP_MODEL_ID}"
     download_hf "$REPO_DIR" "$EXP_MODEL_ID"
 else
-    echo "ℹ️ No model ID specified, skipping Hugging Face model download."
+    download_hf "$REPO_DIR"
 fi
 
 [[ -f "/post_start.sh" ]] && {
