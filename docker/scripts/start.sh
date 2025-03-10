@@ -130,13 +130,16 @@ install_dependencies() {
 
 download_hf() {
     local repo_dir="$1"
-    local model="$2"
+    local model="${2:-}"
     
     echo "🤗 Downloading Hugging Face resources..."
     cd "${repo_dir}"
     source .venv/bin/activate
-    HF_AUTH_TOKEN="${HF_AUTH_TOKEN}" .venv/bin/python -m \
-        src.stages.download_hf --config ./params.yaml --model "${model}" || {
+    
+    local cmd=".venv/bin/python -m src.stages.download_hf --config ./params.yaml"
+    [[ -n "${model}" ]] && cmd+=" --model ${model}"
+    
+    HF_AUTH_TOKEN="${HF_AUTH_TOKEN}" ${cmd} || {
         echo "⚠️ Model download failed - continuing with existing files"
     }
 }
