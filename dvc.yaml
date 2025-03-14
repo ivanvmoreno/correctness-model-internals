@@ -8,7 +8,7 @@ stages:
         - ${base.datasets_dir}/${format_datasets.raw_dir_path}/
         - src/stages/format_datasets.py
       outs:
-        - ${base.datasets_dir}/${format_datasets.formatted_dir_path}/
+        - ${base.datasets_dir}/${format_datasets.formatted_dir_path}/${item}
       params:
         - base
         - datasets
@@ -20,7 +20,7 @@ stages:
       desc: Generate answers for the formatted datasets with the specified model
       cmd: python -m src.stages.generate_answers --config=params.yaml --model=${item} --batch-size=${generate_answers.batch_size}
       deps:
-        - ${base.datasets_dir}/${format_datasets.formatted_dir_path}/
+        - ${base.datasets_dir}/${format_datasets.formatted_dir_path}/${item}
         - src/stages/generate_answers.py
       outs:
         - ${base.generations_dir}/
@@ -35,7 +35,7 @@ stages:
       desc: Evaluate generations against the ground truth
       cmd: python -m src.stages.evaluate_answers --config=params.yaml --model=${item}
       deps:
-        - ${base.datasets_dir}/${format_datasets.formatted_dir_path}/
+        - ${base.datasets_dir}/${format_datasets.formatted_dir_path}/${item}
         - ${base.generations_dir}/
         - src/stages/evaluate_answers.py
       outs:
