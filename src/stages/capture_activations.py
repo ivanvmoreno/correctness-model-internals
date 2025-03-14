@@ -28,29 +28,35 @@ def capture_activations(
         device (str, optional): Device to run inference on. Defaults to 'cuda'.
     """
     config = load_config(config_path)
+    model_config = config.models[model_id]
     logger = get_logger("CAPTURE_ACTS", config.base.log_level)
 
     logger.info(f"Generating activations for model {model_id}")
 
     logger.info(f"Loading model into GPU (device={device})")
     tokenizer, model = load_hf_model(
-        config.base.models_dir, config.models[model_id].dir_path
+        config.base.models_dir, model_config.dir_path
     )
     tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "right"  # IMPORTANT: right padded, as we're capturing the activations for generated sequences
 
-    # Capture activations for all layers
     if layers is None:
         raise ValueError(
             "Please provide a list of layers to extract activations."
         )
 
     if isinstance(layers, str):
-        try:
-            layers = json.loads(layers)
-        except json.JSONDecodeError:
-            layers = [layers]
-    layers = [int(layer) for layer in layers]
+        if layers == "-1":
+            layers = list(range(model_config.num_layers))
+        else:
+            try:
+                layers = json.loads(layers)
+            except json.JSONDecodeError:
+                layers = [layers]
+            layers = [int(layer) for layer in layers]
+
+    # Skip layers based on step size
+    layers = layers[:: config.capture_activations.step_size]
 
     logger.info(f"Extracting activations from layers {layers}")
 
@@ -150,7 +156,7 @@ if __name__ == "__main__":
         nargs="+",  # Allow multiple models
         help="Model ID(s) to use for capturing activations. Can be single or multiple models.",
     )
-    args_parser.add_argument("--layers", dest="layers", default=None, type=str)
+    args_parser.add_argument("--layers", dest="layers", default="-1", type=str)
     args_parser.add_argument(
         "--batch-size", dest="batch_size", default=5, type=int
     )

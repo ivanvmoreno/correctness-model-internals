@@ -12,21 +12,27 @@ TOP_P = 1.0
 
 logger = getLogger(__name__)
 
+
 ## If you unconditionally import vllm, it throws errors if you don't have the unix resource module
 ## Instead, we can just wrap them and call an import vLLM in the load_model function
 def maybe_import_vllm() -> Tuple[Optional[Any], Optional[Any], Optional[Any]]:
     """
     Attempt to import vLLM components safely.
-    
+
     Returns:
         Tuple of (LLM, SamplingParams, LLMGuidedOptions) or (None, None, None) if import fails
     """
     try:
         from vllm import LLM, SamplingParams
-        from vllm.model_executor.guided_decoding.guided_fields import LLMGuidedOptions
+        from vllm.model_executor.guided_decoding.guided_fields import (
+            LLMGuidedOptions,
+        )
+
         return LLM, SamplingParams, LLMGuidedOptions
     except ImportError as e:
-        logger.warning(f"Failed to import vLLM: {str(e)}. This may be due to missing unix resource module or other dependencies.")
+        logger.warning(
+            f"Failed to import vLLM: {str(e)}. This may be due to missing unix resource module or other dependencies."
+        )
         return None, None, None
 
 
@@ -136,11 +142,11 @@ def generate_unconst_vllm(
     max_new_tokens: int = MAX_NEW_TOKENS_VLLM,
     stop_words: Optional[List[str]] = None,
     temperature: float = TEMPERATURE,
-    top_p: float = TOP_P
+    top_p: float = TOP_P,
 ) -> List[str]:
     """
     Generate unconstrained answers using vLLM.
-    
+
     Args:
         llm: The vLLM model instance
         prompts: List of input prompts
@@ -148,10 +154,10 @@ def generate_unconst_vllm(
         stop_words: Optional list of stop words to end generation
         temperature: Sampling temperature
         top_p: Top-p sampling parameter
-        
+
     Returns:
         List of generated text responses
-        
+
     Raises:
         ImportError: If vLLM is not installed or importable
     """
@@ -252,8 +258,6 @@ def get_transformer_layers(model: AutoModelForCausalLM):
     if hasattr(model, "model"):
         if hasattr(model.model, "layers"):
             return model.model.layers
-        elif hasattr(model.model, "h"):
-            return model.model.h
     raise ValueError("Could not locate transformer layers in the given model.")
 
 

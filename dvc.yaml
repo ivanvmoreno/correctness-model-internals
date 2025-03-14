@@ -1,16 +1,19 @@
 stages:
   format_datasets:
-    desc: Format datasets with the specified prompt templates
-    cmd: python -m src.stages.format_datasets --config=params.yaml
-    deps:
-      - ${base.datasets_dir}/${format_datasets.raw_dir_path}/
-      - src/stages/format_datasets.py
-    outs:
-      - ${base.datasets_dir}/${format_datasets.formatted_dir_path}/
-    params:
-      - base
-      - datasets
-      - format_datasets
+    foreach: ${generate_answers.models}
+    do:
+      desc: Format datasets with the specified prompt templates
+      cmd: python -m src.stages.format_datasets --config=params.yaml --model=${item}
+      deps:
+        - ${base.datasets_dir}/${format_datasets.raw_dir_path}/
+        - src/stages/format_datasets.py
+      outs:
+        - ${base.datasets_dir}/${format_datasets.formatted_dir_path}/
+      params:
+        - base
+        - datasets
+        - format_datasets
+        - generate_answers
   generate_answers:
     foreach: ${generate_answers.models}
     do:

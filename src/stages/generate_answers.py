@@ -32,6 +32,7 @@ def generate_answers(
         batch_size (int): Batch size for generation
     """
     config = load_config(config_path)
+    model_config = config.models[model_id]
     logger = get_logger("GENERATE_ANSWERS", config.base.log_level)
 
     logger.info(f"Generating answers for model {model_id}")
@@ -41,7 +42,7 @@ def generate_answers(
         logger.info(f"Loading model onto GPU (device={device})")
         tokenizer, model = load_hf_model(
             config.base.models_dir,
-            config.models[model_id].dir_path,
+            model_config.dir_path,
         )
         tokenizer.pad_token = tokenizer.eos_token
         tokenizer.padding_side = "left"  # IMPORTANT: left padded, as we're generating sequences in batches, and models are decoder-only
@@ -56,8 +57,8 @@ def generate_answers(
     elif config.generate_answers.inference_engine == "vllm":
         tokenizer, model = load_vllm_model(
             config.base.models_dir,
-            config.models[model_id].dir_path,
-            config.models[model_id].max_length,
+            model_config.dir_path,
+            model_config.max_length,
         )
         generator_unconst = (
             lambda prompts, max_new_tokens, stop_words: generate_unconst_vllm(
@@ -106,6 +107,7 @@ def generate_answers(
                 formatted_path = os.path.join(
                     config.base.datasets_dir,
                     config.format_datasets.formatted_dir_path,
+                    model_id,
                     dataset_name,
                     prompt_version,
                 )
@@ -172,10 +174,19 @@ def generate_answers(
                             )
 
                     elif dataset_conf.answer_type == "open_ended":
+
+                        logger.info(
+                            "Stop words template variables substitution ({eos_token}})"
+                        )
+                        stop_words = [
+                            w.replace("{eos_token}", model_config.eos_token)
+                            for w in dataset_conf.stop_words
+                        ]
+
                         generations = generator_unconst(
                             chunk,
                             max_new_tokens=dataset_conf.max_new_tokens,
-                            stop_words=dataset_conf.stop_words,
+                            stop_words=stop_words,
                         )
                         for prompt, gen in zip(chunk, generations):
                             generations_data.append(

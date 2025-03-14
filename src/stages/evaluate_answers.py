@@ -73,6 +73,7 @@ def evaluate_answers(
                 ground_truth_path = os.path.join(
                     config.base.datasets_dir,
                     config.format_datasets.formatted_dir_path,
+                    model_id,
                     dataset_name,
                     prompt_version,
                 )
@@ -98,7 +99,9 @@ def evaluate_answers(
                         ground_truth_df = pd.read_csv(ground_truth_full)
                 else:
                     ground_truth_full = f"{ground_truth_path}/{subset}.csv"
-                    logger.info(f"Loading ground truth from {ground_truth_full}")
+                    logger.info(
+                        f"Loading ground truth from {ground_truth_full}"
+                    )
                     ground_truth_df = pd.read_csv(ground_truth_full)
                 if dataset_conf.eval_type == "constrained_tokens":
                     # Convert from string label to index
@@ -153,19 +156,29 @@ def evaluate_answers(
                 elif dataset_conf.eval_type == "list_of_answers":
                     y_true = list(ground_truth_df["answer"])
                     y_pred = generations_df["answer"].astype(str)
-                    y_correct = pd.Series([
-                        int(s.lower() in [item.lower() for item in re.findall(r"""['"]([^'"]+)['"]""", lst)])
-                        for s, lst in zip(y_pred, y_true)
-                    ])
-                    
+                    y_correct = pd.Series(
+                        [
+                            int(
+                                s.lower()
+                                in [
+                                    item.lower()
+                                    for item in re.findall(
+                                        r"""['"]([^'"]+)['"]""", lst
+                                    )
+                                ]
+                            )
+                            for s, lst in zip(y_pred, y_true)
+                        ]
+                    )
+
                     metrics = {
                         "accuracy": y_correct.mean(),
                     }
-                    
+
                     metrics = {
                         "accuracy": y_correct.mean(),
                     }
-                    
+
                 evaluations_path = os.path.join(
                     config.base.evaluations_dir,
                     model,
@@ -224,17 +237,17 @@ if __name__ == "__main__":
     args_parser = argparse.ArgumentParser()
     args_parser.add_argument("--config", dest="config", required=True)
     args_parser.add_argument(
-        "--model", 
-        dest="model", 
+        "--model",
+        dest="model",
         required=True,
-        nargs='+',  # Allow multiple models
-        help="Model ID(s) to use for evaluation. Can be single or multiple models."
+        nargs="+",  # Allow multiple models
+        help="Model ID(s) to use for evaluation. Can be single or multiple models.",
     )
     args = args_parser.parse_args()
-    
+
     # Handle both single model and multiple models
     models = args.model if isinstance(args.model, list) else [args.model]
-    
+
     # Run evaluation for each model
     for model_id in models:
         evaluate_answers(args.config, model_id)

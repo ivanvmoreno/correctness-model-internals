@@ -26,20 +26,28 @@ def postprocess_activations(
         layers (list): List of layers to extract activations from
     """
     config = load_config(config_path)
+    model_config = config.models[model_id]
     logger = get_logger("POSTPROCESS_ACTS", config.base.log_level)
 
     logger.info(f"Postprocessing activations for model {model_id}")
 
-    # Capture activations for all layers
     if layers is None:
-        raise ValueError("Please provide a list of layers to postprocess.")
+        raise ValueError(
+            "Please provide a list of layers to extract activations."
+        )
 
     if isinstance(layers, str):
-        try:
-            layers = json.loads(layers)
-        except json.JSONDecodeError:
-            layers = [layers]
-    layers = [int(layer) for layer in layers]
+        if layers == "-1":
+            layers = list(range(model_config.num_layers))
+        else:
+            try:
+                layers = json.loads(layers)
+            except json.JSONDecodeError:
+                layers = [layers]
+            layers = [int(layer) for layer in layers]
+
+    # Skip layers based on step size
+    layers = layers[:: config.capture_activations.step_size]
 
     logger.info(f"Postprocessing activations from layers {layers}")
 
@@ -76,7 +84,7 @@ def postprocess_activations(
 
                         activations_path = os.path.join(
                             config.base.activations_dir,
-                            'raw',
+                            "raw",
                             model_id,
                             dataset_name,
                             prompt_version,
@@ -152,18 +160,18 @@ if __name__ == "__main__":
     args_parser = argparse.ArgumentParser()
     args_parser.add_argument("--config", dest="config", required=True)
     args_parser.add_argument(
-        "--model", 
-        dest="model", 
+        "--model",
+        dest="model",
         required=True,
-        nargs='+',  # Allow multiple models
-        help="Model ID(s) to use for postprocessing. Can be single or multiple models."
+        nargs="+",  # Allow multiple models
+        help="Model ID(s) to use for postprocessing. Can be single or multiple models.",
     )
     args_parser.add_argument("--layers", dest="layers", default=None, type=str)
     args = args_parser.parse_args()
-    
+
     # Handle both single model and multiple models
     models = args.model if isinstance(args.model, list) else [args.model]
-    
+
     # Run postprocessing for each model
     for model_id in models:
         postprocess_activations(args.config, model_id, args.layers)
