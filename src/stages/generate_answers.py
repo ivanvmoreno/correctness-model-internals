@@ -44,7 +44,7 @@ def generate_answers(
             config.models[model_id].dir_path,
         )
         tokenizer.pad_token = tokenizer.eos_token
-        tokenizer.padding_side = "left"  # decoder-only model
+        tokenizer.padding_side = "left"  # IMPORTANT: left padded, as we're generating sequences in batches, and models are decoder-only
         generator_unconst = (
             lambda prompts, max_new_tokens, stop_words: generate_unconst_hf(
                 tokenizer, model, prompts, max_new_tokens, stop_words
@@ -223,23 +223,20 @@ if __name__ == "__main__":
     args_parser = argparse.ArgumentParser()
     args_parser.add_argument("--config", dest="config", required=True)
     args_parser.add_argument(
-        "--model", 
-        dest="model", 
+        "--model",
+        dest="model",
         required=True,
-        nargs='+',
-        help="Model ID(s) to use for generation. Can be single or multiple models."
+        nargs="+",
+        help="Model ID(s) to use for generation. Can be single or multiple models.",
     )
     args_parser.add_argument(
-        "--batch-size", 
-        dest="batch_size", 
-        default=25, 
-        type=int
+        "--batch-size", dest="batch_size", default=25, type=int
     )
     args = args_parser.parse_args()
-    
+
     # Handle both single model and multiple models
     models = args.model if isinstance(args.model, list) else [args.model]
-    
+
     # Run generation for each model
     for model_id in models:
         generate_answers(args.config, model_id, args.batch_size)

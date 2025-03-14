@@ -37,7 +37,7 @@ def capture_activations(
         config.base.models_dir, config.models[model_id].dir_path
     )
     tokenizer.pad_token = tokenizer.eos_token
-    tokenizer.padding_side = "left"  # decoder-only model
+    tokenizer.padding_side = "right"  # IMPORTANT: right padded, as we're capturing the activations for generated sequences
 
     # Capture activations for all layers
     if layers is None:
@@ -144,24 +144,21 @@ if __name__ == "__main__":
     args_parser = argparse.ArgumentParser()
     args_parser.add_argument("--config", dest="config", required=True)
     args_parser.add_argument(
-        "--model", 
-        dest="model", 
+        "--model",
+        dest="model",
         required=True,
-        nargs='+',  # Allow multiple models
-        help="Model ID(s) to use for capturing activations. Can be single or multiple models."
+        nargs="+",  # Allow multiple models
+        help="Model ID(s) to use for capturing activations. Can be single or multiple models.",
     )
     args_parser.add_argument("--layers", dest="layers", default=None, type=str)
     args_parser.add_argument(
-        "--batch-size", 
-        dest="batch_size", 
-        default=5, 
-        type=int
+        "--batch-size", dest="batch_size", default=5, type=int
     )
     args = args_parser.parse_args()
-    
+
     # Handle both single model and multiple models
     models = args.model if isinstance(args.model, list) else [args.model]
-    
+
     # Run activation capture for each model
     for model_id in models:
         capture_activations(args.config, model_id, args.layers, args.batch_size)
