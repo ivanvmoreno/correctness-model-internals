@@ -23,7 +23,7 @@ stages:
         - ${base.datasets_dir}/${format_datasets.formatted_dir_path}/${item}
         - src/stages/generate_answers.py
       outs:
-        - ${base.generations_dir}/
+        - ${base.generations_dir}/${item}
       params:
         - base
         - datasets
@@ -36,10 +36,10 @@ stages:
       cmd: python -m src.stages.evaluate_answers --config=params.yaml --model=${item}
       deps:
         - ${base.datasets_dir}/${format_datasets.formatted_dir_path}/${item}
-        - ${base.generations_dir}/
+        - ${base.generations_dir}/${item}
         - src/stages/evaluate_answers.py
       outs:
-        - ${base.evaluations_dir}/
+        - ${base.evaluations_dir}/${item}
       params:
         - base
         - datasets
@@ -51,10 +51,10 @@ stages:
       desc: Capture activations at the specified layers for all generated answers
       cmd: python -m src.stages.capture_activations --config=params.yaml --model=${item} --batch-size=${capture_activations.batch_size} --layers="${capture_activations.layers}"
       deps:
-        - ${base.generations_dir}/
+        - ${base.generations_dir}/${item}
         - src/stages/capture_activations.py
       outs:
-        - ${base.activations_dir}/raw
+        - ${base.activations_dir}/raw/${item}
       params:
         - base
         - models
@@ -67,10 +67,10 @@ stages:
       desc: Postprocess activations at the specified layers for all generated answers
       cmd: python -m src.stages.postprocess_activations --config=params.yaml --model=${item} --layers="${capture_activations.layers}"
       deps:
-        - ${base.activations_dir}/raw
+        - ${base.activations_dir}/raw/${item}
         - src/stages/postprocess_activations.py
       outs:
-        - ${base.activations_dir}/postprocessed
+        - ${base.activations_dir}/postprocessed/${item}
       params:
         - base
         - models
