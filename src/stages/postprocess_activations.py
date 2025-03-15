@@ -155,15 +155,6 @@ def postprocess_activations(
                             )
                             np.save(save_path, processed_activations)
 
-    # Remove raw activations
-    raw_activations_path = os.path.join(
-        config.base.activations_dir,
-        "raw",
-        model_id,
-    )
-    logger.info(f"Removing raw activations from {raw_activations_path}")
-    shutil.rmtree(raw_activations_path, ignore_errors=True)
-
 
 if __name__ == "__main__":
     args_parser = argparse.ArgumentParser()
