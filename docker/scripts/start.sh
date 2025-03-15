@@ -130,18 +130,28 @@ install_dependencies() {
 
 download_hf() {
     local repo_dir="$1"
-    local model="${2:-}"
+    shift  # Remove repo_dir from arguments list
     
     echo "🤗 Downloading Hugging Face resources..."
     cd "${repo_dir}"
     source .venv/bin/activate
     
-    local cmd=".venv/bin/python -m src.stages.download_hf --config ./params.yaml"
-    [[ -n "${model}" ]] && cmd+=" --model ${model}"
-    
-    HF_AUTH_TOKEN="${HF_AUTH_TOKEN}" ${cmd} || {
-        echo "⚠️ Model download failed - continuing with existing files"
-    }
+    if [[ $# -gt 0 ]]; then
+        # Process each model individually
+        for model in "$@"; do
+            echo "📥 Downloading model: ${model}"
+            local cmd=".venv/bin/python -m src.stages.download_hf --config ./params.yaml --model ${model}"
+            HF_AUTH_TOKEN="${HF_AUTH_TOKEN}" ${cmd} || {
+                echo "⚠️ Model download failed for ${model} - continuing with next model"
+            }
+        done
+    else
+        # No specific models provided, run default download
+        local cmd=".venv/bin/python -m src.stages.download_hf --config ./params.yaml"
+        HF_AUTH_TOKEN="${HF_AUTH_TOKEN}" ${cmd} || {
+            echo "⚠️ Model download failed - continuing with existing files"
+        }
+    fi
 }
 
 setup_git() {
