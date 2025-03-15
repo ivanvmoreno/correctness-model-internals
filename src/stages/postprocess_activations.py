@@ -155,6 +155,12 @@ def postprocess_activations(
                             )
                             np.save(save_path, processed_activations)
 
+                            # Remove joined activations
+                            logger.info(
+                                f"Removing joined activations from {activations_joined_path}"
+                            )
+                            os.remove(activations_joined_path)
+
 
 if __name__ == "__main__":
     args_parser = argparse.ArgumentParser()
