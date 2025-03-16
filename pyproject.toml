@@ -25,6 +25,8 @@ dependencies = [
     "huggingface>=0.0.1",
     "hf-transfer>=0.1.9",
     "accelerate>=0.26.0",
+    "go-task-bin>=3.42.1",
+    "yq>=3.4.3",
 ]
 name = "correctness-model-internals"
 version = "0.1.0"

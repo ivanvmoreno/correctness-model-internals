@@ -325,7 +325,7 @@ capture_activations:
   raw_dir_path: raw
   batch_size: 20
   input_type: [prompt_only, prompt_answer] # {prompt_only, prompt_answer}
-  layers: "-1" # must be a string due to dvc limitations. Either "-1" for all layers, or "[0, 1, ...]"
+  layers: -1 # must be a string due to dvc limitations. Either `-1` for all layers, or `"[0, 1, ...]"` for specific layers
   step_size: 2 # capture every nth layer, default is 1
 
 
@@ -340,4 +340,3 @@ postprocess_activations:
   pca:
     n_components: 2
     random_state: 42
-  

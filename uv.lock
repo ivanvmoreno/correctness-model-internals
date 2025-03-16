@@ -179,6 +179,15 @@ wheels = [
 ]
 
 [[package]]
+name = "argcomplete"
+version = "3.6.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ee/be/29abccb5d9f61a92886a2fba2ac22bf74326b5c4f55d36d0a56094630589/argcomplete-3.6.0.tar.gz", hash = "sha256:2e4e42ec0ba2fff54b0d244d0b1623e86057673e57bafe72dda59c64bd5dee8b", size = 73135 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/08/94/e786d91ccc3a1fc664c20332825b73da20928eb067cdc984b821948a1acc/argcomplete-3.6.0-py3-none-any.whl", hash = "sha256:4e3e4e10beb20e06444dbac0ac8dda650cb6349caeefe980208d3c548708bedd", size = 43769 },
+]
+
+[[package]]
 name = "asyncssh"
 version = "2.19.0"
 source = { registry = "https://pypi.org/simple" }
@@ -472,6 +481,7 @@ dependencies = [
     { name = "datasets" },
     { name = "dvc", extra = ["gs"] },
     { name = "evaluate" },
+    { name = "go-task-bin" },
     { name = "hf-transfer" },
     { name = "huggingface" },
     { name = "isort" },
@@ -488,6 +498,7 @@ dependencies = [
     { name = "transformers" },
     { name = "umap-learn" },
     { name = "vllm" },
+    { name = "yq" },
 ]
 
 [package.optional-dependencies]
@@ -510,6 +521,7 @@ requires-dist = [
     { name = "datasets" },
     { name = "dvc", extras = ["gs"] },
     { name = "evaluate" },
+    { name = "go-task-bin", specifier = ">=3.42.1" },
     { name = "hf-transfer", specifier = ">=0.1.9" },
     { name = "huggingface", specifier = ">=0.0.1" },
     { name = "isort" },
@@ -529,6 +541,7 @@ requires-dist = [
     { name = "transformers" },
     { name = "umap-learn" },
     { name = "vllm", specifier = ">=0.5.4" },
+    { name = "yq", specifier = ">=3.4.3" },
 ]
 
 [[package]]
@@ -1081,6 +1094,22 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/c0/89/37df0b71473153574a5cdef8f242de422a0f5d26d7a9e231e6f169b4ad14/gitpython-3.1.44.tar.gz", hash = "sha256:c87e30b26253bf5418b01b0660f818967f3c503193838337fe5e573331249269", size = 214196 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1d/9a/4114a9057db2f1462d5c8f8390ab7383925fe1ac012eaa42402ad65c2963/GitPython-3.1.44-py3-none-any.whl", hash = "sha256:9e0e10cda9bed1ee64bc9a6de50e7e38a9c9943241cd7f585f6df3ed28011110", size = 207599 },
+]
+
+[[package]]
+name = "go-task-bin"
+version = "3.42.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/8f/e3/9a4555c38b1204a31576d2638c032493b621f4bc6fc9a1fabd54c3d9409a/go_task_bin-3.42.1.tar.gz", hash = "sha256:9ac9c0f4b09a50be922c40f9de749e968eef0b2031eab4e3954c59113b7b42a4", size = 544826 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/84/6b/8e8d5007455c14a5e118f6e9c044582e566aea7ea292af798856eadf0f93/go_task_bin-3.42.1-py3-none-macosx_10_7_x86_64.whl", hash = "sha256:7a14ac852b3ba5a0021bf06421e57e1bd69e17e9ef5f084b85c2d3807ce8fc42", size = 6689381 },
+    { url = "https://files.pythonhosted.org/packages/c6/2c/81e9a76e5ed6723fc9dd80c95e6a0d2a3566f0ba0abbf8012be03f7cf0ba/go_task_bin-3.42.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:2687ae4f937499fe9025aadd8a5eb8dd4aa865cb07c7b50e38f88448152ead08", size = 6245105 },
+    { url = "https://files.pythonhosted.org/packages/58/f9/129c08462efd1a4c1a623c9692a1c0e786302efeedafaed7bf5beaaa8276/go_task_bin-3.42.1-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.musllinux_1_1_aarch64.whl", hash = "sha256:6e6601ebf5fd5ec2f52906fe9c2ab5a49ffd55754b3bc3e6c3f064b5f68b6ded", size = 6012291 },
+    { url = "https://files.pythonhosted.org/packages/37/b8/77daa94b9d2225e63ec2d1d2725221e40841c9efefe5bbddcaf5e75badd8/go_task_bin-3.42.1-py3-none-manylinux2014_ppc64le.manylinux_2_17_ppc64le.musllinux_1_1_ppc64le.whl", hash = "sha256:df4e1708623220a1ac6160677348127494552024850efcb8cf7b6466fe58f282", size = 5988876 },
+    { url = "https://files.pythonhosted.org/packages/4d/0e/4e977b0ed4e60cc115629ed3a981c30f05efbff3b3879945c7c6b4d20281/go_task_bin-3.42.1-py3-none-manylinux2014_s390x.manylinux_2_17_s390x.musllinux_1_1_s390x.whl", hash = "sha256:72c2d9e7954403a910a994c89d2014710f77e0a630d1442e834fc1ebfe6b0513", size = 6456991 },
+    { url = "https://files.pythonhosted.org/packages/ed/5d/104b5a865d31a2fb2b5dd457ac6a8eb73b9228d9564d55fd219b03de6d4a/go_task_bin-3.42.1-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.musllinux_1_1_x86_64.whl", hash = "sha256:b93b184564a508bb2591e8810cf177797cfd1c40765cd8e0c7fef9456ac83738", size = 6589494 },
+    { url = "https://files.pythonhosted.org/packages/e0/9d/9f33c379bbaf27889ad94a2edb3f587833743bbf504ee8093ab6f0e48b8c/go_task_bin-3.42.1-py3-none-win_amd64.whl", hash = "sha256:c511b203154ae27f44ac0d174e8327fe11670dbff774a4c30c151127104495e9", size = 6776876 },
+    { url = "https://files.pythonhosted.org/packages/06/a1/44cd1abc378dab68c07166e2ec23446ec32b3d9edcdfb4d274699a27fab0/go_task_bin-3.42.1-py3-none-win_arm64.whl", hash = "sha256:b60b11f48ef8999d9d4d7a499eb3fb7de48868e668b5ad43a1b61162621357d3", size = 6116001 },
 ]
 
 [[package]]
@@ -3881,6 +3910,15 @@ wheels = [
 ]
 
 [[package]]
+name = "xmltodict"
+version = "0.14.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/50/05/51dcca9a9bf5e1bce52582683ce50980bcadbc4fa5143b9f2b19ab99958f/xmltodict-0.14.2.tar.gz", hash = "sha256:201e7c28bb210e374999d1dde6382923ab0ed1a8a5faeece48ab525b7810a553", size = 51942 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d6/45/fc303eb433e8a2a271739c98e953728422fa61a3c1f36077a49e395c972e/xmltodict-0.14.2-py2.py3-none-any.whl", hash = "sha256:20cc7d723ed729276e808f26fb6b3599f786cbc37e06c65e192ba77c40f20aac", size = 9981 },
+]
+
+[[package]]
 name = "xxhash"
 version = "3.5.0"
 source = { registry = "https://pypi.org/simple" }
@@ -3993,6 +4031,21 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/fd/b7/4b3c7c7913a278d445cc6284e59b2e62fa25e72758f888b7a7a39eb8423f/yarl-1.18.3-cp313-cp313-win32.whl", hash = "sha256:61ee62ead9b68b9123ec24bc866cbef297dd266175d53296e2db5e7f797f902d", size = 310152 },
     { url = "https://files.pythonhosted.org/packages/f5/d5/688db678e987c3e0fb17867970700b92603cadf36c56e5fb08f23e822a0c/yarl-1.18.3-cp313-cp313-win_amd64.whl", hash = "sha256:578e281c393af575879990861823ef19d66e2b1d0098414855dd367e234f5b3c", size = 315723 },
     { url = "https://files.pythonhosted.org/packages/f5/4b/a06e0ec3d155924f77835ed2d167ebd3b211a7b0853da1cf8d8414d784ef/yarl-1.18.3-py3-none-any.whl", hash = "sha256:b57f4f58099328dfb26c6a771d09fb20dbbae81d20cfb66141251ea063bd101b", size = 45109 },
+]
+
+[[package]]
+name = "yq"
+version = "3.4.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "argcomplete" },
+    { name = "pyyaml" },
+    { name = "tomlkit" },
+    { name = "xmltodict" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/38/6a/eb9721ed0929d0f55d167c2222d288b529723afbef0a07ed7aa6cca72380/yq-3.4.3.tar.gz", hash = "sha256:ba586a1a6f30cf705b2f92206712df2281cd320280210e7b7b80adcb8f256e3b", size = 33214 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f2/ba/d1b21f3e57469030bd6536b91bb28fedd2511d4e68b5a575f2bdb3a3dbb6/yq-3.4.3-py3-none-any.whl", hash = "sha256:547e34bc3caacce83665fd3429bf7c85f8e8b6b9aaee3f953db1ad716ff3434d", size = 18812 },
 ]
 
 [[package]]

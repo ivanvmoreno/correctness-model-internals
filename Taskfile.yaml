@@ -1,0 +1,77 @@
+version: '3'
+
+tasks:
+  all:
+    desc: "Run all stages in sequence"
+    cmds:
+      - task: format_datasets
+      - task: generate_answers
+      - task: evaluate_answers
+      - task: capture_activations
+      - task: postprocess_activations
+      - task: archive_artifacts
+
+  format_datasets:
+    cmds:
+      - |
+        echo "=== FORMAT DATASETS ==="
+        yq '.generate_answers.models[]' params.yaml | sed -e 's/^"//' -e 's/"$//' -e '/^$/d' | while read model; do
+          echo "Formatting dataset for: $model"
+          python -m src.stages.format_datasets --config=params.yaml --model="$model"
+        done
+
+  generate_answers:
+    cmds:
+      - |
+        echo "=== GENERATE ANSWERS ==="
+        BATCH_SIZE=$(yq '.generate_answers.batch_size' params.yaml)
+        yq '.generate_answers.models[]' params.yaml | sed -e 's/^"//' -e 's/"$//' -e '/^$/d' | while read model; do
+          echo "Generating answers for: $model (batch_size=$BATCH_SIZE)"
+          python -m src.stages.generate_answers --config=params.yaml --model="$model" --batch-size=$BATCH_SIZE
+        done
+
+  evaluate_answers:
+    cmds:
+      - |
+        echo "=== EVALUATE ANSWERS ==="
+        yq '.generate_answers.models[]' params.yaml | sed -e 's/^"//' -e 's/"$//' -e '/^$/d' | while read model; do
+          python -m src.stages.evaluate_answers --config=params.yaml --model="$model"
+        done
+
+  capture_activations:
+    cmds:
+      - |
+        echo "=== CAPTURE ACTIVATIONS ==="
+        BATCH_SIZE=$(yq '.capture_activations.batch_size' params.yaml)
+        LAYERS=$(yq '.capture_activations.layers' params.yaml)
+        yq '.generate_answers.models[]' params.yaml | sed -e 's/^"//' -e 's/"$//' -e '/^$/d' | while read model; do
+          python -m src.stages.capture_activations \
+            --config=params.yaml --model="$model"\
+            --batch-size=$BATCH_SIZE --layers="$LAYERS"
+        done
+
+  postprocess_activations:
+    cmds:
+      - |
+        echo "=== POSTPROCESS ACTIVATIONS ==="
+        LAYERS=$(yq '.capture_activations.layers' params.yaml)
+        yq '.generate_answers.models[]' params.yaml | sed -e 's/^"//' -e 's/"$//' -e '/^$/d' | while read model; do
+          python -m src.stages.postprocess_activations \
+            --config=params.yaml --model="$model"\
+            --layers="$LAYERS"
+        done
+  
+  upload_artifacts:
+    desc: "Upload generated artifacts to a GCS bucket, using an experiment ID"
+    cmds:
+      - |
+        echo "=== UPLOAD ARTIFACTS ==="
+        EXP_ID="{{default "exp_default" .CLI_ARGS}}"
+        echo "Uploading artifacts with ID: $EXP_ID"
+
+        gcloud storage cp -r datasets/formatted  "gs://mars-dvc/${EXP_ID}/datasets/"
+        gcloud storage cp -r generations         "gs://mars-dvc/${EXP_ID}/generations/"
+        gcloud storage cp -r evaluations        "gs://mars-dvc/${EXP_ID}/evaluations/"
+        gcloud storage cp -r activations        "gs://mars-dvc/${EXP_ID}/activations/"
+
+        echo "All artifacts uploaded to gs://mars-dvc/${EXP_ID}/"
