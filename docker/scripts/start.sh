@@ -35,6 +35,29 @@ setup_ssh() {
     fi
 }
 
+gcloud_authenticate() {
+    if [[ -n "${GCP_SA_JSON:-}" ]]; then
+        echo "🔐 Authenticating with GCP service account..."
+        
+        local key_file="/tmp/gcloud-key.json"
+        echo "${GCP_SA_JSON}" > "$key_file"
+
+        if ! gcloud auth activate-service-account --key-file="$key_file"; then
+            echo "❌ GCP service account authentication failed"
+            exit 1
+        fi
+        
+        if [[ -n "${GCP_PROJECT_ID:-}" ]]; then
+            gcloud config set project "${GCP_PROJECT_ID}"
+        fi
+        
+        rm -f "$key_file"
+    else
+        echo "⚠️ GCP_SA_JSON is not set. Skipping GCP authentication..."
+    fi
+}
+
+
 download_repo() {
     local repo_url=$1
     local repo_dir=$2
@@ -172,6 +195,7 @@ export_env_vars() {
 echo "🚀 Starting Pod Initialization"
 setup_ssh
 gh_authenticate
+gcloud_authenticate
 setup_git
 export_env_vars
 download_repo "$REPO_URL" "$REPO_DIR" "$PYTHON_VERSION"
