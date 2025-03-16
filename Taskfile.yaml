@@ -10,6 +10,7 @@ tasks:
       - task: capture_activations
       - task: postprocess_activations
       - task: upload_artifacts
+      - task: terminate_pod
 
   format_datasets:
     cmds:
@@ -69,9 +70,16 @@ tasks:
         EXP_ID="{{default "exp_default" .CLI_ARGS}}"
         echo "Uploading artifacts with ID: $EXP_ID"
 
-        gcloud storage cp -r datasets/formatted  "gs://mars-dvc/${EXP_ID}/datasets/"
+        gcloud storage cp -r datasets/formatted  "gs://mars-dvc/${EXP_ID}/datasets/formatted/"
         gcloud storage cp -r generations         "gs://mars-dvc/${EXP_ID}/generations/"
         gcloud storage cp -r evaluations        "gs://mars-dvc/${EXP_ID}/evaluations/"
         gcloud storage cp -r activations        "gs://mars-dvc/${EXP_ID}/activations/"
 
         echo "All artifacts uploaded to gs://mars-dvc/${EXP_ID}/"
+  
+  terminate_pod:
+    desc: "Delete a RunPod pod by its public IP"
+    cmds:
+      - |
+        echo "=== TERMINATING POD ==="
+        python -m src.stages.runpod_delete_pod
