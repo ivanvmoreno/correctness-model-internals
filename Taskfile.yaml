@@ -9,7 +9,7 @@ tasks:
       - task: evaluate_answers
       - task: capture_activations
       - task: postprocess_activations
-      - task: archive_artifacts
+      - task: upload_artifacts
 
   format_datasets:
     cmds:
