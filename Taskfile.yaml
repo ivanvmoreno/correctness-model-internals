@@ -10,7 +10,6 @@ tasks:
       - task: capture_activations
       - task: postprocess_activations
       - task: upload_artifacts
-      - task: terminate_pod
 
   format_datasets:
     cmds:
