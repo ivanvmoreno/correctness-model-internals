@@ -287,8 +287,11 @@ def get_acts(statements, tokenizer, model, layers, device="cuda"):
 
     acts = {}
     for layer, hook in zip(layers, hooks):
-        batch_indices = torch.arange(hook.out.size(0), device=hook.out.device)
-        selected_acts = hook.out[batch_indices, seq_lengths]
+        hook_device = hook.out.device
+        batch_indices = torch.arange(hook.out.size(0), device=hook_device)
+        seq_lengths_on_device = seq_lengths.to(hook_device)
+
+        selected_acts = hook.out[batch_indices, seq_lengths_on_device]
         acts[layer] = selected_acts.float()
 
     for handle in handles:
