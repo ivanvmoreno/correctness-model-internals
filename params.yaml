@@ -54,8 +54,8 @@ datasets:
         Question: In which country is the city of Barcelona located?
         Answer: Spain{eos_token}
         ---
-        Question: In which country is the city of Berlin located?
-        Answer: Germany{eos_token}
+        Question: In which country is the city of London located?
+        Answer: United Kingdom{eos_token}
         ---
         Question: In which country is the city of Beijing located?
         Answer: China{eos_token}
