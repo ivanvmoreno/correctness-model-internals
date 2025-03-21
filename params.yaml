@@ -176,6 +176,9 @@ datasets:
     answer_type: open_ended
     subsets:
       - justice_train
+      - util_train
+      - deontology_train
+      - cm_train
     format: csv
     eval_type: exact_match
     col_map:
