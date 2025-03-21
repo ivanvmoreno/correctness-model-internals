@@ -153,7 +153,9 @@ class DirectionCalculator:
         )
 
     def get_distance_along_classifying_direction(
-        self, batch_activations: BatchActivationsVector
+        self,
+        batch_activations: BatchActivationsVector,
+        center_from_origin: bool = False,
     ) -> BatchValues:
         """
         Calculate the distance of each activation along the classifying direction.
@@ -164,6 +166,9 @@ class DirectionCalculator:
         ----------
         batch_activations: BatchActivationsVector
             The activations to calculate the distance along the classifying direction
+        center_from_origin: bool, default=False
+            Whether to calculate the distance from the origin (mean of all activations)
+            or from the centroid of the group.
 
         Returns
         -------
@@ -176,6 +181,7 @@ class DirectionCalculator:
             normalized_direction = pt.zeros_like(direction)
         else:
             normalized_direction = direction / norm
-        return (
-            batch_activations - self.mean_activations
-        ) @ normalized_direction
+
+        if not center_from_origin:
+            batch_activations = batch_activations - self.mean_activations
+        return (batch_activations) @ normalized_direction
