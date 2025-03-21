@@ -170,11 +170,13 @@ def get_correctness_direction_classifier(
     direction_classifier = BinaryClassifier(
         train_labels=activations_handler_train.labels,
         train_classification_score=direction_calculator.get_distance_along_classifying_direction(
-            activations_handler_train.activations
+            activations_handler_train.activations,
+            center_from_origin=center_from_origin,
         ),
         test_labels=activations_handler_test.labels,
         test_classification_score=direction_calculator.get_distance_along_classifying_direction(
-            activations_handler_test.activations
+            activations_handler_test.activations,
+            center_from_origin=center_from_origin,
         ),
     )
     return direction_classifier, direction_calculator
