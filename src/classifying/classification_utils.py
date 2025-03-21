@@ -139,6 +139,7 @@ class BinaryClassifier:
 def get_correctness_direction_classifier(
     activations_handler_train: ActivationsHandler,
     activations_handler_test: ActivationsHandler,
+    center_from_origin: bool = False,
 ) -> tuple[BinaryClassifier, DirectionCalculator]:
     """
     Build a classifier that uses the directions in activation space between groups
@@ -150,6 +151,10 @@ def get_correctness_direction_classifier(
         Activations handler for training data
     activations_handler_test : ActivationsHandler
         Activations handler for test data
+    center_from_origin : bool
+        Whether to get distances projected onto the direction from the origin
+        (mean of all train activations) or from direction vector starting at
+        the centroid of the group.
 
     Returns
     -------
