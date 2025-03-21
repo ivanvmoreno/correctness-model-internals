@@ -1,7 +1,7 @@
 import argparse
 import os
 
-from src.data import format_gsm8k, format_mmlu, format_generic
+from src.data import format_gsm8k, format_mmlu, format_ethics, format_generic
 from src.utils.config import load_config
 from src.utils.logging import get_logger
 
@@ -35,14 +35,13 @@ def format_dataset(
                         generation_delimiter=prompt.generation_delimiter
                     )
                 elif dataset_name == "ethics":
-                    dataset_f = format_generic(
-                        f"{config.base.datasets_dir}/{config.format_datasets.raw_dir_path}/{dataset_name}/{subset}/{subset}.{dataset_conf.format}",
+                    raw_ethics_dir = f"{config.base.datasets_dir}/{config.format_datasets.raw_dir_path}/{dataset_name}"
+                    dataset_f = format_ethics(
+                        raw_ethics_dir,
+                        subset,
                         prompt,
                         dataset_conf.col_map,
-                        format=dataset_conf.format,
-                    )
-                    dataset_f["answer"] = dataset_f["answer"].apply(
-                        lambda x: "ethical" if str(x).strip() == "1" else "nonethical"
+                        file_format=dataset_conf.format
                     )
                 else:
                     dataset_f = format_generic(

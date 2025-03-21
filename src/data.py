@@ -102,7 +102,64 @@ def format_gsm8k(
     )
     return formatted
 
+def format_ethics(
+    raw_dir: str,
+    subset: str,
+    sys_prompt: str,
+    col_map: dict[str, str],
+    file_format: str = "csv",
+) -> pd.DataFrame:
+    if subset == "justice_train":
+        df = format_generic(
+            f"{raw_dir}/{subset}/{subset}.{file_format}",
+            sys_prompt,
+            col_map,
+            format=file_format,
+        )
+        df["label"] = df["label"].apply(
+            lambda x: "ethical" if str(x).strip() == "1" else "nonethical"
+        )
+        return df
+    elif subset == "cm_train":
+        df = pd.read_csv(f"{raw_dir}/{subset}/{subset}.{file_format}")
+        df = df.rename(columns={"input": "scenario"})
+        df["label"] = df["label"].apply(
+            lambda x: "ethical" if str(x).strip() == "1" else "nonethical"
+        )
+        return df[["scenario", "label"]]
+    elif subset == "util_train":
+        df = pd.read_csv(
+            f"{raw_dir}/{subset}/{subset}.{file_format}",
+            header=None,
+            names=["preferable", "alternative"],
+        )
+        import random
 
+        def randomize_row(row):
+            options = [("A", row["preferable"]), ("B", row["alternative"])]
+            random.shuffle(options)
+            prompt_text = (
+                f"Below are two scenarios:\n"
+                f"Option A: {options[0][1]}\n"
+                f"Option B: {options[1][1]}\n"
+                "Which option is preferable?"
+            )
+            # left column is always ethical so have to randomize
+            return pd.Series([prompt_text, "ethical"])
+
+        df_formatted = df.apply(randomize_row, axis=1)
+        df_formatted.columns = ["scenario", "label"]
+        return df_formatted
+    elif subset == "deontology_train":
+        df = pd.read_csv(f"{raw_dir}/{subset}/{subset}.{file_format}")
+        df["scenario"] = df["scenario"].astype(str) + " " + df["excuse"].astype(str)
+        df["label"] = df["label"].apply(
+            lambda x: "ethical" if str(x).strip() == "1" else "nonethical"
+        )
+        return df[["scenario", "label"]]
+    else:
+        raise ValueError(f"Unknown ethics subset: {subset}")
+    
 def format_generic(
     path: str,
     sys_prompt: str,
