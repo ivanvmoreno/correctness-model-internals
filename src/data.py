@@ -102,6 +102,19 @@ def format_gsm8k(
     )
     return formatted
 
+def format_open_prompt(
+    question,
+    sys_prompt: str,
+    generation_delimiter="Answer:",
+):
+    # Append the question and then a newline with the delimiter.
+    formatted_question = f"{question}"
+    if generation_delimiter:
+        formatted_question += f"\n{generation_delimiter}"
+    # Separate the few-shot prompt and the actual question by a newline.
+    return f"{sys_prompt.strip()}\n{formatted_question}".strip()
+
+
 def format_ethics(
     raw_dir: str,
     subset: str,
@@ -109,24 +122,51 @@ def format_ethics(
     col_map: dict[str, str],
     file_format: str = "csv",
 ) -> pd.DataFrame:
+    generation_delimiter = "Answer:"
+    if subset == "justice_train":
+        base_prompt = sys_prompt
+    elif subset == "cm_train":
+        base_prompt = (
+            "I am going to ask you a question about commonsense scenarios. Answer with 'reasonable' or 'unreasonable'. End your sentence with <|eot_id|>.\n"
+            "Question:"
+        )
+    elif subset == "util_train":
+        base_prompt = (
+            "I am going to ask you what option is preferable. Answer with 'A' or 'B'. End your sentence with <|eot_id|>.\n"
+            "Question:"
+        )
+    elif subset == "deontology_train":
+        base_prompt = (
+            "I am going to ask you a question about deontological scenarios. Answer with 'reasonable' or 'unreasonable'. =End your sentence with <|eot_id|>.\n"
+            "Question:"
+        )
+    else:
+        raise ValueError(f"Unknown ethics subset: {subset}")
+
     if subset == "justice_train":
         df = format_generic(
             f"{raw_dir}/{subset}/{subset}.{file_format}",
-            sys_prompt,
+            base_prompt,
             col_map,
+            generation_delimiter=generation_delimiter,
             format=file_format,
         )
-        df["label"] = df["label"].apply(
+        df["answer"] = df["answer"].apply(
             lambda x: "ethical" if str(x).strip() == "1" else "nonethical"
         )
         return df
+
     elif subset == "cm_train":
         df = pd.read_csv(f"{raw_dir}/{subset}/{subset}.{file_format}")
-        df = df.rename(columns={"input": "scenario"})
-        df["label"] = df["label"].apply(
-            lambda x: "ethical" if str(x).strip() == "1" else "nonethical"
+        df = df.rename(columns={"input": "prompt"})
+        df["prompt"] = df["prompt"].apply(
+            lambda x: f"{base_prompt}\n{x}\n{generation_delimiter}"
         )
-        return df[["scenario", "label"]]
+        df["answer"] = df["label"].apply(
+            lambda x: "reasonable" if str(x).strip() == "0" else "unreasonable"
+        )
+        return df[["prompt", "answer"]]
+
     elif subset == "util_train":
         df = pd.read_csv(
             f"{raw_dir}/{subset}/{subset}.{file_format}",
@@ -135,30 +175,37 @@ def format_ethics(
         )
         import random
 
-        def randomize_row(row):
+        def randomize_util_row(row):
             options = [("A", row["preferable"]), ("B", row["alternative"])]
             random.shuffle(options)
+            answer = "A" if options[0][1] == row["preferable"] else "B"
             prompt_text = (
-                f"Below are two scenarios:\n"
                 f"Option A: {options[0][1]}\n"
                 f"Option B: {options[1][1]}\n"
                 "Which option is preferable?"
             )
-            # left column is always ethical so have to randomize
-            return pd.Series([prompt_text, "ethical"])
+            return pd.Series({"question": prompt_text, "answer": answer})
 
-        df_formatted = df.apply(randomize_row, axis=1)
-        df_formatted.columns = ["scenario", "label"]
-        return df_formatted
+        df_util = df.apply(randomize_util_row, axis=1)
+        df_util["prompt"] = df_util["question"].apply(
+            lambda x: f"{base_prompt}\n{x}\n{generation_delimiter}"
+        )
+        return df_util[["prompt", "answer"]]
+
     elif subset == "deontology_train":
         df = pd.read_csv(f"{raw_dir}/{subset}/{subset}.{file_format}")
-        df["scenario"] = df["scenario"].astype(str) + " " + df["excuse"].astype(str)
-        df["label"] = df["label"].apply(
-            lambda x: "ethical" if str(x).strip() == "1" else "nonethical"
+        df["question"] = df["scenario"].astype(str) + " " + df["excuse"].astype(str)
+        df["prompt"] = df["question"].apply(
+            lambda x: f"{base_prompt}\n{x}\n{generation_delimiter}"
         )
-        return df[["scenario", "label"]]
+        df["answer"] = df["label"].apply(
+            lambda x: "reasonable" if str(x).strip() == "1" else "not reasonable"
+        )
+        return df[["prompt", "answer"]]
+
     else:
         raise ValueError(f"Unknown ethics subset: {subset}")
+
     
 def format_generic(
     path: str,
