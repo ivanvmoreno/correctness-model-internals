@@ -34,6 +34,16 @@ def format_dataset(
                         prompt.text,
                         generation_delimiter=prompt.generation_delimiter
                     )
+                elif dataset_name == "ethics":
+                    dataset_f = format_generic(
+                        f"{config.base.datasets_dir}/{config.format_datasets.raw_dir_path}/{dataset_name}/{subset}/{subset}.{dataset_conf.format}",
+                        prompt,
+                        dataset_conf.col_map,
+                        format=dataset_conf.format,
+                    )
+                    dataset_f["answer"] = dataset_f["answer"].apply(
+                        lambda x: "ethical" if str(x).strip() == "1" else "nonethical"
+                    )
                 else:
                     dataset_f = format_generic(
                         f"{config.base.datasets_dir}/{config.format_datasets.raw_dir_path}/{dataset_name}/{subset}/{subset}.{dataset_conf.format}",
