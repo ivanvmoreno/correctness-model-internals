@@ -314,12 +314,32 @@ format_datasets:
 
 generate_answers:
   models:
-    - llama3.1_8b_chat
-    - mistral_7b_instruct
+    - llama3.3_70b
   max_dataset_size: false
   sample_strategy: first_n
   batch_size: 100
   inference_engine: vllm
+
+inference_engines:
+  litellm:
+    rpm_limit: 600 # API rate limit: requests per minute
+
+evaluate_answers:
+  llm_judge:
+    datasets: [trivia_qa_2_60k]
+    inference_engine: litellm
+    model: together_ai/Qwen/Qwen2.5-72B-Instruct-Turbo
+    prompt:
+      system: |-
+        You are an expert evaluator determining if an answer is semantically correct. Focus on meaning rather than exact wording. An answer can be correct even if it differs from the ground truth in phrasing.
+      user: |-
+        Evaluate if this answer is semantically correct:
+          
+        Question: {question}
+        Answer given: {answer}
+        Expected ground truth: {ground_truth}
+
+        Respond with 1 if the answer is correct, 0 if it is incorrect.
 
 capture_activations:
   raw_dir_path: raw

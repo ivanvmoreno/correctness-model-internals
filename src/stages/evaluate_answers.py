@@ -2,12 +2,16 @@ import argparse
 import json
 import os
 import re
+import asyncio
+from pathlib import Path
 
 import pandas as pd
 
 from src.utils.config import load_config
 from src.utils.logging import get_logger
 from src.utils.metrics import EVAL_METRICS
+
+from src.llm_judge import evaluate_answer_llm, RequestRateLimiter
 
 
 def label_to_index(label, answer_map=["A", "B", "C", "D"]):
@@ -30,7 +34,6 @@ def extract_answer_open_ended(generation: str, regex: str):
     Args:
         generation (str): The generated text.
         regex (str): The regex to extract the answer.
-        skip_prompt (bool): Whether regex is included in the prompt.
     """
     match = re.search(regex, generation)
     if match:
@@ -42,17 +45,23 @@ def extract_answer_open_ended(generation: str, regex: str):
 def evaluate_answers(
     config_path: str,
     model: str,
+    llm_judge: bool = False,
 ) -> None:
-    """Format datasets for question-answering tasks
-
-    Args:
-        config_path (str): Path to configuration file
-        model (str): Model to use for generation
-    """
     config = load_config(config_path)
     logger = get_logger("EVALUATE_ANSWERS", config.base.log_level)
 
     logger.info(f"Evaluating answers from model {model}")
+
+    # Only instantiate a rate limiter if using API LLM calls
+    if (
+        llm_judge
+        and config.evaluate_answers.llm_judge.inference_engine == "litellm"
+    ):
+        rate_limiter = RequestRateLimiter(
+            requests_per_minute=config.inference_engines.litellm.rpm_limit
+        )
+    else:
+        rate_limiter = None
 
     for dataset_name, dataset_conf in config.datasets.items():
         logger.info(f"Evaluating answers for dataset {dataset_name}")
@@ -62,7 +71,7 @@ def evaluate_answers(
                 f"Evaluating answers for prompt version {prompt_version}"
             )
             for subset in dataset_conf.subsets:
-                logger.info(f"Evaluting answers for subset '{subset}'")
+                logger.info(f"Evaluating answers for subset '{subset}'")
                 generations_path = os.path.join(
                     config.base.generations_dir,
                     model,
@@ -73,7 +82,7 @@ def evaluate_answers(
                 ground_truth_path = os.path.join(
                     config.base.datasets_dir,
                     config.format_datasets.formatted_dir_path,
-                    model_id,
+                    model,
                     dataset_name,
                     prompt_version,
                 )
@@ -142,7 +151,7 @@ def evaluate_answers(
                             x in answers_map[y_true[i]]
                             for i, x in zip(y_pred.index, y_pred)
                         ]
-                    ).astype(int)
+                    ).astype(bool)
                     metrics = {
                         "accuracy": y_correct.mean(),
                     }
@@ -156,63 +165,109 @@ def evaluate_answers(
                 elif dataset_conf.eval_type == "list_of_answers":
                     y_true = list(ground_truth_df["answer"])
                     y_pred = generations_df["answer"].astype(str)
+                    # Create a boolean Series where each element is True if the prediction (s)
+                    # exists in the list of answers (lst), ignoring case.
                     y_correct = pd.Series(
                         [
-                            int(
-                                s.lower()
-                                in [
-                                    item.lower()
-                                    for item in re.findall(
-                                        r"""['"]([^'"]+)['"]""", lst
-                                    )
-                                ]
-                            )
+                            s.lower()
+                            in [
+                                item.lower()
+                                for item in re.findall(
+                                    r"""['"]([^'"]+)['"]""", lst
+                                )
+                            ]
                             for s, lst in zip(y_pred, y_true)
                         ]
                     )
-
                     metrics = {
                         "accuracy": y_correct.mean(),
                     }
+                else:
+                    raise ValueError(
+                        f"Unknown eval_type: {dataset_conf.eval_type}"
+                    )
 
-                    metrics = {
-                        "accuracy": y_correct.mean(),
-                    }
+                y_correct = pd.Series(y_correct)
+                if (
+                    llm_judge
+                    and dataset_name
+                    in config.evaluate_answers.llm_judge.datasets
+                ):
+                    # Save the original correctness before LLM evaluation
+                    original_y_correct = y_correct.copy()
+                    incorrect_mask = ~y_correct
 
+                    async def evaluate_failed():
+                        tasks = []
+                        for idx in generations_df[incorrect_mask].index:
+                            prompt_text = generations_df.loc[idx, "prompt"]
+                            answer_text = generations_df.loc[idx, "answer"]
+                            gt_text = y_true[idx]
+                            task = evaluate_answer_llm(
+                                evaluator_system=config.evaluate_answers.llm_judge.prompt.system,
+                                evaluator_user=config.evaluate_answers.llm_judge.prompt.user,
+                                evaluator_model=config.evaluate_answers.llm_judge.model,
+                                question=prompt_text,
+                                answer=answer_text,
+                                ground_truth=gt_text,
+                                rate_limiter=rate_limiter,
+                            )
+                            tasks.append(task)
+                        return await asyncio.gather(*tasks)
+
+                    llm_results = asyncio.run(evaluate_failed())
+
+                    # Flip to True wherever LLM judge says it's correct
+                    for i, idx in enumerate(
+                        generations_df[incorrect_mask].index
+                    ):
+                        if llm_results[i]:
+                            y_correct[idx] = True
+
+                    # Flag rows where the LLM judge corrected the evaluation
+                    llm_judge_correct = y_correct & ~original_y_correct
+
+                accuracy = sum(y_correct) / len(y_correct)
+                metrics = {"accuracy": accuracy}
+
+                # Save evaluated generations
                 evaluations_path = os.path.join(
                     config.base.evaluations_dir,
                     model,
                     dataset_name,
                     prompt_version,
                 )
-                generations_eval_csv_path = os.path.join(
-                    evaluations_path,
-                    f"{subset}_generations_evaluated.csv",
-                )
                 os.makedirs(evaluations_path, exist_ok=True)
                 generations_df["ground_truth"] = y_true
                 generations_df["correct"] = y_correct
-                generations_df.to_csv(
-                    generations_eval_csv_path,
-                    index=False,
+                if (
+                    llm_judge
+                    and dataset_name
+                    in config.evaluate_answers.llm_judge.datasets
+                ):
+                    generations_df["original_correct"] = original_y_correct
+                    generations_df["llm_judge_correct"] = llm_judge_correct
+                generations_eval_csv_path = os.path.join(
+                    evaluations_path, f"{subset}_generations_evaluated.csv"
                 )
+                generations_df.to_csv(generations_eval_csv_path, index=False)
                 logger.info(
                     f"Saved evaluated generations to {generations_eval_csv_path}"
                 )
+
+                # Save metrics
                 metrics_path = os.path.join(
-                    evaluations_path,
-                    f"{subset}_metrics.json",
+                    evaluations_path, f"{subset}_metrics.json"
                 )
                 with open(metrics_path, "w") as f:
                     json.dump(metrics, f, indent=4)
                 logger.info(f"Saved metrics to {metrics_path}")
 
-    # Join all metrics (dataset, prompt_version, subset) into a single file
-    metrics = {}
+    all_metrics = {}
     for dataset_name, dataset_conf in config.datasets.items():
-        metrics[dataset_name] = {}
+        all_metrics[dataset_name] = {}
         for prompt_version, _ in dataset_conf.prompts.items():
-            metrics[dataset_name][prompt_version] = {}
+            all_metrics[dataset_name][prompt_version] = {}
             for subset in dataset_conf.subsets:
                 metrics_path = os.path.join(
                     config.base.evaluations_dir,
@@ -222,14 +277,15 @@ def evaluate_answers(
                     f"{subset}_metrics.json",
                 )
                 with open(metrics_path, "r") as f:
-                    metrics[dataset_name][prompt_version][subset] = json.load(f)
+                    all_metrics[dataset_name][prompt_version][subset] = (
+                        json.load(f)
+                    )
+
     metrics_joined_path = os.path.join(
-        config.base.evaluations_dir,
-        model,
-        "metrics.json",
+        config.base.evaluations_dir, model, "metrics.json"
     )
     with open(metrics_joined_path, "w") as f:
-        json.dump(metrics, f, indent=4)
+        json.dump(all_metrics, f, indent=4)
     logger.info(f"Joined metrics saved to {metrics_joined_path}")
 
 
@@ -240,14 +296,16 @@ if __name__ == "__main__":
         "--model",
         dest="model",
         required=True,
-        nargs="+",  # Allow multiple models
+        nargs="+",
         help="Model ID(s) to use for evaluation. Can be single or multiple models.",
     )
+    args_parser.add_argument(
+        "--llm-judge",
+        action="store_true",
+        help="Use LLM as judge for evaluation",
+    )
     args = args_parser.parse_args()
-
-    # Handle both single model and multiple models
     models = args.model if isinstance(args.model, list) else [args.model]
 
-    # Run evaluation for each model
     for model_id in models:
-        evaluate_answers(args.config, model_id)
+        evaluate_answers(args.config, model_id, args.llm_judge)
