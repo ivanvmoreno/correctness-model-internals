@@ -1,6 +1,9 @@
 from typing import Text
 
+from dotenv import load_dotenv
 from box import ConfigBox
+
+load_dotenv()
 
 
 def load_config(config_path: Text) -> ConfigBox:
