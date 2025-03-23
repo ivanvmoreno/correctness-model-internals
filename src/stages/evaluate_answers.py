@@ -3,7 +3,6 @@ import json
 import os
 import re
 import asyncio
-from pathlib import Path
 
 import pandas as pd
 
@@ -11,7 +10,7 @@ from src.utils.config import load_config
 from src.utils.logging import get_logger
 from src.utils.metrics import EVAL_METRICS
 
-from src.llm_judge import evaluate_answer_llm, RequestRateLimiter
+from src.llm_judge import evaluate_answer_llm, QPSRateLimiter
 
 
 def label_to_index(label, answer_map=["A", "B", "C", "D"]):
@@ -57,8 +56,8 @@ def evaluate_answers(
         llm_judge
         and config.evaluate_answers.llm_judge.inference_engine == "litellm"
     ):
-        rate_limiter = RequestRateLimiter(
-            requests_per_minute=config.inference_engines.litellm.rpm_limit
+        rate_limiter = QPSRateLimiter(
+            requests_per_second=config.inference_engines.litellm.qps_limit,
         )
     else:
         rate_limiter = None
@@ -200,16 +199,18 @@ def evaluate_answers(
                     async def evaluate_failed():
                         tasks = []
                         for idx in generations_df[incorrect_mask].index:
-                            prompt_text = generations_df.loc[idx, "prompt"]
-                            answer_text = generations_df.loc[idx, "answer"]
-                            gt_text = y_true[idx]
+                            original_statement = ground_truth_df.loc[
+                                idx, "original_statement"
+                            ]
+                            generated_answer = generations_df.loc[idx, "answer"]
+                            ground_truth_answer = y_true[idx]
                             task = evaluate_answer_llm(
                                 evaluator_system=config.evaluate_answers.llm_judge.prompt.system,
                                 evaluator_user=config.evaluate_answers.llm_judge.prompt.user,
                                 evaluator_model=config.evaluate_answers.llm_judge.model,
-                                question=prompt_text,
-                                answer=answer_text,
-                                ground_truth=gt_text,
+                                question=original_statement,
+                                answer=generated_answer,
+                                ground_truth=ground_truth_answer,
                                 rate_limiter=rate_limiter,
                             )
                             tasks.append(task)

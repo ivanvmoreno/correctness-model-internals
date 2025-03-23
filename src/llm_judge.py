@@ -5,41 +5,38 @@ import litellm
 from litellm.exceptions import ServiceUnavailableError, RateLimitError
 
 
-class RequestRateLimiter:
-    def __init__(self, requests_per_minute: int):
+class QPSRateLimiter:
+    def __init__(self, requests_per_second: int):
         """
-        A rate limiter that enforces only a per-minute rate limit.
-        (e.g., requests_per_minute=600)
+        Simplified rate limiter enforcing only QPS
+        (QPS alone determines RPM: QPS*60 = RPM)
         """
-        self.requests_per_minute = requests_per_minute
+        self.requests_per_second = requests_per_second
         self.request_timestamps = []
         self.lock = asyncio.Lock()
 
     async def acquire(self):
-        """
-        Wait until we can make a new request without exceeding the
-        requests_per_minute limit.
-        """
+        """Wait until we can make a new request without exceeding QPS limit"""
         while True:
             async with self.lock:
                 now = time.monotonic()
-                # Filter out timestamps older than 60 seconds
-                one_minute_ago = now - 60
+                one_second_ago = now - 1
+
+                # Maintain only timestamps from the last second
                 self.request_timestamps = [
-                    ts for ts in self.request_timestamps if ts > one_minute_ago
+                    ts for ts in self.request_timestamps if ts > one_second_ago
                 ]
 
-                # If we're under the per-minute threshold, proceed
-                if len(self.request_timestamps) < self.requests_per_minute:
+                if len(self.request_timestamps) < self.requests_per_second:
                     self.request_timestamps.append(now)
                     return
 
-                # Otherwise, figure out how long until the first request
-                # in the window is more than 60 seconds old
-                wait_for_minute = 60 - (now - self.request_timestamps[0])
+                # Calculate wait time until the oldest request window expires
+                oldest_ts = self.request_timestamps[0]
+                sleep_time = max(0.1, 1 - (now - oldest_ts))
 
-            # Release the lock before sleeping; ensure at least 0.1s wait
-            await asyncio.sleep(max(0.1, wait_for_minute))
+            # Release lock before sleeping
+            await asyncio.sleep(sleep_time)
 
 
 async def evaluate_answer_llm(
@@ -49,26 +46,18 @@ async def evaluate_answer_llm(
     question: str,
     answer: str,
     ground_truth: str,
-    rate_limiter: RequestRateLimiter,
+    rate_limiter: QPSRateLimiter,
     request_timeout: float = 30.0,
-    max_retries: int = 5,
+    max_retries: int = 15,
 ) -> bool:
-    """
-    Evaluates an answer using an LLM, with:
-      - A rate-limiter to avoid exceeding requests_per_minute
-      - Simple retry logic on RateLimitError (429) and timeouts
-    """
     for attempt in range(max_retries):
         try:
-            # Acquire permission to make a request under RPM constraint
             await rate_limiter.acquire()
 
-            # Format the user prompt
             user_content = evaluator_user.format(
                 question=question, answer=answer, ground_truth=ground_truth
             )
 
-            # Call the LLM with a timeout
             response = await asyncio.wait_for(
                 litellm.acompletion(
                     model=evaluator_model,
@@ -80,46 +69,39 @@ async def evaluate_answer_llm(
                 timeout=request_timeout,
             )
 
-            # Convert LLM response into a boolean (true if "1" is in the text)
-            llm_response = response.choices[0].message.content.strip().lower()
-            return "1" in llm_response
+            return "1" in response.choices[0].message.content.strip().lower()
 
         except asyncio.TimeoutError:
-            # Retry on timeouts with exponential backoff
-            if attempt < max_retries - 1:
-                backoff_time = 2**attempt + random.random()
-                print(
-                    f"[Retry {attempt+1}/{max_retries}] "
-                    f"Timeout - waiting {backoff_time:.2f}s before retry..."
-                )
-                await asyncio.sleep(backoff_time)
-            else:
+            if attempt >= max_retries - 1:
+                raise ServiceUnavailableError("Max timeout retries exceeded")
+
+            backoff = min(
+                2**attempt + random.uniform(0, 0.5), 30
+            )  # Capped backoff
+            print(f"Timeout (attempt {attempt+1}), retrying in {backoff:.2f}s")
+            await asyncio.sleep(backoff)
+
+        except RateLimitError as e:
+            if attempt >= max_retries - 1:
                 raise ServiceUnavailableError(
-                    "Request timed out after repeated attempts."
+                    f"Persistent rate limits: {str(e)}"
                 )
 
-        except RateLimitError:
-            # Retry on 429 errors with exponential backoff
-            if attempt < max_retries - 1:
-                backoff_time = 2**attempt + random.random()
-                print(
-                    f"[Retry {attempt+1}/{max_retries}] "
-                    f"429 RateLimitError - waiting {backoff_time:.2f}s before retry..."
-                )
-                await asyncio.sleep(backoff_time)
-            else:
-                raise ServiceUnavailableError(
-                    "Hit rate limit too many times; giving up."
-                )
+            # Use retry-after header if available
+            backoff = getattr(
+                e, "retry_after", 2**attempt + random.uniform(0, 0.5)
+            )
+            print(
+                f"Rate limited (attempt {attempt+1}), retrying in {backoff:.2f}s"
+            )
+            await asyncio.sleep(backoff)
 
-        except ServiceUnavailableError:
-            # Retry on other service-unavailable errors (e.g., 503)
-            if attempt < max_retries - 1:
-                backoff_time = 2**attempt + random.random()
-                print(
-                    f"[Retry {attempt+1}/{max_retries}] "
-                    f"ServiceUnavailableError - waiting {backoff_time:.2f}s before retry..."
-                )
-                await asyncio.sleep(backoff_time)
-            else:
-                raise
+        except ServiceUnavailableError as e:
+            if attempt >= max_retries - 1:
+                raise ServiceUnavailableError(f"Service unavailable: {str(e)}")
+
+            backoff = 2**attempt + random.uniform(0, 0.5)
+            print(
+                f"Service error (attempt {attempt+1}), retrying in {backoff:.2f}s"
+            )
+            await asyncio.sleep(backoff)
