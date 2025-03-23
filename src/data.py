@@ -68,6 +68,7 @@ def format_mmlu(
     answers = dataset_df["answer"].apply(lambda a: answer_map[a])
     formatted = pd.DataFrame(
         {
+            "original_statement": dataset_df["prompt"],
             "prompt": prompts,
             "answer": answers,
             "subject": dataset_df["subject"],
@@ -96,6 +97,7 @@ def format_gsm8k(
     )
     formatted = pd.DataFrame(
         {
+            "original_statement": dataset_df["question"],
             "prompt": prompts,
             "answer": dataset_df["parsed_answers"],
         }
@@ -130,8 +132,9 @@ def format_generic(
     )
     formatted = pd.DataFrame(
         {
+            "original_statement": dataset_df["prompt"],
             "prompt": prompts,
             "answer": dataset_df["answer"],
         }
     )
-    return formatted
+    return formatted 
