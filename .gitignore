@@ -9,6 +9,7 @@ datasets/
 !./datasets/raw/cities_10k/
 !./datasets/raw/football_leagues_1k/
 !./datasets/raw/medals_9k/
+!./datasets/raw/ethics/
 
 # activations
 **/acts/
