@@ -314,7 +314,8 @@ format_datasets:
 
 generate_answers:
   models:
-    - llama3.3_70b 
+    - llama3.1_8b_chat
+    - mistral_7b_instruct 
   max_dataset_size: false
   sample_strategy: first_n
   batch_size: 100
@@ -322,9 +323,11 @@ generate_answers:
 
 inference_engines:
   litellm:
-    qps_limit: 10 # API rate limit: queries per second
+    qps_limit: 30 # API rate limit: queries per second
 
 evaluate_answers:
+  idk_match: [i don't, i do not, can you, more information, i need, unsure, not sure, uncertain, not certain, not understand, don't understand, i can't, i can not, i'm not, i am not]
+  idk_class_value: N/A
   llm_judge:
     datasets: [trivia_qa_2_60k]
     inference_engine: litellm
@@ -339,7 +342,7 @@ evaluate_answers:
         Answer given: {answer}
         Expected ground truth: {ground_truth}
 
-        Respond with 1 if the answer is correct, 0 if it is incorrect.
+        Respond with 1 if the answer is correct, 0 if it is incorrect, and N/A if the answer is "I don't know" or similar.
 
 capture_activations:
   raw_dir_path: raw

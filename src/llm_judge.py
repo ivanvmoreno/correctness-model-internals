@@ -49,6 +49,7 @@ async def evaluate_answer_llm(
     rate_limiter: QPSRateLimiter,
     request_timeout: float = 30.0,
     max_retries: int = 15,
+    na_value: str = "N/A",
 ) -> bool:
     for attempt in range(max_retries):
         try:
@@ -68,8 +69,8 @@ async def evaluate_answer_llm(
                 ),
                 timeout=request_timeout,
             )
-
-            return "1" in response.choices[0].message.content.strip().lower()
+            response = response.choices[0].message.content.strip().lower()
+            return 1 if "1" in response else 0 if "0" in response else na_value
 
         except asyncio.TimeoutError:
             if attempt >= max_retries - 1:

@@ -186,19 +186,46 @@ def evaluate_answers(
                         f"Unknown eval_type: {dataset_conf.eval_type}"
                     )
 
+                # Check for IDK responses in incorrect answers
+                logger.info("Checking for IDK responses in incorrect answers")
+                generations_df["idk_response"] = False
+                incorrect_mask = ~y_correct
+
+                for idx in generations_df[incorrect_mask].index:
+                    answer = str(generations_df.loc[idx, "answer"]).lower()
+
+                    is_idk = any(
+                        pattern.lower() in answer
+                        for pattern in config.evaluate_answers.idk_match
+                    )
+
+                    if is_idk:
+                        generations_df.loc[idx, "idk_response"] = True
+
+                metrics["idk_rate"] = generations_df["idk_response"].mean()
+
                 y_correct = pd.Series(y_correct)
                 if (
                     llm_judge
                     and dataset_name
                     in config.evaluate_answers.llm_judge.datasets
                 ):
+                    logger.info("Evaluating incorrect answers with LLM judge")
                     # Save the original correctness before LLM evaluation
                     original_y_correct = y_correct.copy()
-                    incorrect_mask = ~y_correct
+                    # Remove IDK responses from the incorrect mask
+                    incorrect_mask = (
+                        ~y_correct & ~generations_df["idk_response"]
+                    )
+
+                    # Capture the indices to ensure consistency during evaluation
+                    incorrect_indices = list(
+                        generations_df[incorrect_mask].index
+                    )
 
                     async def evaluate_failed():
                         tasks = []
-                        for idx in generations_df[incorrect_mask].index:
+                        for idx in incorrect_indices:
                             original_statement = ground_truth_df.loc[
                                 idx, "original_statement"
                             ]
@@ -212,6 +239,7 @@ def evaluate_answers(
                                 answer=generated_answer,
                                 ground_truth=ground_truth_answer,
                                 rate_limiter=rate_limiter,
+                                na_value=config.evaluate_answers.idk_class_value,
                             )
                             tasks.append(task)
                         return await asyncio.gather(*tasks)
@@ -219,17 +247,24 @@ def evaluate_answers(
                     llm_results = asyncio.run(evaluate_failed())
 
                     # Flip to True wherever LLM judge says it's correct
-                    for i, idx in enumerate(
-                        generations_df[incorrect_mask].index
-                    ):
-                        if llm_results[i]:
-                            y_correct[idx] = True
+                    for i, idx in enumerate(incorrect_indices):
+                        try:
+                            eval_value = int(llm_results[i])
+                            if eval_value:
+                                y_correct[idx] = True
+                        except ValueError:
+                            # IDK response
+                            generations_df.loc[idx, "idk_response"] = True
 
                     # Flag rows where the LLM judge corrected the evaluation
                     llm_judge_correct = y_correct & ~original_y_correct
 
-                accuracy = sum(y_correct) / len(y_correct)
-                metrics = {"accuracy": accuracy}
+                    # Recompute metrics
+                    metrics["accuracy"] = y_correct.mean()
+                    metrics["idk_rate"] = generations_df["idk_response"].mean()
+                    metrics["total_llm_judge_corrections"] = (
+                        llm_judge_correct.sum()
+                    )
 
                 # Save evaluated generations
                 evaluations_path = os.path.join(
