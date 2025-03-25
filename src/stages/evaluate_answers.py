@@ -299,6 +299,9 @@ def evaluate_answers(
                     json.dump(metrics, f, indent=4)
                 logger.info(f"Saved metrics to {metrics_path}")
 
+    logger.info("Post-processing evaluation metrics")
+    metrics = {metric: int(value) for metric, value in metrics.items()}
+
     all_metrics = {}
     for dataset_name, dataset_conf in config.datasets.items():
         all_metrics[dataset_name] = {}
