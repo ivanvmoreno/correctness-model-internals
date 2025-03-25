@@ -8,7 +8,7 @@ import pandas as pd
 
 from src.utils.config import load_config
 from src.utils.logging import get_logger
-from src.utils.metrics import EVAL_METRICS
+from src.utils.metrics import EVAL_METRICS, serialize_metrics
 
 from src.llm_judge import evaluate_answer_llm, QPSRateLimiter
 
@@ -292,15 +292,14 @@ def evaluate_answers(
                 )
 
                 # Save metrics
+                logger.info("Post-processing evaluation metrics")
+                metrics = serialize_metrics(metrics)
                 metrics_path = os.path.join(
                     evaluations_path, f"{subset}_metrics.json"
                 )
                 with open(metrics_path, "w") as f:
                     json.dump(metrics, f, indent=4)
                 logger.info(f"Saved metrics to {metrics_path}")
-
-    logger.info("Post-processing evaluation metrics")
-    metrics = {metric: int(value) for metric, value in metrics.items()}
 
     all_metrics = {}
     for dataset_name, dataset_conf in config.datasets.items():
