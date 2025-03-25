@@ -157,7 +157,7 @@ def evaluate_answers(
                 elif dataset_conf.eval_type == "exact_match":
                     y_true = ground_truth_df["answer"].astype(str)
                     y_pred = generations_df["answer"].astype(str)
-                    y_correct = y_true == y_pred.str.slice(0, 4)
+                    y_correct = y_true == y_pred
                     metrics = {
                         "accuracy": y_correct.mean(),
                     }
