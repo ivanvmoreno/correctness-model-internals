@@ -94,6 +94,9 @@ class BinaryClassifier:
             self.train_roc_tprs,
             self.train_roc_thresholds,
         ) = roc_curve(self.train_labels, self.train_classification_score)
+        self.train_roc_auc = float(
+            auc(self.train_roc_fprs, self.train_roc_tprs)
+        )
         self.test_roc_fprs, self.test_roc_tprs, _ = roc_curve(
             self.test_labels, self.test_classification_score
         )
@@ -105,19 +108,26 @@ class BinaryClassifier:
             if classification_cut is not None
             else self.optimal_train_set_cut
         )
+        self.train_pred_class = self.train_classification_score >= (
+            self.optimal_cut
+        )
         self.test_pred_class = self.test_classification_score >= (
             self.optimal_cut
         )
 
         self.classification_metrics = {
-            "optimal_cut": self.optimal_cut,
+            "classifier_cut": self.optimal_cut,
             "optimal_train_set_cut": self.optimal_train_set_cut,
             "test_roc_auc": float(self.test_roc_auc),
         }
         for classification_metric in self.classification_metric_funcs:
-            self.classification_metrics[classification_metric.__name__] = float(
-                classification_metric(self.test_labels, self.test_pred_class)
-            )
+            for name, labels, pred_classes in [
+                ("train", self.train_labels, self.train_pred_class),
+                ("test", self.test_labels, self.test_pred_class),
+            ]:
+                self.classification_metrics[
+                    f"{name}_{classification_metric.__name__}"
+                ] = float(classification_metric(labels, pred_classes))
 
     @property
     def optimal_train_set_cut(self) -> float:
@@ -140,6 +150,8 @@ def get_correctness_direction_classifier(
     activations_handler_train: ActivationsHandler,
     activations_handler_test: ActivationsHandler,
     center_from_origin: bool = False,
+    direction_calculator_kwargs: dict | None = None,
+    binary_classifier_kwargs: dict | None = None,
 ) -> tuple[BinaryClassifier, DirectionCalculator]:
     """
     Build a classifier that uses the directions in activation space between groups
@@ -155,6 +167,10 @@ def get_correctness_direction_classifier(
         Whether to get distances projected onto the direction from the origin
         (mean of all train activations) or from direction vector starting at
         the centroid of the group.
+    direction_calculator_kwargs : dict | None
+        Keyword arguments for the direction calculator
+    binary_classifier_kwargs : dict | None
+        Keyword arguments for the binary classifier
 
     Returns
     -------
@@ -166,6 +182,7 @@ def get_correctness_direction_classifier(
             False
         ).activations,
         activations_to=activations_handler_train.get_groups(True).activations,
+        **(direction_calculator_kwargs or {}),
     )
     direction_classifier = BinaryClassifier(
         train_labels=activations_handler_train.labels,
@@ -178,6 +195,7 @@ def get_correctness_direction_classifier(
             activations_handler_test.activations,
             center_from_origin=center_from_origin,
         ),
+        **(binary_classifier_kwargs or {}),
     )
     return direction_classifier, direction_calculator
 
