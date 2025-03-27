@@ -34,33 +34,33 @@ datasets:
   #     - abstract_algebra
   #   prompts:
   #     base: The following is a multiple choice question (with answers). Give your answer with a single letter corresponding to the correct answer.
-  cities_10k:
-    answer_type: open_ended
-    subsets:
-      - main
-    format: csv
-    eval_type: answers_map
-    max_new_tokens: 128
-    stop_words: ["{eos_token}", "\n"]
-    answers_map_path: eval_map.json
-    col_map:
-      prompt: question
-      answer: correct_answer
-    prompts:
-      base: |-
-        I am going to ask you a question about cities. End your sentence with {eos_token}.
-        Here are some examples of questions that might help you:
-        ---
-        Question: In which country is the city of Barcelona located?
-        Answer: Spain{eos_token}
-        ---
-        Question: In which country is the city of London located?
-        Answer: United Kingdom{eos_token}
-        ---
-        Question: In which country is the city of Beijing located?
-        Answer: China{eos_token}
-        ---
-        Question:
+  # cities_10k:
+  #   answer_type: open_ended
+  #   subsets:
+  #     - main
+  #   format: csv
+  #   eval_type: answers_map
+  #   max_new_tokens: 128
+  #   stop_words: ["{eos_token}", "\n"]
+  #   answers_map_path: eval_map.json
+  #   col_map:
+  #     prompt: question
+  #     answer: correct_answer
+  #   prompts:
+  #     base: |-
+  #       I am going to ask you a question about cities. End your sentence with {eos_token}.
+  #       Here are some examples of questions that might help you:
+  #       ---
+  #       Question: In which country is the city of Barcelona located?
+  #       Answer: Spain{eos_token}
+  #       ---
+  #       Question: In which country is the city of London located?
+  #       Answer: United Kingdom{eos_token}
+  #       ---
+  #       Question: In which country is the city of Beijing located?
+  #       Answer: China{eos_token}
+  #       ---
+  #       Question:
   birth_years_4k:
     answer_type: open_ended
     subsets:
@@ -167,32 +167,32 @@ datasets:
   #       Answer: Arizona{eos_token}
   #       ---
   #       Question:
-  trivia_qa_2_60k:
-    answer_type: open_ended
-    subsets:
-      - main
-    format: csv
-    eval_type: list_of_answers
-    max_new_tokens: 128
-    stop_words: ["{eos_token}", "\n"]
-    col_map:
-      prompt: question
-      answer: correct_answer
-    prompts:
-      base: |-
-        I am going to ask you a question. Answer concisely. End your sentence with {eos_token}.
-        Here are some examples of questions that might help you:
-        ---
-        Question: In which month are St David's Day and St Patrick's Day celebrated in the UK? 
-        Answer: March{eos_token}
-        ---
-        Question: What is the common English name of Mozart's Serenade for Strings in d major?
-        Answer: A little night music{eos_token}
-        ---
-        Question: In which US State do teams play baseball in the Cactus League?
-        Answer: Arizona{eos_token}
-        ---
-        Question: 
+  # trivia_qa_2_60k:
+  #   answer_type: open_ended
+  #   subsets:
+  #     - main
+  #   format: csv
+  #   eval_type: list_of_answers
+  #   max_new_tokens: 128
+  #   stop_words: ["{eos_token}", "\n"]
+  #   col_map:
+  #     prompt: question
+  #     answer: correct_answer
+  #   prompts:
+  #     base: |-
+  #       I am going to ask you a question. Answer concisely. End your sentence with {eos_token}.
+  #       Here are some examples of questions that might help you:
+  #       ---
+  #       Question: In which month are St David's Day and St Patrick's Day celebrated in the UK? 
+  #       Answer: March{eos_token}
+  #       ---
+  #       Question: What is the common English name of Mozart's Serenade for Strings in d major?
+  #       Answer: A little night music{eos_token}
+  #       ---
+  #       Question: In which US State do teams play baseball in the Cactus League?
+  #       Answer: Arizona{eos_token}
+  #       ---
+  #       Question: 
   # math_operations_6k:
   #   answer_type: open_ended
   #   subsets:
@@ -306,6 +306,12 @@ models:
     eos_token: <|end_of_text|>
     max_length: 1024
     num_layers: 80
+  qwen_2.5_7b_instruct:
+    hf_repo_id: Qwen/Qwen2.5-7B-Instruct
+    dir_path: qwen_2.5_7b_instruct
+    eos_token: <|end_of_text|> # TODO: placeholder
+    max_length: 1024
+    num_layers: 28
 
 format_datasets:
   raw_dir_path: raw
@@ -314,8 +320,9 @@ format_datasets:
 
 generate_answers:
   models:
-    - llama3.1_8b_chat
-    - mistral_7b_instruct 
+    - qwen_2.5_7b_instruct
+    # - llama3.1_8b_chat
+    # - mistral_7b_instruct 
   max_dataset_size: false
   sample_strategy: first_n
   batch_size: 100
@@ -328,21 +335,21 @@ inference_engines:
 evaluate_answers:
   idk_match: [i don't, i do not, can you, more information, i need, unsure, not sure, uncertain, not certain, not understand, don't understand, i can't, i can not, i'm not, i am not]
   idk_class_value: N/A
-  llm_judge:
-    datasets: [trivia_qa_2_60k]
-    inference_engine: litellm
-    model: together_ai/Qwen/Qwen2.5-72B-Instruct-Turbo
-    prompt:
-      system: |-
-        You are an expert evaluator determining if an answer is semantically correct. Focus on meaning rather than exact wording. An answer can be correct even if it differs from the ground truth in phrasing.
-      user: |-
-        Evaluate if this answer is semantically correct:
+  # llm_judge:
+  #   datasets: [trivia_qa_2_60k]
+  #   inference_engine: litellm
+  #   model: together_ai/Qwen/Qwen2.5-72B-Instruct-Turbo
+  #   prompt:
+  #     system: |-
+  #       You are an expert evaluator determining if an answer is semantically correct. Focus on meaning rather than exact wording. An answer can be correct even if it differs from the ground truth in phrasing.
+  #     user: |-
+  #       Evaluate if this answer is semantically correct:
           
-        Question: {question}
-        Answer given: {answer}
-        Expected ground truth: {ground_truth}
+  #       Question: {question}
+  #       Answer given: {answer}
+  #       Expected ground truth: {ground_truth}
 
-        Respond with 1 if the answer is correct, 0 if it is incorrect, and N/A if the answer is "I don't know" or similar.
+  #       Respond with 1 if the answer is correct, 0 if it is incorrect, and N/A if the answer is "I don't know" or similar.
 
 capture_activations:
   raw_dir_path: raw
