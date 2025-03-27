@@ -309,7 +309,7 @@ models:
   qwen_2.5_7b_instruct:
     hf_repo_id: Qwen/Qwen2.5-7B-Instruct
     dir_path: qwen_2.5_7b_instruct
-    eos_token: <|end_of_text|> # TODO: placeholder
+    eos_token: <|im_end|>
     max_length: 1024
     num_layers: 28
 
