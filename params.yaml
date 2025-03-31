@@ -346,21 +346,21 @@ inference_engines:
 evaluate_answers:
   idk_match: [i don't, i do not, can you, more information, i need, unsure, not sure, uncertain, not certain, not understand, don't understand, i can't, i can not, i'm not, i am not]
   idk_class_value: N/A
-  # llm_judge:
-  #   datasets: [trivia_qa_2_60k]
-  #   inference_engine: litellm
-  #   model: together_ai/Qwen/Qwen2.5-72B-Instruct-Turbo
-  #   prompt:
-  #     system: |-
-  #       You are an expert evaluator determining if an answer is semantically correct. Focus on meaning rather than exact wording. An answer can be correct even if it differs from the ground truth in phrasing.
-  #     user: |-
-  #       Evaluate if this answer is semantically correct:
+  llm_judge:
+    datasets: [trivia_qa_2_60k]
+    inference_engine: litellm
+    model: together_ai/Qwen/Qwen2.5-72B-Instruct-Turbo
+    prompt:
+      system: |-
+        You are an expert evaluator determining if an answer is semantically correct. Focus on meaning rather than exact wording. An answer can be correct even if it differs from the ground truth in phrasing.
+      user: |-
+        Evaluate if this answer is semantically correct:
           
-  #       Question: {question}
-  #       Answer given: {answer}
-  #       Expected ground truth: {ground_truth}
+        Question: {question}
+        Answer given: {answer}
+        Expected ground truth: {ground_truth}
 
-  #       Respond with 1 if the answer is correct, 0 if it is incorrect, and N/A if the answer is "I don't know" or similar.
+        Respond with 1 if the answer is correct, 0 if it is incorrect, and N/A if the answer is "I don't know" or similar.
 
 capture_activations:
   raw_dir_path: raw
