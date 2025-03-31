@@ -61,32 +61,32 @@ datasets:
   #       Answer: China{eos_token}
   #       ---
   #       Question:
-  birth_years_4k:
-    answer_type: open_ended
-    subsets:
-      - main
-    format: csv
-    eval_type: exact_match
-    max_new_tokens: 128
-    stop_words: ["{eos_token}", "\n"]
-    col_map:
-      prompt: question
-      answer: correct_answer
-    prompts:
-      base: |-
-        I am going to ask you what year a person was born. End your sentence with {eos_token}.
-        Here are some examples of questions that might help you:
-        ---
-        Question: What year was Barack Obama born? 
-        Answer: 1961{eos_token}
-        ---
-        Question: What year was Vladimir Putin born? 
-        Answer: 1952{eos_token}
-        ---
-        Question: What year was Xi Jinping born? 
-        Answer: 1953{eos_token}
-        ---
-        Question:
+  # birth_years_4k:
+  #   answer_type: open_ended
+  #   subsets:
+  #     - main
+  #   format: csv
+  #   eval_type: exact_match
+  #   max_new_tokens: 128
+  #   stop_words: ["{eos_token}", "\n"]
+  #   col_map:
+  #     prompt: question
+  #     answer: correct_answer
+  #   prompts:
+  #     base: |-
+  #       I am going to ask you what year a person was born. End your sentence with {eos_token}.
+  #       Here are some examples of questions that might help you:
+  #       ---
+  #       Question: What year was Barack Obama born? 
+  #       Answer: 1961{eos_token}
+  #       ---
+  #       Question: What year was Vladimir Putin born? 
+  #       Answer: 1952{eos_token}
+  #       ---
+  #       Question: What year was Xi Jinping born? 
+  #       Answer: 1953{eos_token}
+  #       ---
+  #       Question:
   # medals_9k:
   #   answer_type: open_ended
   #   subsets:
@@ -312,6 +312,16 @@ models:
     eos_token: <|im_end|>
     max_length: 1024
     num_layers: 28
+  ministral-8b-instruct:
+    hf_repo_id: mistralai/Ministral-8B-Instruct-2410
+    dir_path: mistral_8b_instruct
+    eos_token: </s> # TODO: placeholder
+    max_length: 1024
+    num_layers: 36
+
+
+
+
 
 format_datasets:
   raw_dir_path: raw
@@ -320,7 +330,8 @@ format_datasets:
 
 generate_answers:
   models:
-    - qwen_2.5_7b_instruct
+    - ministral-8b-instruct
+    # - qwen_2.5_7b_instruct
     # - llama3.1_8b_chat
     # - mistral_7b_instruct 
   max_dataset_size: false
@@ -330,7 +341,7 @@ generate_answers:
 
 inference_engines:
   litellm:
-    qps_limit: 30 # API rate limit: queries per second
+    qps_limit: 50 # API rate limit: queries per second
 
 evaluate_answers:
   idk_match: [i don't, i do not, can you, more information, i need, unsure, not sure, uncertain, not certain, not understand, don't understand, i can't, i can not, i'm not, i am not]
