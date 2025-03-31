@@ -312,9 +312,9 @@ models:
     eos_token: <|im_end|>
     max_length: 1024
     num_layers: 28
-  ministral-8b-instruct:
+  ministral_8b_instruct:
     hf_repo_id: mistralai/Ministral-8B-Instruct-2410
-    dir_path: mistral_8b_instruct
+    dir_path: ministral_8b_instruct
     eos_token: </s> # TODO: placeholder
     max_length: 1024
     num_layers: 36
@@ -330,10 +330,10 @@ format_datasets:
 
 generate_answers:
   models:
-    - ministral-8b-instruct
+    - ministral_8b_instruct
     # - qwen_2.5_7b_instruct
-    # - llama3.1_8b_chat
-    # - mistral_7b_instruct 
+    - llama3.1_8b_chat
+    - mistral_7b_instruct 
   max_dataset_size: false
   sample_strategy: first_n
   batch_size: 100
