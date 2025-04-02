@@ -66,7 +66,7 @@ def get_experiment_activations_configs_df_subset(
     activation_exp_configs_df = get_all_experiment_activations_configs_df(
         base_path
     )
-
+    print(activation_exp_configs_df.head())
     for col, value in kwargs.items():
         if value is None:
             continue

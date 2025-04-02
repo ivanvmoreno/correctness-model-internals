@@ -45,8 +45,8 @@ def format_open_prompt(
 ) -> str:
     formatted_question = f"{question}"
     if generation_delimiter:
-        formatted_question += f"\n{generation_delimiter}"
-    return f"{sys_prompt.strip()} {formatted_question}".strip()
+        formatted_question += f"{generation_delimiter}"
+    return f"{sys_prompt.strip()}{formatted_question}".strip()
 
 
 def format_mmlu(

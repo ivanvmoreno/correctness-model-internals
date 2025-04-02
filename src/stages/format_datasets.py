@@ -45,9 +45,10 @@ def format_dataset(
                     else:
                         dataset_f = format_generic(
                             f"{config.base.datasets_dir}/{config.format_datasets.raw_dir_path}/{dataset_name}/{subset}/{subset}.{dataset_conf.format}",
-                            prompt,
+                            prompt.text,
                             dataset_conf.col_map,
                             format=dataset_conf.format,
+                            generation_delimiter=prompt.generation_delimiter,
                         )
                     formatted_dir = f"{config.base.datasets_dir}/{config.format_datasets.formatted_dir_path}/{model_id}/{dataset_name}/{prompt_version}"
                     formatted_path = f"{formatted_dir}/{subset}.csv"
