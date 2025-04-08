@@ -6,10 +6,10 @@ tasks:
     cmds:
       - task: format_datasets
       - task: generate_answers
-      - task: evaluate_answers
+      # - task: evaluate_answers
       # - task: capture_activations
       # - task: postprocess_activations
-      - task: upload_artifacts
+      # - task: upload_artifacts
 
   format_datasets:
     cmds:
@@ -30,13 +30,13 @@ tasks:
           python -m src.stages.generate_answers --config=params.yaml --model="$model" --batch-size=$BATCH_SIZE
         done
 
-  evaluate_answers:
-    cmds:
-      - |
-        echo "=== EVALUATE ANSWERS ==="
-        yq '.generate_answers.models[]' params.yaml | sed -e 's/^"//' -e 's/"$//' -e '/^$/d' | while read model; do
-          python -m src.stages.evaluate_answers --config=params.yaml --model="$model"
-        done
+  # evaluate_answers:
+  #   cmds:
+  #     - |
+  #       echo "=== EVALUATE ANSWERS ==="
+  #       yq '.generate_answers.models[]' params.yaml | sed -e 's/^"//' -e 's/"$//' -e '/^$/d' | while read model; do
+  #         python -m src.stages.evaluate_answers --config=params.yaml --model="$model"
+  #       done
 
   # capture_activations:
   #   cmds:
@@ -61,25 +61,25 @@ tasks:
   #           --layers="$LAYERS"
   #       done
   
-  upload_artifacts:
-    desc: "Upload generated artifacts to a GCS bucket, using an experiment ID"
-    cmds:
-      - |
-        echo "=== UPLOAD ARTIFACTS ==="
-        EXP_ID="{{default "exp_default" .CLI_ARGS}}"
-        echo "Uploading artifacts with ID: $EXP_ID"
+  # upload_artifacts:
+  #   desc: "Upload generated artifacts to a GCS bucket, using an experiment ID"
+  #   cmds:
+  #     - |
+  #       echo "=== UPLOAD ARTIFACTS ==="
+  #       EXP_ID="{{default "exp_default" .CLI_ARGS}}"
+  #       echo "Uploading artifacts with ID: $EXP_ID"
 
-        gcloud storage cp params.yaml           "gs://mars-dvc/${EXP_ID}/params.yaml"
-        gcloud storage cp -r datasets/formatted  "gs://mars-dvc/${EXP_ID}/datasets/formatted/"
-        gcloud storage cp -r generations         "gs://mars-dvc/${EXP_ID}/generations/"
-        gcloud storage cp -r evaluations        "gs://mars-dvc/${EXP_ID}/evaluations/"
-        gcloud storage cp -r activations        "gs://mars-dvc/${EXP_ID}/activations/"
+  #       gcloud storage cp params.yaml           "gs://mars-dvc/${EXP_ID}/params.yaml"
+  #       gcloud storage cp -r datasets/formatted  "gs://mars-dvc/${EXP_ID}/datasets/formatted/"
+  #       gcloud storage cp -r generations         "gs://mars-dvc/${EXP_ID}/generations/"
+  #       gcloud storage cp -r evaluations        "gs://mars-dvc/${EXP_ID}/evaluations/"
+  #       gcloud storage cp -r activations        "gs://mars-dvc/${EXP_ID}/activations/"
 
-        echo "All artifacts uploaded to gs://mars-dvc/${EXP_ID}/"
+  #       echo "All artifacts uploaded to gs://mars-dvc/${EXP_ID}/"
   
-  terminate_pod:
-    desc: "Delete a RunPod pod by its public IP"
-    cmds:
-      - |
-        echo "=== TERMINATING POD ==="
-        python -m src.stages.runpod_delete_pod
+  # terminate_pod:
+  #   desc: "Delete a RunPod pod by its public IP"
+  #   cmds:
+  #     - |
+  #       echo "=== TERMINATING POD ==="
+  #       python -m src.stages.runpod_delete_pod

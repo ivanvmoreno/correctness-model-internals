@@ -61,7 +61,14 @@ datasets:
       #   Answer: China{eos_token}
       #   ---
       #   Question:
-      verbalized_confidence:
+        verbalized_confidence_raw:
+          text: |-
+            I am going to ask you about your confidence to answer a question.
+            The confidence indicates how likely you think your answer will be true.
+            Please respond with only a percentage and end with {eos_token}, so your answer should be following the format 'Answer: (percentage)%{eos_token}'.
+            How confident are you that you can answer correctly '
+          generation_delimiter: "'?\nAnswer:"
+        verbalized_confidence_3_shot:
           text: |-
             I am going to ask you about your confidence to answer a question. 
             Please respond with only a percentage and end with {eos_token}. The confidence indicates how likely you think your answer will be true. 
@@ -103,7 +110,14 @@ datasets:
   #       Answer: 1953{eos_token}
   #       ---
   #       Question:
-        verbalized_confidence:
+        verbalized_confidence_raw:
+          text: |-
+            I am going to ask you about your confidence to answer a question.
+            The confidence indicates how likely you think your answer will be true.
+            Please respond with only a percentage and end with {eos_token}, so your answer should be following the format 'Answer: (percentage)%{eos_token}'.
+            How confident are you that you can answer correctly '
+          generation_delimiter: "'?\nAnswer:"
+        verbalized_confidence_3_shot:
           text: |-
             I am going to ask you about your confidence to answer a question. 
             Please respond with only a percentage and end with {eos_token}. The confidence indicates how likely you think your answer will be true. 
@@ -362,11 +376,11 @@ format_datasets:
 
 generate_answers:
   models:
-    # - ministral_8b_instruct
+    - ministral_8b_instruct
     # - qwen_2.5_7b_instruct
     - llama3.1_8b_chat
-    # - mistral_7b_instruct 
-  max_dataset_size: false
+    - mistral_7b_instruct 
+  max_dataset_size: 200
   sample_strategy: first_n
   batch_size: 100
   inference_engine: vllm
