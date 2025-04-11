@@ -297,7 +297,7 @@ models:
   deepseek_qwen_32b:
     hf_repo_id: deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
     dir_path: deepseek_qwen_32b
-    eos_token: <|eot_id|> # TODO: placeholder
+    eos_token: <｜end▁of▁sentence｜>
     max_length: 1024 
     num_layers: 64 
   llama3.3_70b:
