@@ -29,6 +29,7 @@ dependencies = [
     "yq>=3.4.3",
     "requests>=2.28.1",
     "litellm>=1.63.14",
+    "xgboost>=3.0.0",
 ]
 name = "correctness-model-internals"
 version = "0.1.0"

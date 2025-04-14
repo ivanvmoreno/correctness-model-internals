@@ -6,6 +6,8 @@ base:
   generations_dir: ./generations
   evaluations_dir: ./evaluations
   activations_dir: ./activations
+  embeddings_dir: ./embeddings
+  classifiers_dir: ./classifiers
   classification_stats_dir: ./classification_stats
 
 datasets:
@@ -227,6 +229,9 @@ datasets:
     eval_type: regex_match
     max_new_tokens: 1024
     stop_words: ["}$"]
+    col_map:
+      prompt: question
+      answer: answer
     subsets:
       - main
     prompts:
@@ -319,10 +324,6 @@ models:
     max_length: 1024
     num_layers: 36
 
-
-
-
-
 format_datasets:
   raw_dir_path: raw
   formatted_dir_path: formatted
@@ -392,3 +393,8 @@ postprocess_activations:
   pca:
     n_components: 2
     random_state: 42
+
+generate_embeddings:
+  inference_engine: litellm
+  model: openai/text-embedding-3-large
+  batch_size: 100
