@@ -6,10 +6,12 @@ tasks:
     cmds:
       - task: format_datasets
       - task: generate_answers
+      - task: upload_artifacts
+      - task: terminate_pod
       # - task: evaluate_answers
       # - task: capture_activations
       # - task: postprocess_activations
-      # - task: upload_artifacts
+
 
   format_datasets:
     cmds:
@@ -61,25 +63,22 @@ tasks:
   #           --layers="$LAYERS"
   #       done
   
-  # upload_artifacts:
-  #   desc: "Upload generated artifacts to a GCS bucket, using an experiment ID"
-  #   cmds:
-  #     - |
-  #       echo "=== UPLOAD ARTIFACTS ==="
-  #       EXP_ID="{{default "exp_default" .CLI_ARGS}}"
-  #       echo "Uploading artifacts with ID: $EXP_ID"
+  upload_artifacts:
+    desc: "Upload generated artifacts to a GCS bucket, using an experiment ID"
+    cmds:
+      - |
+        echo "=== UPLOAD ARTIFACTS ==="
+        echo "Uploading artifacts"
 
-  #       gcloud storage cp params.yaml           "gs://mars-dvc/${EXP_ID}/params.yaml"
-  #       gcloud storage cp -r datasets/formatted  "gs://mars-dvc/${EXP_ID}/datasets/formatted/"
-  #       gcloud storage cp -r generations         "gs://mars-dvc/${EXP_ID}/generations/"
-  #       gcloud storage cp -r evaluations        "gs://mars-dvc/${EXP_ID}/evaluations/"
-  #       gcloud storage cp -r activations        "gs://mars-dvc/${EXP_ID}/activations/"
+        gcloud storage cp -r datasets/formatted/*  "gs://mars-dvc/verbalized_confidence/datasets/formatted/"
+        gcloud storage cp -r generations/*        "gs://mars-dvc/verbalized_confidence/generations/"
+
 
   #       echo "All artifacts uploaded to gs://mars-dvc/${EXP_ID}/"
   
-  # terminate_pod:
-  #   desc: "Delete a RunPod pod by its public IP"
-  #   cmds:
-  #     - |
-  #       echo "=== TERMINATING POD ==="
-  #       python -m src.stages.runpod_delete_pod
+  terminate_pod:
+    desc: "Delete a RunPod pod by its public IP"
+    cmds:
+      - |
+        echo "=== TERMINATING POD ==="
+        python -m src.stages.runpod_delete_pod
