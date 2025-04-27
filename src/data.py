@@ -1,9 +1,27 @@
+import os
 from typing import Literal
 
 import numpy as np
 import pandas as pd
 import torch
 
+
+def load_dataset(
+    dataset_path: str,
+) -> pd.DataFrame:
+    """Load a dataset from a given path. Detects files in the path, and loads them as a pandas DataFrame.
+    """
+    dataset = pd.DataFrame()
+    for file in os.listdir(dataset_path):
+        if file.endswith(".csv"):
+            dataset = pd.concat(
+                [dataset, pd.read_csv(os.path.join(dataset_path, file))]
+            )
+        elif file.endswith(".parquet"):
+            dataset = pd.concat(
+                [dataset, pd.read_parquet(os.path.join(dataset_path, file))]
+            )
+    return dataset
 
 def load_statements(dataset_path: str) -> list[tuple[str, str]]:
     dataset = pd.read_csv(dataset_path)
