@@ -133,7 +133,6 @@ def plot_assessor_metrics(
     metrics_json_paths: dict[str, str | Path],
     metric_name: str = "auc_roc",
     which: str = "by_dataset",
-    figsize: tuple[int, int] = (7, 10),
     save_path: str | None = None,
 ) -> None:
     """
@@ -170,16 +169,10 @@ def plot_assessor_metrics(
     )
 
     n_rows = df_all["train_dataset"].nunique()
-    n_labels = len(label_order)
-    if figsize is None:
-        per_label_w = 1.2  # inches per item on the x-axis
-        min_width = 6
-        width = max(min_width, n_labels * per_label_w)
-        height = 3 * n_rows  # ~3 inches per subplot row
-        figsize = (width, height)
 
-    base_height = n_rows * 5
+    base_height = n_rows * 6
     base_width = base_height * 1.3
+    
     fig, axes = plt.subplots(
         n_rows,
         1,
@@ -190,31 +183,49 @@ def plot_assessor_metrics(
     if not isinstance(axes, np.ndarray):
         axes = np.array([axes])
 
+    label_order = list(metrics_json_paths.keys())
+    label_to_num = {lab: i for i, lab in enumerate(label_order)}
+    test_ds_list = sorted(df_all["test_dataset"].unique())
+    n_ds = len(test_ds_list)
+    # x-offset for each plotted dataset
+    # width = 0.1
+    width = 0
+
     for ax, (train_ds, grp) in zip(axes, df_all.groupby("train_dataset")):
-        for test_ds, sub in grp.groupby("test_dataset"):
-            sns.scatterplot(
-                data=sub,
-                x="label",
-                y="metric",
-                ax=ax,
+        for j, test_ds in enumerate(test_ds_list):
+            sub = grp[grp["test_dataset"] == test_ds]
+            # compute a centered offset for this dataset
+            offset = (j - (n_ds - 1) / 2) * width
+            x_base = sub["label"].cat.codes
+            x_num  = x_base + offset
+
+            ax.scatter(
+                x_num,
+                sub["metric"],
                 marker=DATASET_MARKERS.get(test_ds, "o"),
                 color=DATASET_COLORS.get(test_ds, "#333333"),
                 s=50,
                 label=DATASET_NAME_MAP.get(test_ds, test_ds),
             )
 
-        subset_agg = df_agg_all[df_agg_all["train_dataset"] == train_ds]
-        sns.scatterplot(
-            data=subset_agg,
-            x="label",
-            y="metric",
-            ax=ax,
+        # aggregated on top (no offset)
+        sub_agg = df_agg_all[df_agg_all["train_dataset"] == train_ds]
+        x_agg = sub_agg["label"].map(label_to_num)
+        ax.scatter(
+            x_agg,
+            sub_agg["metric"],
             marker="*",
             color="yellow",
             s=150,
-            label="Aggregated",
             edgecolor="white",
             linewidth=0.5,
+            label="Aggregated",
+        )
+
+        # restore tick labels at the integer positions:
+        ax.set_xticks(list(label_to_num.values()))
+        ax.set_xticklabels(
+            [MODEL_NAME_MAP.get(lab, lab) for lab in label_order], rotation=0
         )
 
         ax.set_ylabel(
@@ -240,12 +251,11 @@ def plot_assessor_metrics(
         bbox_to_anchor=(1.02, 0.5),
         loc="center left",
     )
-    for ax in axes:
-        ax.get_legend().remove()
 
     axes[-1].set_xlabel("Model")
     fig.suptitle(
-        f"Embedding Assessor Performance – Top-K: {df_all['top_k'].unique()[0]} Dimensions",
+        "Embedding Assessor Performance",
+        # f"Embedding Assessor Performance – {df_all['top_k'].unique()[0]} Dimensions",
     )
 
     strip_suffix = re.compile(r"\s*\(.*\)$")
