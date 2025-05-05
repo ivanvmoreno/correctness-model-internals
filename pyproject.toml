@@ -52,7 +52,7 @@ name = "pytorch-cpu"
 
 [project.optional-dependencies]
 cpu = ["torch==2.4.0+cpu"]
-gpu = ["torch==2.4.0+cu121"]
+gpu = ["torch==2.4.0+cu121", "cupy-cuda12x>=13.4.1"]
 dev = ["black", "isort"]
 
 [tool.black]
