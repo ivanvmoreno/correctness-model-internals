@@ -1,3 +1,6 @@
+classifiers/
+embeddings/
+plots*/
 evaluations/
 generations/
 experiment_results/

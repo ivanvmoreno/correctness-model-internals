@@ -1,208 +1,199 @@
+from __future__ import annotations
+
 import argparse
-import os
-import pandas as pd
-import numpy as np
-import torch
-import xgboost as xgb
 import json
-from sklearn.model_selection import train_test_split
+import os
+import warnings
+from typing import Any, Dict, List, Tuple, Optional
+
+import joblib
+import numpy as np
+import pandas as pd
+import torch
+import cupy as cp
+import xgboost as xgb
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
     accuracy_score,
     precision_recall_fscore_support,
     roc_auc_score,
 )
-import warnings
+from sklearn.model_selection import StratifiedKFold
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 from src.utils.config import load_config
 from src.utils.logging import get_logger
 
 
+def _to_gpu(arr: np.ndarray) -> cp.ndarray:
+    """Convert NumPy array → CuPy (GPU) array, keeping dtype and shape."""
+    return cp.asarray(arr)
+
+
+def _parse_boolean_series(
+    series: pd.Series, label_column: str, path: str
+) -> np.ndarray:
+    """Convert heterogenous labels to {0,1}; raise on unknown tokens."""
+    if pd.api.types.is_bool_dtype(series):
+        return series.astype(int).values
+    if pd.api.types.is_numeric_dtype(series):
+        return series.astype(int).values
+    mapping = {"true": 1, "false": 0}
+    cleaned = series.astype(str).str.strip().str.lower()
+    bad = cleaned[~cleaned.isin(mapping)].unique()
+    if bad.size:
+        raise ValueError(f"Unexpected tokens in {path}:{bad.tolist()}")
+    return cleaned.map(mapping).astype(int).values
+
+
 def load_data_for_sets(
     config,
-    dataset_ids: list[str],
+    dataset_ids: List[str],
     embedding_model_id: str,
     model_id: str,
-    prompt_versions: dict[str, str],
+    prompt_versions: Dict[str, str],
     logger,
     label_column: str = "correct",
-) -> tuple[np.ndarray | None, np.ndarray | None, dict]:
-    """
-    Loads and concatenates embeddings and labels for specified datasets/subsets.
-    Expects prompt_versions to be a dict mapping each dataset_id to a single prompt version.
+) -> Tuple[np.ndarray | None, np.ndarray | None, Dict[str, Dict[str, int]]]:
+    """Load & concatenate embeddings/labels across datasets."""
 
-    Also accumulates and returns class balance statistics per dataset as a dict.
-    """
     all_X, all_y = [], []
-    # Initialize dictionary to store class counts per dataset.
-    balance_dict = {}
+    balance: Dict[str, Dict[str, int]] = {}
+    emb_dir_name = embedding_model_id.replace("/", "_")
 
-    embedding_dir_name = embedding_model_id.replace("/", "_")
-
-    for dataset_id in dataset_ids:
-        prompt_version = prompt_versions.get(dataset_id)
-        if not prompt_version:
-            logger.warning(
-                f"No prompt version specified for dataset '{dataset_id}'. Skipping this dataset."
-            )
+    for ds in dataset_ids:
+        pv = prompt_versions.get(ds)
+        if not pv or ds not in config.datasets:
+            logger.warning("Skipping dataset %s (prompt/version missing)", ds)
             continue
-
-        for subset in config.datasets[dataset_id].subsets:
-            embeddings_path = os.path.join(
+        for subset in config.datasets[ds].subsets:
+            emb_path = os.path.join(
                 config.base.embeddings_dir,
-                embedding_dir_name,
-                dataset_id,
+                emb_dir_name,
+                ds,
                 f"{subset}_embeddings.pt",
             )
-            logger.info(f"Loading embeddings from: {embeddings_path}")
-            labels_path = os.path.join(
+            lab_path = os.path.join(
                 config.base.evaluations_dir,
                 model_id,
-                dataset_id,
-                prompt_version,
+                ds,
+                pv,
                 f"{subset}_generations_evaluated.csv",
             )
-            logger.info(f"Loading labels from: {labels_path}")
-
-            if not os.path.exists(embeddings_path) or not os.path.exists(
-                labels_path
-            ):
-                logger.warning(
-                    f"Missing embeddings or labels file for {dataset_id} ({subset}) with prompt version '{prompt_version}'. Skipping."
-                )
+            if not (os.path.exists(emb_path) and os.path.exists(lab_path)):
+                logger.warning("Missing file pair for %s/%s", ds, subset)
                 continue
-
             try:
-                X_np = torch.load(embeddings_path, weights_only=True).numpy()
-                if X_np.shape[0] == 0:
-                    continue 
+                X = torch.load(emb_path, map_location="cpu", weights_only=True)
+                if not isinstance(X, torch.Tensor):
+                    raise TypeError
+                X_np = X.detach().cpu().numpy().astype(np.float32, copy=False)
+                y = _parse_boolean_series(
+                    pd.read_csv(lab_path)[label_column], label_column, lab_path
+                )
             except Exception as e:
-                logger.warning(
-                    f"Error loading embeddings {embeddings_path}: {e}. Skipping."
-                )
+                logger.warning("Failed to load %s/%s: %s", ds, subset, e)
                 continue
-
-            try:
-                labels_df = pd.read_csv(labels_path)
-                if label_column not in labels_df.columns:
-                    logger.warning(
-                        f"Label column '{label_column}' missing in {labels_path}. Skipping."
-                    )
-                    continue
-
-                y_series = labels_df[label_column]
-                # Handle boolean or string 'true'/'false' -> 1/0; treat others/NaNs as 0
-                if pd.api.types.is_bool_dtype(y_series):
-                    y_processed = y_series.astype(int)
-                elif pd.api.types.is_string_dtype(y_series):
-                    y_processed = y_series.str.lower().map(
-                        {"true": 1, "false": 0}
-                    )
-                else:  # Attempt numeric conversion, otherwise treat as 0
-                    y_processed = pd.to_numeric(y_series, errors="coerce")
-
-                # Ensure NaNs become 0 (False)
-                y_np = y_processed.fillna(0).astype(int).values
-
-            except Exception as e:
-                logger.warning(
-                    f"Error loading/processing labels {labels_path}: {e}. Skipping."
-                )
+            if X_np.shape[0] != y.shape[0]:
+                logger.warning("Shape mismatch %s/%s", ds, subset)
                 continue
-
-            if X_np.shape[0] != y_np.shape[0]:
-                logger.warning(
-                    f"Shape mismatch for {dataset_id}/{subset}: Embeddings={X_np.shape[0]}, Labels={y_np.shape[0]}. Skipping."
-                )
-                continue
-
-            if dataset_id not in balance_dict:
-                balance_dict[dataset_id] = {}
-            unique_labels, counts = np.unique(y_np, return_counts=True)
-            for label, count in zip(unique_labels, counts):
-                label_str = str(label)
-                balance_dict[dataset_id][label_str] = balance_dict[
-                    dataset_id
-                ].get(label_str, 0) + int(count)
-
             all_X.append(X_np)
-            all_y.append(y_np)
-
+            all_y.append(y)
+            for val, cnt in zip(*np.unique(y, return_counts=True)):
+                balance.setdefault(ds, {}).setdefault(str(val), 0)
+                balance[ds][str(val)] += int(cnt)
     if not all_X:
-        logger.error(
-            "No data loaded for any specified dataset/subset combination."
-        )
         return None, None, {}
-
-    X_combined = np.concatenate(all_X, axis=0)
-    y_combined = np.concatenate(all_y, axis=0)
-
-    if X_combined.shape[0] == 0:
-        logger.error("Combined data is empty after loading.")
-        return None, None, {}
-
-    logger.info(
-        f"Total combined data shape loaded: X={X_combined.shape}, y={y_combined.shape}"
-    )
-    return X_combined, y_combined, balance_dict
+    return np.concatenate(all_X), np.concatenate(all_y), balance
 
 
-def calculate_metrics(y_true, y_pred, y_pred_proba):
-    """Calculates standard classification metrics including AUC ROC."""
-    accuracy = accuracy_score(y_true, y_pred)
-    precision, recall, f1, _ = precision_recall_fscore_support(
-        y_true, y_pred, average="weighted", zero_division=0
-    )
-    auc_roc = roc_auc_score(y_true, y_pred_proba)
-
-    return {
-        "accuracy": accuracy,
-        "auc_roc": auc_roc,
-        "precision_weighted": precision,
-        "recall_weighted": recall,
-        "f1_weighted": f1,
+def _metrics(
+    y_true: np.ndarray, y_pred: np.ndarray, y_proba: np.ndarray
+) -> Dict[str, Any]:
+    res: Dict[str, Any] = {
+        "accuracy": accuracy_score(y_true, y_pred),
         "support": len(y_true),
     }
+    for avg in ("weighted", "macro"):
+        p, r, f1, _ = precision_recall_fscore_support(
+            y_true, y_pred, average=avg, zero_division=0
+        )
+        res.update({f"precision_{avg}": p, f"recall_{avg}": r, f"f1_{avg}": f1})
+    if len(np.unique(y_true)) > 1:
+        try:
+            res["auc_roc"] = roc_auc_score(y_true, y_proba)
+        except ValueError:
+            res["auc_roc"] = None
+    else:
+        res["auc_roc"] = None
+    return res
 
 
-def train_evaluate_xgboost(
+def _make_classifier(
+    classifier_type: str,
+    random_state: int,
+    spw: float,
+    *,
+    n_estimators: int | None = None,
+):
+    """Factory that returns a fresh classifier instance for a fold/final fit."""
+    if classifier_type == "xgboost":
+        return xgb.XGBClassifier(
+            objective="binary:logistic",
+            eval_metric="logloss",
+            use_label_encoder=False,
+            random_state=random_state,
+            tree_method="hist",
+            device="cuda",
+            n_jobs=-1,
+            n_estimators=n_estimators if n_estimators else 1000,
+            early_stopping_rounds=10 if n_estimators is None else None,
+            scale_pos_weight=spw,
+        )
+    elif classifier_type == "logistic":
+        base = LogisticRegression(
+            random_state=random_state,
+            solver="saga",
+            max_iter=300,
+            tol=1e-4,
+            n_jobs=-1,
+            class_weight="balanced",
+        )
+        return Pipeline([("scaler", StandardScaler()), ("logreg", base)])
+    else:
+        raise ValueError(f"Unsupported clf {classifier_type}")
+
+
+def train_evaluate_classifier(
+    *,
     config_path: str,
     model_id: str,
     embedding_model_id: str,
-    prompt_versions: dict[str, str],
-    train_datasets: list[str],
-    test_datasets: list[str],
+    classifier_type: str,
+    prompt_versions: Dict[str, str],
+    train_datasets: List[str],
+    test_datasets: List[str],
     experiment_name: str,
     random_state: int = 42,
-    top_k: int | None = None,
+    top_k: Optional[int] = None,
+    cv_folds: int = 5,
+    holdout_size: int = 0,
 ) -> None:
-    """
-    Loads data from train datasets & test datasets separately (each can have a dedicated prompt version),
-    trains XGBoost, evaluates on the test set (with breakdown by individual test dataset as well as
-    aggregated performance), and saves results.
+    """Train, cross‑validate, and evaluate a classifier.
 
-    The experiment_name is used as a folder/identifier for saving the model and results.
-
-    If top_k is provided, only the top-K dimensions of the input embeddings are used.
+    Args:
+    holdout_size: If >0, reserve the first n samples (after concatenation, before shuffling)
+        from the training datasets as an in‑distribution held‑out set
     """
+
     config = load_config(config_path)
-    logger = get_logger("TRAIN_EVAL_XGB_SEPARATE", config.base.log_level)
-
-    logger.info("Starting XGBoost Training & Evaluation (Separate Train/Test)")
-    logger.info(
-        f"Model ID: {model_id}, Embedding Model ID: {embedding_model_id}"
+    logger = get_logger(
+        f"ASSESSOR_{classifier_type.upper()}", config.base.log_level
     )
-    logger.info(
-        f"Train Datasets: {train_datasets}, Test Datasets: {test_datasets}"
-    )
-    logger.info(f"Prompt Versions: {prompt_versions}")
-    logger.info(f"Experiment Name: {experiment_name}")
-    if top_k is not None:
-        logger.info(
-            f"Using only the top {top_k} dimensions of the embeddings for training and evaluation."
-        )
 
-    logger.info("Loading training data...")
-    X_train, y_train, train_balance = load_data_for_sets(
+    # Load training data
+    X_all, y_all, train_balance = load_data_for_sets(
         config,
         train_datasets,
         embedding_model_id,
@@ -210,38 +201,122 @@ def train_evaluate_xgboost(
         prompt_versions,
         logger,
     )
+    if X_all is None:
+        logger.error("No training data; abort.")
+        return
 
-    if X_train is None or y_train is None:
-        logger.error("No valid training data. Exiting.")
-        return  # Exit if no data loaded for training
+    if top_k and 0 < top_k < X_all.shape[1]:
+        X_all = X_all[:, :top_k]
 
-    # Slice training embeddings if top_k is provided and valid
-    if top_k is not None:
-        if top_k < X_train.shape[1]:
-            X_train = X_train[:, :top_k]
-        else:
-            logger.warning(
-                f"Requested top_k ({top_k}) is greater than or equal to available dimensions ({X_train.shape[1]}). Using full embeddings."
-            )
+    # Holdout set
+    held_X: Optional[np.ndarray]
+    held_y: Optional[np.ndarray]
 
-    X_train_main, X_in_dist, y_train_main, y_in_dist = train_test_split(
-        X_train,
-        y_train,
-        test_size=0.2,
-        random_state=random_state,
-        stratify=y_train,
+    if holdout_size and holdout_size > 0:
+        holdout_size = min(holdout_size, len(X_all))
+        held_X, held_y = X_all[:holdout_size], y_all[:holdout_size]
+        X_train_full, y_train_full = X_all[holdout_size:], y_all[holdout_size:]
+        logger.info(
+            "Reserved %d samples for held‑out in‑distribution evaluation (%.2f of data)",
+            holdout_size,
+            holdout_size / len(X_all),
+        )
+    else:
+        held_X = held_y = None
+        X_train_full, y_train_full = X_all, y_all
+
+    # K-fold cross-validation
+    skf = StratifiedKFold(
+        n_splits=cv_folds, shuffle=True, random_state=random_state
     )
+    oof_pred = np.zeros_like(y_train_full, dtype=int)
+    oof_proba = np.zeros_like(y_train_full, dtype=float)
 
-    unique_labels, counts = np.unique(y_in_dist, return_counts=True)
-    in_dist_balance = {
-        str(label): int(count) for label, count in zip(unique_labels, counts)
-    }
+    fold_metrics: List[Dict[str, Any]] = []
+    best_iters: List[int] = []  # collect best_iteration per fold
 
     logger.info(
-        f"In-distribution hold-out: X={X_in_dist.shape}, balance={in_dist_balance}"
+        "Starting %d‑fold CV (training portion: %d samples)",
+        cv_folds,
+        len(X_train_full),
+    )
+    for k, (train_idx, val_idx) in enumerate(
+        skf.split(X_train_full, y_train_full), 1
+    ):
+        # Fold data
+        X_tr, y_tr = X_train_full[train_idx], y_train_full[train_idx]
+        X_val, y_val = X_train_full[val_idx], y_train_full[val_idx]
+
+        # Class balance for this fold
+        pos_fold, neg_fold = (y_tr == 1).sum(), (y_tr == 0).sum()
+        spw_fold = neg_fold / pos_fold if pos_fold else 1.0
+
+        clf = _make_classifier(classifier_type, random_state, spw_fold)
+
+        if classifier_type == "xgboost":
+            X_tr_gpu = _to_gpu(X_tr)
+            X_val_gpu = _to_gpu(X_val)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", UserWarning)
+                clf.fit(
+                    X_tr_gpu, y_tr, eval_set=[(X_val_gpu, y_val)], verbose=False
+                )
+            if (
+                hasattr(clf, "best_iteration")
+                and clf.best_iteration is not None
+            ):
+                best_iters.append(clf.best_iteration + 1)
+            yhat = clf.predict(X_val_gpu)
+            yproba = clf.predict_proba(X_val_gpu)[:, 1]
+        else:
+            clf.fit(X_tr, y_tr)
+            yhat = clf.predict(X_val)
+            yproba = clf.predict_proba(X_val)[:, 1]
+
+        oof_pred[val_idx] = yhat
+        oof_proba[val_idx] = yproba
+        m = _metrics(y_val, yhat, yproba)
+        fold_metrics.append(m)
+        logger.info(
+            "Fold %d | AUC=%.3f | F1w=%.3f",
+            k,
+            m.get("auc_roc", 0) or 0,
+            m["f1_weighted"],
+        )
+
+    cv_summary = _metrics(y_train_full, oof_pred, oof_proba)
+    logger.info(
+        "CV mean AUC=%.3f, Accuracy=%.3f",
+        cv_summary.get("auc_roc", 0) or 0,
+        cv_summary["accuracy"],
     )
 
-    logger.info("Loading aggregated test data...")
+    # Best hyperparameters
+    if classifier_type == "xgboost" and best_iters:
+        n_estimators_final = int(round(float(np.mean(best_iters))))
+        logger.info("Using n_estimators=%d for final model", n_estimators_final)
+    else:
+        n_estimators_final = None  # logistic or fallback
+
+    # Final fit
+    pos, neg = (y_train_full == 1).sum(), (y_train_full == 0).sum()
+    spw_full = neg / pos if pos else 1.0
+
+    final_clf = _make_classifier(
+        classifier_type,
+        random_state,
+        spw_full,
+        n_estimators=n_estimators_final,
+    )
+
+    if classifier_type == "xgboost":
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)
+            final_clf.fit(_to_gpu(X_train_full), y_train_full, verbose=False)
+    else:
+        final_clf.fit(X_train_full, y_train_full)
+
+    # Evaluation on test datasets
     X_test, y_test, test_balance = load_data_for_sets(
         config,
         test_datasets,
@@ -250,251 +325,186 @@ def train_evaluate_xgboost(
         prompt_versions,
         logger,
     )
-
-    if X_test is None or y_test is None:
-        logger.error("No valid test data. Exiting.")
-        return  # Exit if no data loaded for testing
-
-    # Slice aggregated test embeddings if top_k is provided
-    if top_k is not None:
-        if top_k < X_test.shape[1]:
+    if X_test is not None:
+        if top_k and top_k < X_test.shape[1]:
             X_test = X_test[:, :top_k]
+        if classifier_type == "xgboost":
+            X_test_gpu = _to_gpu(X_test.astype(np.float32, copy=False))
+            yhat = final_clf.predict(X_test_gpu)
+            yproba = final_clf.predict_proba(X_test_gpu)[:, 1]
         else:
-            logger.warning(
-                f"Requested top_k ({top_k}) is greater than or equal to available test dimensions ({X_test.shape[1]}). Using full embeddings."
-            )
+            yhat = final_clf.predict(X_test.astype(np.float32, copy=False))
+            yproba = final_clf.predict_proba(
+                X_test.astype(np.float32, copy=False)
+            )[:, 1]
+    else:
+        yhat = yproba = None
+        test_balance = {}
 
-    logger.info(
-        f"Train data shape: {X_train_main.shape}, Aggregated test data shape: {X_test.shape}"
-    )
+    eval_metrics: Dict[str, Any] = {
+        "cross_validation": cv_summary,
+        "fold_metrics": fold_metrics,
+    }
 
-    logger.info("Initializing and training XGBoost classifier...")
-    xgb_classifier = xgb.XGBClassifier(
-        objective="binary:logistic",
-        eval_metric="logloss",
-        use_label_encoder=False,
-        random_state=random_state,
-        early_stopping_rounds=10,
-    )
+    if yhat is not None:
+        eval_metrics["aggregated"] = _metrics(y_test, yhat, yproba)
+        eval_metrics["aggregated"]["data_balance"] = test_balance
+    else:
+        eval_metrics["aggregated"] = {"status": "skipped"}
 
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", UserWarning)
-        xgb_classifier.fit(
-            X_train_main,
-            y_train_main,
-            eval_set=[(X_test, y_test)],
-            verbose=False,
-        )
-    logger.info("XGBoost training completed.")
+    # Evaluation on holdout set
+    if held_X is not None and len(held_X) > 0:
+        if classifier_type == "xgboost":
+            held_gpu = _to_gpu(held_X.astype(np.float32, copy=False))
+            yh = final_clf.predict(held_gpu)
+            yp = final_clf.predict_proba(held_gpu)[:, 1]
+        else:
+            yh = final_clf.predict(held_X.astype(np.float32, copy=False))
+            yp = final_clf.predict_proba(held_X.astype(np.float32, copy=False))[
+                :, 1
+            ]
+        eval_metrics["held_out"] = {
+            "n_samples": len(held_X),
+            **_metrics(held_y, yh, yp),
+        }
+    else:
+        eval_metrics["held_out"] = {"status": "not_requested"}
 
-    output_dir = os.path.join(
-        config.base.classifiers_dir, "assessors", experiment_name
-    )
-    os.makedirs(output_dir, exist_ok=True)
-
-    model_filename = f"xgb_classifier_{experiment_name}.json"
-    model_save_path = os.path.join(output_dir, model_filename)
-    logger.info(f"Saving trained XGBoost model to: {model_save_path}")
-    try:
-        xgb_classifier.save_model(model_save_path)
-    except Exception as e:
-        logger.error(f"Failed to save model: {e}")
-
-    logger.info("Evaluating model on the aggregated test set...")
-    try:
-        y_pred_test = xgb_classifier.predict(X_test)
-        y_pred_proba_test = xgb_classifier.predict_proba(X_test)[:, 1]
-
-        aggregated_metrics = calculate_metrics(
-            y_test, y_pred_test, y_pred_proba_test
-        )
-        logger.info(
-            "Aggregated Test Set Metrics: "
-            f"Accuracy={aggregated_metrics['accuracy']:.4f}, "
-            f"AUC ROC={aggregated_metrics['auc_roc']:.4f}, "
-            f"F1-weighted={aggregated_metrics['f1_weighted']:.4f}"
-        )
-    except Exception as e:
-        logger.error(
-            f"Error during aggregated test prediction/metrics calculation: {e}"
-        )
-        aggregated_metrics = {"error": f"Prediction/Metrics Error: {e}"}
-
-    logger.info("Evaluating in-distribution hold-out slice...")
-    y_pred_indist = xgb_classifier.predict(X_in_dist)
-    y_pred_proba_indist = xgb_classifier.predict_proba(X_in_dist)[:, 1]
-    in_dist_metrics = calculate_metrics(
-        y_in_dist, y_pred_indist, y_pred_proba_indist
-    )
-
-    individual_metrics = {}
-    logger.info("Evaluating model on individual test datasets...")
-    for dataset_id in test_datasets:
-        logger.info(f"Loading test data for dataset: {dataset_id}")
-        X_indiv, y_indiv, indiv_balance = load_data_for_sets(
+    # Per‑dataset evaluation
+    by_ds: Dict[str, Any] = {}
+    for ds in test_datasets:
+        X_ds, y_ds, bal = load_data_for_sets(
             config,
-            [dataset_id],
+            [ds],
             embedding_model_id,
             model_id,
             prompt_versions,
             logger,
         )
-        if X_indiv is None or y_indiv is None:
-            logger.warning(
-                f"Skipping individual metrics for test dataset {dataset_id} due to missing data."
-            )
+        if X_ds is None:
+            by_ds[ds] = {"status": "skipped"}
             continue
+        if top_k and top_k < X_ds.shape[1]:
+            X_ds = X_ds[:, :top_k]
+        if classifier_type == "xgboost":
+            X_ds_gpu = _to_gpu(X_ds.astype(np.float32, copy=False))
+            yhat_ds = final_clf.predict(X_ds_gpu)
+            yproba_ds = final_clf.predict_proba(X_ds_gpu)[:, 1]
+        else:
+            yhat_ds = final_clf.predict(X_ds.astype(np.float32, copy=False))
+            yproba_ds = final_clf.predict_proba(
+                X_ds.astype(np.float32, copy=False)
+            )[:, 1]
+        by_ds[ds] = _metrics(y_ds, yhat_ds, yproba_ds)
+        by_ds[ds]["data_balance"] = bal.get(ds, {})
+    eval_metrics["by_dataset"] = by_ds
 
-        # Slice individual test embeddings if top_k is provided
-        if top_k is not None:
-            if top_k < X_indiv.shape[1]:
-                X_indiv = X_indiv[:, :top_k]
-            else:
-                logger.warning(
-                    f"Requested top_k ({top_k}) is greater than or equal to available dimensions for dataset {dataset_id} ({X_indiv.shape[1]}). Using full embeddings."
-                )
+    # Save model
+    out_dir = os.path.join(
+        config.base.classifiers_dir, "assessors", experiment_name
+    )
+    os.makedirs(out_dir, exist_ok=True)
+    model_path = os.path.join(
+        out_dir,
+        f"{classifier_type}_classifier_{experiment_name}.{ 'json' if classifier_type=='xgboost' else 'joblib'}",
+    )
+    try:
+        if classifier_type == "xgboost":
+            final_clf.save_model(model_path)
+        else:
+            joblib.dump(final_clf, model_path)
+    except Exception as e:
+        logger.error("Failed saving model: %s", e)
 
-        try:
-            y_pred_indiv = xgb_classifier.predict(X_indiv)
-            y_pred_proba_indiv = xgb_classifier.predict_proba(X_indiv)[:, 1]
-            metrics_indiv = calculate_metrics(
-                y_indiv, y_pred_indiv, y_pred_proba_indiv
-            )
-            individual_metrics[dataset_id] = {
-                "metrics": metrics_indiv,
-                "data_balance": indiv_balance.get(dataset_id, {}),
-            }
-            logger.info(
-                f"Dataset {dataset_id} Metrics: Accuracy={metrics_indiv['accuracy']:.4f}, "
-                f"AUC ROC={metrics_indiv['auc_roc']:.4f}, F1-weighted={metrics_indiv['f1_weighted']:.4f}"
-            )
-        except Exception as e:
-            logger.error(
-                f"Error during evaluation for dataset {dataset_id}: {e}"
-            )
-            individual_metrics[dataset_id] = {
-                "error": f"Prediction/Metrics Error: {e}"
-            }
-
-    results = {
+    result = {
         "config": {
             "model_id": model_id,
             "embedding_model_id": embedding_model_id,
+            "classifier_type": classifier_type,
             "prompt_versions": prompt_versions,
             "train_datasets": train_datasets,
             "test_datasets": test_datasets,
             "experiment_name": experiment_name,
             "random_state": random_state,
             "top_k": top_k,
+            "cv_folds": cv_folds,
+            "n_estimators_final": n_estimators_final,
+            "holdout_size": holdout_size,
         },
-        "evaluation_metrics": {
-            "in_distribution": {
-                "metrics": in_dist_metrics,
-                "data_balance": in_dist_balance,
-            },
-            "aggregated": aggregated_metrics,
-            "by_dataset": individual_metrics,
+        "evaluation_metrics": eval_metrics,
+        "initial_data_balance": {
+            "train": train_balance,
+            "test_aggregated": test_balance,
         },
-        "data_balance": {"train": train_balance, "test": test_balance},
     }
-
-    output_metrics_path = os.path.join(
+    metrics_path = os.path.join(
         config.base.evaluations_dir,
         "assessors",
         experiment_name,
-        "metrics.json",
+        f"{classifier_type}_metrics.json",
     )
-    output_metrics_dir = os.path.dirname(output_metrics_path)
-    os.makedirs(output_metrics_dir, exist_ok=True)
-
-    logger.info(f"Saving evaluation metrics to: {output_metrics_path}")
-    try:
-        with open(output_metrics_path, "w") as f:
-            json.dump(results, f, indent=4)
-        logger.info("Metrics saved successfully.")
-    except Exception as e:
-        logger.error(f"Failed to save metrics JSON: {e}")
+    os.makedirs(os.path.dirname(metrics_path), exist_ok=True)
+    with open(metrics_path, "w") as f:
+        json.dump(result, f, indent=2)
+    logger.info("Wrote metrics → %s", metrics_path)
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="XGBoost training & evaluation with separate lists of train/test datasets."
+def _parse_pv(arg: str | None) -> Dict[str, str]:
+    if not arg:
+        return {}
+    out = {}
+    for pair in arg.split(","):
+        if ":" not in pair:
+            raise ValueError(f"Bad prompt‑version pair: {pair}")
+        ds, pv = pair.split(":", 1)
+        out[ds.strip()] = pv.strip()
+    return out
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--config", required=True)
+    ap.add_argument("--model-id", required=True)
+    ap.add_argument("--embedding-model-id", required=True)
+    ap.add_argument(
+        "--classifier-type", choices=["xgboost", "logistic"], default="xgboost"
     )
-    parser.add_argument(
-        "--config", required=True, help="Path to the main configuration file."
+    ap.add_argument("--prompt-versions", default=None)
+    ap.add_argument("--train-datasets", required=True, nargs="+")
+    ap.add_argument("--test-datasets", required=True, nargs="+")
+    ap.add_argument("--experiment-name", default="unnamed_experiment")
+    ap.add_argument("--random-state", type=int, default=42)
+    ap.add_argument("--top-k", type=int, default=None)
+    ap.add_argument(
+        "--cv-folds", type=int, default=5, help="Number of CV folds (default 5)"
     )
-    parser.add_argument(
-        "--model-id",
-        required=True,
-        help="ID of the target model whose answers were evaluated.",
-    )
-    parser.add_argument(
-        "--embedding-model-id",
-        required=True,
-        help="ID of the embedding model used.",
-    )
-    parser.add_argument(
-        "--prompt-versions",
-        default=None,
-        help=(
-            "Optional: Comma-separated list of dataset:prompt_version pairs "
-            "(e.g., 'cities_10k:base,birth_years_4k:base'). "
-            "If not provided, 'base' will be used for each dataset."
-        ),
-    )
-    parser.add_argument(
-        "--train-datasets",
-        required=True,
-        nargs="+",
-        help="List of dataset IDs to use for training.",
-    )
-    parser.add_argument(
-        "--test-datasets",
-        required=True,
-        nargs="+",
-        help="List of dataset IDs to use for testing.",
-    )
-    parser.add_argument(
-        "--experiment-name",
-        default="unnamed_experiment",
-        help="Name for the experiment (used to name files/folders).",
-    )
-    parser.add_argument(
-        "--random-state",
+    ap.add_argument(
+        "--holdout-size",
         type=int,
-        default=42,
-        help="Random seed for XGBoost (default: 42).",
+        default=0,
+        help="Reserve the first N samples from the concatenated training data as a held‑out set. 0 disables the behaviour.",
     )
-    parser.add_argument(
-        "--top-k",
-        type=int,
-        default=None,
-        help="If provided, use only the top K dimensions of the input embeddings.",
-    )
+    args = ap.parse_args()
 
-    args = parser.parse_args()
-
-    # Parse prompt-versions into a dictionary
-    prompt_versions_dict = {}
-    if args.prompt_versions:
-        for pair in args.prompt_versions.split(","):
-            if ":" in pair:
-                ds, pv = pair.split(":", 1)
-                prompt_versions_dict[ds.strip()] = pv.strip()
-
-    # Default to 'base' if not in prompt_versions_dict
+    pv = _parse_pv(args.prompt_versions)
     for ds in set(args.train_datasets + args.test_datasets):
-        if ds not in prompt_versions_dict:
-            prompt_versions_dict[ds] = "base"
+        pv.setdefault(ds, "base")
 
-    train_evaluate_xgboost(
+    train_evaluate_classifier(
         config_path=args.config,
         model_id=args.model_id,
         embedding_model_id=args.embedding_model_id,
-        prompt_versions=prompt_versions_dict,
+        classifier_type=args.classifier_type,
+        prompt_versions=pv,
         train_datasets=args.train_datasets,
         test_datasets=args.test_datasets,
         experiment_name=args.experiment_name,
         random_state=args.random_state,
         top_k=args.top_k,
+        cv_folds=args.cv_folds,
+        holdout_size=args.holdout_size,
     )
+
+
+if __name__ == "__main__":
+    main()

@@ -1,11 +1,12 @@
-import re
+from __future__ import annotations
 import json
+import re
 from pathlib import Path
+from typing import Dict, List, Mapping
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
 
 plt.rcParams.update(
     {
@@ -19,7 +20,7 @@ plt.rcParams.update(
     }
 )
 
-DATASET_COLORS = {
+DATASET_COLOURS: Mapping[str, str] = {
     "trivia_qa_2_60k": "#000000",
     "cities_10k": "#e41a1c",
     "gsm8k": "#4daf4a",
@@ -27,7 +28,7 @@ DATASET_COLORS = {
     "medals_9k": "#ff7f00",
     "birth_years_4k": "#984ea3",
 }
-DATASET_MARKERS = {
+DATASET_MARKERS: Mapping[str, str] = {
     "trivia_qa_2_60k": "o",
     "cities_10k": "s",
     "gsm8k": "D",
@@ -35,7 +36,7 @@ DATASET_MARKERS = {
     "medals_9k": "X",
     "birth_years_4k": "P",
 }
-DATASET_NAME_MAP = {
+DATASET_DISPLAY: Mapping[str, str] = {
     "trivia_qa_2_60k": "TriviaQA 2 60k",
     "cities_10k": "Cities 10k",
     "gsm8k": "GSM8k",
@@ -43,7 +44,7 @@ DATASET_NAME_MAP = {
     "medals_9k": "Medals 9k",
     "birth_years_4k": "Birth Years 4k",
 }
-MODEL_NAME_MAP = {
+MODEL_DISPLAY: Mapping[str, str] = {
     "llama3.1_8b_chat": "Llama 3.1 8B",
     "llama3.3_70b": "Llama 3.3 70B",
     "mistral_7b_instruct": "Mistral 7B",
@@ -51,222 +52,188 @@ MODEL_NAME_MAP = {
     "qwen_2.5_7b_instruct": "Qwen 2.5 7B",
     "deepseek_qwen_32b": "Qwen 32B (DeepSeek)",
 }
+CLASSIFIER_DISPLAY: Mapping[str, str] = {
+    "logistic": "Logistic Regression",
+    "xgboost": "XGBoost",
+}
+
+__all__ = [
+    "load_metrics_json",
+    "plot_assessor_metrics",
+]
+
+
+def dataset_colour(ds: str) -> str:
+    return DATASET_COLOURS.get(ds, "#666666")
+
+
+def dataset_marker(ds: str) -> str:
+    return DATASET_MARKERS.get(ds, "o")
+
+
+def _prettify_model(raw: str) -> str:
+    return MODEL_DISPLAY.get(raw, raw)
+
+
+_strip_suffix = re.compile(r"\s*\(.*\)$")
 
 
 def load_metrics_json(
     metrics_path: str | Path,
+    *,
     which: str = "aggregated",
     metric_name: str = "auc_roc",
 ) -> pd.DataFrame:
-    """
-    Parameters
-    ----------
-    metrics_path : str | Path
-    which : {"aggregated", "by_dataset"}
-        Whether to take the global test-set metric or one line per individual
-        test dataset.
-    metric_name : str
-        Key inside the `metrics` dict to extract (e.g. "auc_roc", "accuracy").
+    """Parse metrics.json file into DataFrame."""
+    path = Path(metrics_path)
+    if not path.exists():
+        raise FileNotFoundError(path)
 
-    Returns
-    -------
-    pd.DataFrame with columns
-        ["model_name", "train_dataset", "test_dataset", "metric"]
-    """
-    p = Path(metrics_path)
-    if not p.exists():
-        raise FileNotFoundError(p)
+    with path.open("r") as fh:
+        blob: Dict = json.load(fh)
 
-    with p.open() as f:
-        d = json.load(f)
+    cfg = blob["config"]
+    ev = blob["evaluation_metrics"]
 
-    model_name = d["config"]["model_id"]
-    train_datasets = d["config"]["train_datasets"]
-    # there is always exactly one train dataset in the current workflow
-    train_dataset = train_datasets[0]
+    model_name: str = cfg["model_id"]
+    train_dataset: str = cfg["train_datasets"][0]
 
-    rows = []
+    rows: List[Dict] = []
+
+    def _add_row(test_ds: str, value: float | None) -> None:
+        rows.append(
+            {
+                "model_name": model_name,
+                "train_dataset": train_dataset,
+                "test_dataset": test_ds,
+                "metric": value,
+                "classifier": cfg["classifier_type"],
+                "top_k": cfg["top_k"],
+            }
+        )
 
     if which == "aggregated":
-        mval = d["evaluation_metrics"]["aggregated"][metric_name]
-        rows.append(
-            dict(
-                model_name=model_name,
-                train_dataset=train_dataset,
-                test_dataset="aggregated",
-                metric=mval,
-                top_k=d["config"]["top_k"],
-            )
-        )
+        _add_row("aggregated", ev.get("aggregated", {}).get(metric_name))
+
     elif which == "by_dataset":
-        for test_dataset, info in d["evaluation_metrics"]["by_dataset"].items():
-            mval = info["metrics"][metric_name]
-            rows.append(
-                dict(
-                    model_name=model_name,
-                    train_dataset=train_dataset,
-                    test_dataset=test_dataset,
-                    metric=mval,
-                    top_k=d["config"]["top_k"],
-                )
-            )
-        if "in_distribution" in d["evaluation_metrics"]:
-            mval = d["evaluation_metrics"]["in_distribution"]["metrics"][
-                metric_name
-            ]
-            rows.append(
-                dict(
-                    model_name=model_name,
-                    train_dataset=train_dataset,
-                    test_dataset=train_dataset,
-                    metric=mval,
-                    top_k=d["config"]["top_k"],
-                )
-            )
+        # External test datasets
+        for ds, info in ev.get("by_dataset", {}).items():
+            _add_row(ds, info.get(metric_name))
+
+        # In‑distribution performance
+        held = ev.get("held_out", {})
+        held_val = None if held.get("status") else held.get(metric_name)
+        if held_val is not None:
+            _add_row(train_dataset, held_val)
+        else:  # Fallback to CV if needed
+            cv_dict = ev.get("cross_validation", {})
+            if metric_name in cv_dict:
+                _add_row(train_dataset, cv_dict[metric_name])
     else:
-        raise ValueError("`which` must be 'aggregated' or 'by_dataset'.")
+        raise ValueError("`which` must be 'aggregated' or 'by_dataset'")
 
     return pd.DataFrame(rows)
 
 
 def plot_assessor_metrics(
-    metrics_json_paths: dict[str, str | Path],
+    *,
+    metrics_json_paths: Mapping[str, str | Path],
     metric_name: str = "auc_roc",
     which: str = "by_dataset",
-    save_path: str | None = None,
-) -> None:
-    """
-    Parameters
-    ----------
-    metrics_json_paths : dict
-        Mapping *label → path_to_metrics.json*.
-        The *label* (left side) is what will appear on the x-axis.
-        E.g. {"Llama-3 8B (top-1024)": "…/llama3_8b_chat_birth_years…metrics.json"}
-    metric_name : str
-        Metric key stored in each json ("auc_roc", "accuracy", …).
-    which : {"aggregated", "by_dataset"}
-        Same meaning as in `load_metrics_json`.
-    """
-    dfs = []
+    save_path: str | Path | None = None,
+) -> plt.Figure:
+    """Scatter‑plot assessor metrics for multiple checkpoints."""
+
+    # Load & concat metrics
+    frames: List[pd.DataFrame] = []
     for label, path in metrics_json_paths.items():
         df = load_metrics_json(path, which=which, metric_name=metric_name)
         df["label"] = label
-        dfs.append(df)
-    df_all = pd.concat(dfs, ignore_index=True)
+        frames.append(df)
+    df_all = pd.concat(frames, ignore_index=True)
 
-    agg_dfs = []
-    for label, path in metrics_json_paths.items():
-        df_agg = load_metrics_json(
-            path, which="aggregated", metric_name=metric_name
-        )
-        df_agg["label"] = label
-        agg_dfs.append(df_agg)
-    df_agg_all = pd.concat(agg_dfs, ignore_index=True)
-
-    label_order = list(metrics_json_paths.keys())
-    df_all["label"] = pd.Categorical(
+    # Order of models on x‑axis follows the insertion order given by caller
+    label_order: List[str] = list(metrics_json_paths.keys())
+    df_all["label_cat"] = pd.Categorical(
         df_all["label"], categories=label_order, ordered=True
     )
 
+    # Figure geometry
     n_rows = df_all["train_dataset"].nunique()
+    fig_height = 6 * n_rows
+    fig_width = fig_height * 1.4
 
-    base_height = n_rows * 6
-    base_width = base_height * 1.3
-    
     fig, axes = plt.subplots(
         n_rows,
         1,
+        figsize=(fig_width, fig_height),
         sharex=True,
-        figsize=(base_width, base_height),
         constrained_layout=True,
     )
     if not isinstance(axes, np.ndarray):
         axes = np.array([axes])
 
-    label_order = list(metrics_json_paths.keys())
-    label_to_num = {lab: i for i, lab in enumerate(label_order)}
+    # Pre‑compute helper dicts
+    label_to_x = {lab: i for i, lab in enumerate(label_order)}
     test_ds_list = sorted(df_all["test_dataset"].unique())
     n_ds = len(test_ds_list)
-    # x-offset for each plotted dataset
-    # width = 0.1
-    width = 0
+
+    # Offset each dataset slightly for visibility (disabled)
+    width = 0.0
 
     for ax, (train_ds, grp) in zip(axes, df_all.groupby("train_dataset")):
         for j, test_ds in enumerate(test_ds_list):
             sub = grp[grp["test_dataset"] == test_ds]
-            # compute a centered offset for this dataset
+            if sub.empty:
+                continue
             offset = (j - (n_ds - 1) / 2) * width
-            x_base = sub["label"].cat.codes
-            x_num  = x_base + offset
-
+            x_vals = sub["label_cat"].cat.codes + offset
             ax.scatter(
-                x_num,
+                x_vals,
                 sub["metric"],
-                marker=DATASET_MARKERS.get(test_ds, "o"),
-                color=DATASET_COLORS.get(test_ds, "#333333"),
-                s=50,
-                label=DATASET_NAME_MAP.get(test_ds, test_ds),
+                marker=dataset_marker(test_ds),
+                color=dataset_colour(test_ds),
+                s=55,
+                label=DATASET_DISPLAY.get(test_ds, test_ds),
             )
 
-        # aggregated on top (no offset)
-        sub_agg = df_agg_all[df_agg_all["train_dataset"] == train_ds]
-        x_agg = sub_agg["label"].map(label_to_num)
-        ax.scatter(
-            x_agg,
-            sub_agg["metric"],
-            marker="*",
-            color="yellow",
-            s=150,
-            edgecolor="white",
-            linewidth=0.5,
-            label="Aggregated",
-        )
-
-        # restore tick labels at the integer positions:
-        ax.set_xticks(list(label_to_num.values()))
-        ax.set_xticklabels(
-            [MODEL_NAME_MAP.get(lab, lab) for lab in label_order], rotation=0
-        )
-
-        ax.set_ylabel(
-            f"Test {metric_name.replace('_', ' ').upper()}"
-            f"\n(Trained on {DATASET_NAME_MAP[train_ds]})"
-        )
-        y_min, y_max = grp["metric"].min(), grp["metric"].max()
-        center = 0.5 * (y_min + y_max)
-        lower = max(0.0, center - 0.25)
-        upper = min(1.0, center + 0.25)
-        ax.set_ylim(lower, upper)
+        # Chance baseline & cosmetics
         ax.axhline(
-            0.5, color="gray", linestyle="--", linewidth=1, label="Random Guess"
+            0.5, color="grey", linestyle="--", linewidth=1, label="Random Guess"
+        )
+        ax.set_ylabel(
+            f"Test {metric_name.replace('_', ' ').upper()}\n(Trained on {DATASET_DISPLAY.get(train_ds, train_ds)})"
         )
         ax.grid(True, linestyle="--", alpha=0.3)
-        ax.set_facecolor("white")
 
+        # Dynamic y‑limits – centre ±0.25 but clamp to [0,1]
+        y_vals = grp["metric"].dropna()
+        if not y_vals.empty:
+            center = y_vals.mean()
+            ax.set_ylim(max(0, center - 0.35), min(1, center + 0.35))
+
+        # X‑ticks at integer positions
+        ax.set_xticks(list(label_to_x.values()))
+        pretty_labels = [
+            _prettify_model(_strip_suffix.sub("", lbl)) for lbl in label_order
+        ]
+        ax.set_xticklabels(pretty_labels, rotation=0)
+
+    # Shared legend
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(
         handles,
         labels,
-        title="Dataset / Summary",
+        title="Dataset",
         bbox_to_anchor=(1.02, 0.5),
         loc="center left",
     )
 
-    axes[-1].set_xlabel("Model")
-    fig.suptitle(
-        "Embedding Assessor Performance",
-        # f"Embedding Assessor Performance – {df_all['top_k'].unique()[0]} Dimensions",
-    )
-
-    strip_suffix = re.compile(r"\s*\(.*\)$")
-    for ax in axes:
-        new_labels = []
-        for tick in ax.get_xticklabels():
-            raw = strip_suffix.sub("", tick.get_text())
-            pretty = MODEL_NAME_MAP.get(raw, raw)
-            new_labels.append(pretty)
-        ax.set_xticklabels(new_labels, rotation=0)
+    # Figure title
+    classifier_name = df_all["classifier"].iloc[0]
+    clf_pretty = CLASSIFIER_DISPLAY.get(classifier_name, classifier_name)
+    fig.suptitle(f"Embedding‑Assessor Performance ({clf_pretty})", fontsize=14)
 
     if save_path:
-        plt.savefig(save_path, bbox_inches="tight", dpi=300)
-    plt.show()
+        fig.savefig(Path(save_path), bbox_inches="tight", dpi=300)
+    return fig
