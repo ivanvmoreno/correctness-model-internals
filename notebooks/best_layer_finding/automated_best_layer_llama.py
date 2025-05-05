@@ -30,7 +30,7 @@ DATASET_ID = None
 PROMPT_ID = None
 SUBSET_ID = None
 INPUT_TYPE = None
-layers_to_keep = []
+layers_to_keep = [14]
 n_folds = 5
 
 activation_exp_configs_df = get_experiment_activations_configs_df_subset(
@@ -100,6 +100,17 @@ for input_type in ["prompt_only"]:
                     input_type=input_type_test,
                     layer=layer,
                 )
+
+                # # remove the first 10000 samples
+                if dataset_id_train == "trivia_qa_2_60k":
+                    activations_train = activations_train[10000:]
+                    labels_df_train = labels_df_train.iloc[10000:]
+                    indices_train = indices_train[10000:].reset_index(drop=True)
+                if dataset_id_test == "trivia_qa_2_60k":
+                    activations_test = activations_test[10000:]
+                    labels_df_test = labels_df_test.iloc[10000:]
+                    indices_test = indices_test[10000:].reset_index(drop=True)
+
                 
                 if check_indices_train is None:
                     check_indices_train = indices_train.sample(frac=1, replace=False, random_state=42)
@@ -195,7 +206,7 @@ for input_type in ["prompt_only"]:
 
 
 res_df = pd.DataFrame(res_dict)
-res_df.to_csv(os.path.join("/runpod-volume/arnau/correctness-model-internals/", "notebooks", "best_layer_finding", MODEL_ID, "classification_data", "train_test_data.csv"), index=False)
+res_df.to_csv(os.path.join("/runpod-volume/correctness-model-internals/", "notebooks", "best_layer_finding", MODEL_ID, "classification_data", "final_data.csv"), index=False)
 
 # PLOTTING
 for metric in [
@@ -243,7 +254,7 @@ for metric in [
         # for classifier in ["direction", "logistic_regression"]:
         #     for metric in ["f1_score", "accuracy_score", "precision_score", "recall_score"]:
         plot_dict[str(conf)] = res_df_pivot[[metric]]
-    save_path = os.path.join("/runpod-volume/arnau/correctness-model-internals", "notebooks", "best_layer_finding", MODEL_ID, "classification_data", "figures", f"train_test_different_datasets_direction_{metric}.html")
+    save_path = os.path.join("/runpod-volume/arnau/correctness-model-internals", "notebooks", "best_layer_finding", MODEL_ID, "classification_data", "figures", f"final_train_test_different_datasets_direction_{metric}.html")
     plot_interactive_lineplot(
         plot_dict,
         x_label="Layer",
