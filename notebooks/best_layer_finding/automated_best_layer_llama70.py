@@ -25,12 +25,12 @@ print(f"BASE_PATH: {BASE_PATH}")
 # BASE_PATH = "../../"
 PCA_COMPONENTS = None
 
-MODEL_ID = "qwen_2.5_7b_instruct"
+MODEL_ID = "llama3.3_70b"
 DATASET_ID = None
 PROMPT_ID = None
 SUBSET_ID = None
 INPUT_TYPE = None
-layers_to_keep = [22]
+layers_to_keep = [76]
 n_folds = 5
 
 activation_exp_configs_df = get_experiment_activations_configs_df_subset(

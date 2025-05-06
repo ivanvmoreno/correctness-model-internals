@@ -20,17 +20,17 @@ from src.visualisations.utils import plot_interactive_lineplot
 from src.utils.data import load_activations, load_labels, get_experiment_activations_configs_df_subset
 
 # BASE_PATH = Path(__file__).resolve().parent.parent.parent
-BASE_PATH = "/runpod-volume/arnau/correctness-model-internals/data_for_classification"
+BASE_PATH = "/runpod-volume/anton/correctness-model-internals/data_for_classification"
 print(f"BASE_PATH: {BASE_PATH}")
 # BASE_PATH = "../../"
 PCA_COMPONENTS = None
 
-MODEL_ID = "qwen_2.5_7b_instruct"
+MODEL_ID = "mistral_7b_instruct"
 DATASET_ID = None
 PROMPT_ID = None
 SUBSET_ID = None
 INPUT_TYPE = None
-layers_to_keep = [22]
+layers_to_keep = [16]
 n_folds = 5
 
 activation_exp_configs_df = get_experiment_activations_configs_df_subset(
