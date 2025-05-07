@@ -9,6 +9,7 @@ if str(project_root) not in sys.path:
 
 from collections import defaultdict
 import pandas as pd
+import numpy as np
 from src.classifying import (
     ActivationsHandler,
     combine_activations_handlers,
@@ -18,6 +19,24 @@ from src.classifying import (
 )
 from src.visualisations.utils import plot_interactive_lineplot
 from src.utils.data import load_activations, load_labels, get_experiment_activations_configs_df_subset
+from scipy.spatial.distance import cosine
+
+def cosine_similarity_distribution(vecs, index=None):
+    vecs = list(vecs)
+    index = list(index) if index is not None else None
+    cosine_similarities = []
+    indices = []
+    for i in range(len(vecs)):
+        reference_vec = vecs[i]
+        for j in range(len(vecs)):
+            if j <= i:
+                continue
+            cosine_similarity = 1 - cosine(reference_vec, vecs[j])
+            cosine_similarities.append(cosine_similarity)
+            if index is not None:
+                indices.append((index[i], index[j]))
+    
+    return pd.Series(cosine_similarities, index=indices or None)
 
 # BASE_PATH = Path(__file__).resolve().parent.parent.parent
 BASE_PATH = "/runpod-volume/anton/correctness-model-internals/data_for_classification"
@@ -201,7 +220,7 @@ for input_type in ["prompt_only"]:
                                 ].append(value)
                     
                     # can use any of the direction calculators as they should be the same
-                    # res_dict["direction__train_set_classifying_direction"].append(direction_calculator.classifying_direction.tolist())
+                    res_dict["direction__train_set_classifying_direction"].append(direction_calculator.classifying_direction.tolist())
 
                     # for key, value in get_logistic_regression_classifier(
                     #         activations_handler_train=activations_handler_train,
@@ -212,7 +231,38 @@ for input_type in ["prompt_only"]:
 
 
 res_df = pd.DataFrame(res_dict)
-res_df.to_csv(os.path.join("/runpod-volume/correctness-model-internals/", "notebooks", "best_layer_finding", MODEL_ID, "classification_data", "final_data.csv"), index=False)
+res_df.to_csv(os.path.join("/runpod-volume/correctness-model-internals/", "notebooks", "best_layer_finding", MODEL_ID, "classification_data", "final_data_2.csv"), index=False)
+
+directions_dict = defaultdict(list)
+for conf, res_df_ in res_df.groupby([
+    "model_id_train", 
+    "dataset_id_train", 
+    "prompt_id_train", 
+    "subset_id_train", 
+    "input_type_train",
+    "layer"
+]):
+    # directions = res_df_["direction__train_set_classifying_direction"].apply(json.loads) # if is string
+    directions = res_df_["direction__train_set_classifying_direction"]
+    directions = directions.apply(np.array)
+    average_direction = np.sum(directions) / len(directions)
+
+    directions_dict["model_id_train"].append(conf[0])
+    directions_dict["dataset_id_train"].append(conf[1])
+    directions_dict["prompt_id_train"].append(conf[2])
+    directions_dict["subset_id_train"].append(conf[3])
+    directions_dict["input_type_train"].append(conf[4])
+    # directions_dict["model_id_test"].append(conf[5])
+    # directions_dict["dataset_id_test"].append(conf[6])
+    # directions_dict["prompt_id_test"].append(conf[7])
+    # directions_dict["subset_id_test"].append(conf[8])
+    # directions_dict["input_type_test"].append(conf[9])
+    directions_dict["layer"].append(conf[5])
+    directions_dict["direction"].append(average_direction)
+
+directions_df = pd.DataFrame(directions_dict)
+dir_res_file = f"./{MODEL_ID}/classification_data/directions.parquet"
+directions_df.to_parquet(dir_res_file)
 
 # PLOTTING
 for metric in [
