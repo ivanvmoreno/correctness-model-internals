@@ -9,8 +9,7 @@ import torch
 def load_dataset(
     dataset_path: str,
 ) -> pd.DataFrame:
-    """Load a dataset from a given path. Detects files in the path, and loads them as a pandas DataFrame.
-    """
+    """Load a dataset from a given path. Detects files in the path, and loads them as a pandas DataFrame."""
     dataset = pd.DataFrame()
     for file in os.listdir(dataset_path):
         if file.endswith(".csv"):
@@ -95,6 +94,48 @@ def format_mmlu(
     return formatted
 
 
+def format_notable(
+    path: str,
+    sys_prompt: str,
+    col_names: dict[str, str],
+    generation_delimiter: str ="Answer:",
+    question_tpl: str = "What year was {name} ({occupation}, {birthplace}) born?",
+    filter: str = None,
+) -> pd.DataFrame:
+    reversed_dict = {v: k for k, v in col_names.items()}
+    dataset_df = pd.read_csv(path, low_memory=False, encoding_errors="replace", sep=",", quotechar="'", on_bad_lines="skip", usecols=reversed_dict.keys()).rename(columns=reversed_dict).dropna()
+    if filter:
+        dataset_df = dataset_df.query(filter)
+    dataset_df.loc[:, "name"] = dataset_df["name"].str.replace("_", " ", regex=False)
+    dataset_df.loc[:, "occupation"] = dataset_df["occupation"].str.replace("_", " ", regex=False)
+    birthplace_pattern = r"(?:D:_')?([^']+)(?:'[^']*)?"
+    dataset_df.loc[:, "birthplace"] = dataset_df["birthplace"].str.extract(birthplace_pattern, expand=False).str.replace("_", " ", regex=False)
+    questions = dataset_df.apply(
+        lambda row: question_tpl.format(
+            name=row["name"],
+            occupation=row["occupation"],
+            birthplace=row["birthplace"],
+        ),
+        axis=1,
+    )
+    prompts = questions.apply(
+        lambda q: format_open_prompt(
+            q,
+            sys_prompt,
+            generation_delimiter=generation_delimiter,
+        )
+    )
+    answers = dataset_df["birth_year"].astype(int).astype(str)
+    formatted = pd.DataFrame(
+        {
+            "original_statement": questions,
+            "prompt": prompts,
+            "answer": answers,
+        }
+    )
+    return formatted
+
+
 def format_gsm8k(
     path: str,
     sys_prompt: str,
@@ -155,4 +196,4 @@ def format_generic(
             "answer": dataset_df["answer"],
         }
     )
-    return formatted 
+    return formatted

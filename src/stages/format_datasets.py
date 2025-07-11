@@ -1,8 +1,10 @@
 from typing import Union, List
 import argparse
 import os
+import gzip
+import shutil
 
-from src.data import format_generic, format_gsm8k, format_mmlu
+from src.data import format_generic, format_gsm8k, format_mmlu, format_notable
 from src.utils.config import load_config
 from src.utils.logging import get_logger
 
@@ -28,6 +30,36 @@ def format_dataset(
         model_config = config.models[model_id]
         logger.info(f"Formatting datasets for model {model_id}")
         for dataset_name, dataset_conf in config.datasets.items():
+            if "compressed" in dataset_conf:
+                if dataset_conf.compressed.format == "gzip":
+                    raw_path = f"{config.base.datasets_dir}/{config.format_datasets.raw_dir_path}/{dataset_name}/{dataset_conf.compressed.target}"
+                    if not os.path.isfile(raw_path):
+                        logger.info(
+                            f"Compressed file {raw_path} does not exist. Skipping."
+                        )
+                    else:
+                        # Only supports 1 subset for compressed datasets
+                        subset = (
+                            dataset_conf.subsets[0]
+                            if dataset_conf.subsets
+                            else "main"
+                        )
+                        formatted_path = f"{config.base.datasets_dir}/{config.format_datasets.raw_dir_path}/{dataset_name}/{subset}/{dataset_conf.compressed.target[:-3]}"
+                        if not os.path.exists(os.path.dirname(formatted_path)):
+                            os.makedirs(
+                                os.path.dirname(formatted_path), exist_ok=True
+                            )
+                        logger.info(
+                            f"Decompressing {raw_path} to {formatted_path}"
+                        )
+                        with gzip.open(raw_path, "rb") as f_in:
+                            with open(formatted_path, "wb") as f_out:
+                                shutil.copyfileobj(f_in, f_out)
+                        os.remove(raw_path)
+                else:
+                    raise ValueError(
+                        f"Unsupported compression format: {dataset_conf.compressed.format}"
+                    )
             for prompt_version, prompt in dataset_conf.prompts.items():
                 for subset in dataset_conf.subsets:
                     if dataset_name == "mmlu":
@@ -41,6 +73,14 @@ def format_dataset(
                             f"{config.base.datasets_dir}/{config.format_datasets.raw_dir_path}/{dataset_name}/{subset}",
                             prompt.text,
                             generation_delimiter=prompt.generation_delimiter,
+                        )
+                    elif dataset_name == "notable_people":
+                        dataset_f = format_notable(
+                            f"{config.base.datasets_dir}/{config.format_datasets.raw_dir_path}/{dataset_name}/{subset}/{dataset_conf.compressed.target[:-3]}",
+                            prompt,
+                            dataset_conf.col_map,
+                            question_tpl=dataset_conf.question_tpl,
+                            filter=dataset_conf.filter,
                         )
                     else:
                         dataset_f = format_generic(
@@ -58,12 +98,14 @@ def format_dataset(
                         )
                         os.makedirs(formatted_dir)
 
-                    logger.info(f"Saving formatted dataset to {formatted_path}")
+                    logger.info(
+                        f"Saving formatted dataset to {formatted_path}"
+                    )
 
                     logger.info(
                         "Prompt templates variables substitution ({eos_token}})"
                     )
-                    dataset_f = dataset_f.applymap(
+                    dataset_f = dataset_f.map(
                         lambda x: (
                             x.replace("{eos_token}", model_config.eos_token)
                             if isinstance(x, str)
