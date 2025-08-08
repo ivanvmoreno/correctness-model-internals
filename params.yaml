@@ -47,6 +47,13 @@ datasets:
         Answer: 1953{eos_token}
         ---
         Question: 
+      verbalized_confidence_raw:
+        text: |-
+            I am going to ask you about your confidence to answer a question.
+            The confidence indicates how likely you think your answer will be true.
+            Please respond with only a percentage and end with {eos_token}, so your answer should be following the format 'Answer: (percentage)%{eos_token}'.
+            How confident are you that you can answer correctly '
+        generation_delimiter: "'?\nAnswer:"
   # trivia_qa:
   #   hf_repo_id: mandarjoshi/trivia_qa
   #   answer_type: open_ended
@@ -72,86 +79,86 @@ datasets:
   #     - abstract_algebra
   #   prompts:
   #     base: The following is a multiple choice question (with answers). Give your answer with a single letter corresponding to the correct answer.
-  cities_10k:
-    answer_type: open_ended
-    subsets:
-      - main
-    format: csv
-    eval_type: answers_map
-    max_new_tokens: 128
-    stop_words: ["{eos_token}", "\n"]
-    answers_map_path: eval_map.json
-    col_map:
-      prompt: question
-      answer: correct_answer
-    prompts:
-      base: |-
-        I am going to ask you a question about cities. End your sentence with {eos_token}.
-        Here are some examples of questions that might help you:
-        ---
-        Question: In which country is the city of Barcelona located?
-        Answer: Spain{eos_token}
-        ---
-        Question: In which country is the city of London located?
-        Answer: United Kingdom{eos_token}
-        ---
-        Question: In which country is the city of Beijing located?
-        Answer: China{eos_token}
-        ---
-        Question:
-  birth_years_4k:
-    answer_type: open_ended
-    subsets:
-      - main
-    format: csv
-    eval_type: exact_match
-    max_new_tokens: 128
-    stop_words: ["{eos_token}", "\n"]
-    col_map:
-      prompt: question
-      answer: correct_answer
-    prompts:
-      base: |-
-        I am going to ask you what year a person was born. End your sentence with {eos_token}.
-        Here are some examples of questions that might help you:
-        ---
-        Question: What year was Barack Obama born? 
-        Answer: 1961{eos_token}
-        ---
-        Question: What year was Vladimir Putin born? 
-        Answer: 1952{eos_token}
-        ---
-        Question: What year was Xi Jinping born? 
-        Answer: 1953{eos_token}
-        ---
-        Question:
-  medals_9k:
-    answer_type: open_ended
-    subsets:
-      - main
-    format: csv
-    eval_type: answers_map
-    max_new_tokens: 128
-    stop_words: ["{eos_token}", "\n"]
-    answers_map_path: eval_map.json
-    col_map:
-      prompt: question
-      answer: correct_answer
-    prompts:
-      base: |-
-        I am going to ask you a question about the olympics. End your sentence with {eos_token}.
-        Here are some examples of questions that might help you:
-        ---
-        Question: Which country won gold in Gymnastics Women's Team All-Around in the 1928 Summer Olympics?
-        Answer: Netherlands{eos_token}
-        ---
-        Question: Which country won gold in Hockey Women's Hockey in the 2004 Summer Olympics?
-        Answer: Germany{eos_token}
-        ---
-        Question: Which country won gold in Fencing Men's Sabre, Individual in the 1964 Summer Olympics?
-        Answer: Hungary{eos_token}
-        ---
-        Question:
+  # cities_10k:
+  #   answer_type: open_ended
+  #   subsets:
+  #     - main
+  #   format: csv
+  #   eval_type: answers_map
+  #   max_new_tokens: 128
+  #   stop_words: ["{eos_token}", "\n"]
+  #   answers_map_path: eval_map.json
+  #   col_map:
+  #     prompt: question
+  #     answer: correct_answer
+  #   prompts:
+  #     base: |-
+  #       I am going to ask you a question about cities. End your sentence with {eos_token}.
+  #       Here are some examples of questions that might help you:
+  #       ---
+  #       Question: In which country is the city of Barcelona located?
+  #       Answer: Spain{eos_token}
+  #       ---
+  #       Question: In which country is the city of London located?
+  #       Answer: United Kingdom{eos_token}
+  #       ---
+  #       Question: In which country is the city of Beijing located?
+  #       Answer: China{eos_token}
+  #       ---
+  #       Question:
+  # birth_years_4k:
+  #   answer_type: open_ended
+  #   subsets:
+  #     - main
+  #   format: csv
+  #   eval_type: exact_match
+  #   max_new_tokens: 128
+  #   stop_words: ["{eos_token}", "\n"]
+  #   col_map:
+  #     prompt: question
+  #     answer: correct_answer
+  #   prompts:
+  #     base: |-
+  #       I am going to ask you what year a person was born. End your sentence with {eos_token}.
+  #       Here are some examples of questions that might help you:
+  #       ---
+  #       Question: What year was Barack Obama born? 
+  #       Answer: 1961{eos_token}
+  #       ---
+  #       Question: What year was Vladimir Putin born? 
+  #       Answer: 1952{eos_token}
+  #       ---
+  #       Question: What year was Xi Jinping born? 
+  #       Answer: 1953{eos_token}
+  #       ---
+  #       Question:
+  # medals_9k:
+  #   answer_type: open_ended
+  #   subsets:
+  #     - main
+  #   format: csv
+  #   eval_type: answers_map
+  #   max_new_tokens: 128
+  #   stop_words: ["{eos_token}", "\n"]
+  #   answers_map_path: eval_map.json
+  #   col_map:
+  #     prompt: question
+  #     answer: correct_answer
+  #   prompts:
+  #     base: |-
+  #       I am going to ask you a question about the olympics. End your sentence with {eos_token}.
+  #       Here are some examples of questions that might help you:
+  #       ---
+  #       Question: Which country won gold in Gymnastics Women's Team All-Around in the 1928 Summer Olympics?
+  #       Answer: Netherlands{eos_token}
+  #       ---
+  #       Question: Which country won gold in Hockey Women's Hockey in the 2004 Summer Olympics?
+  #       Answer: Germany{eos_token}
+  #       ---
+  #       Question: Which country won gold in Fencing Men's Sabre, Individual in the 1964 Summer Olympics?
+  #       Answer: Hungary{eos_token}
+  #       ---
+  #       Question:
   # football_leagues_1k:
   #   answer_type: open_ended
   #   subsets:
@@ -205,109 +212,109 @@ datasets:
   #       Answer: Arizona{eos_token}
   #       ---
   #       Question:
-  trivia_qa_2_60k:
-    answer_type: open_ended
-    subsets:
-      - main
-    format: csv
-    eval_type: list_of_answers
-    max_new_tokens: 128
-    stop_words: ["{eos_token}", "\n"]
-    col_map:
-      prompt: question
-      answer: correct_answer
-    prompts:
-      base: |-
-        I am going to ask you a question. Answer concisely. End your sentence with {eos_token}.
-        Here are some examples of questions that might help you:
-        ---
-        Question: In which month are St David's Day and St Patrick's Day celebrated in the UK? 
-        Answer: March{eos_token}
-        ---
-        Question: What is the common English name of Mozart's Serenade for Strings in d major?
-        Answer: A little night music{eos_token}
-        ---
-        Question: In which US State do teams play baseball in the Cactus League?
-        Answer: Arizona{eos_token}
-        ---
-        Question: 
-  math_operations_6k:
-    answer_type: open_ended
-    subsets:
-      - main
-    format: csv
-    eval_type: exact_match
-    max_new_tokens: 128
-    stop_words: ["{eos_token}", "\n"]
-    col_map:
-      prompt: question
-      answer: correct_answer
-    prompts:
-      base: |-
-        I am going to ask you to questions about maths. Answer with an integer value, without decimal places. End your sentence with {eos_token}.
-        Here are some examples of questions that might help you:
-        ---
-        Question: What is 604 minus 866?
-        Answer: -262{eos_token}
-        ---
-        Question: What is 927 plus 855?
-        Answer: 1782{eos_token}
-        ---
-        Question: What is 531 times 955?
-        Answer: 507105{eos_token}
-        ---
-        Question:
-  gsm8k:
-    hf_repo_id: openai/gsm8k
-    answer_type: open_ended
-    answer_delim: "####"
-    answer_regex: (?<=\$\\boxed\{)\d+(?=\}\$)
-    eval_type: regex_match
-    max_new_tokens: 1024
-    stop_words: ["}$"]
-    col_map:
-      prompt: question
-      answer: answer
-    subsets:
-      - main
-    prompts:
-      # TODO: replace with other n-shot examples
-      base_3_shot: 
-          text: |-
-            Give your answer in this format: $\boxed{answer}$
-            Here are some examples to help you understand the format:
-            ---
-            Question: Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?
-            Answer: $\boxed{10}$
-            ---
-            Question: Julie is reading a 120-page book. Yesterday, she was able to read 12 pages and today, she read twice as many pages as yesterday. If she wants to read half of the remaining pages tomorrow, how many pages should she read?
-            Answer: $\boxed{42}$
-            ---
-            Question: Mark has a garden with flowers. He planted plants of three different colors in it. Ten of them are yellow, and there are 80% more of those in purple. There are only 25% as many green flowers as there are yellow and purple flowers. How many flowers does Mark have in his garden?
-            Answer: $\boxed{35}$
-            ---
-            Question:
-          generation_delimiter: "Answer:"
-      cot_3_shot: 
-        text: |-
-          Think step by step about the following problem.
-          Give your answer in this format: $\boxed{answer}$
-          Here are some examples to help you understand the format:
-          ---
-          Question: Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?
-          Reasoning: Weng earns 12/60 = $12/60=0.20.2 per minute. Working 50 minutes, she earned 0.2 x 50 = $0.2*50=1010.
-          Final answer: $\boxed{10}$
-          ---
-          Question: Julie is reading a 120-page book. Yesterday, she was able to read 12 pages and today, she read twice as many pages as yesterday. If she wants to read half of the remaining pages tomorrow, how many pages should she read?
-          Reasoning: Julie read 12 x 2 = 12*2=2424 pages today. So she was able to read a total of 12 + 24 = 12+24=3636 pages since yesterday. There are 120 - 36 = 120-36=8484 pages left to be read. Since she wants to read half of the remaining pages tomorrow, then she should read 84/2 = 84/2=4242 pages.
-          Final answer: $\boxed{42}$
-          ---
-          Question: Mark has a garden with flowers. He planted plants of three different colors in it. Ten of them are yellow, and there are 80% more of those in purple. There are only 25% as many green flowers as there are yellow and purple flowers. How many flowers does Mark have in his garden?
-          Reasoning: There are 80/100 * 10 = 80/100*10=88 more purple flowers than yellow flowers. So in Mark's garden, there are 10 + 8 = 10+8=1818 purple flowers. Purple and yellow flowers sum up to 10 + 18 = 10+18=2828 flowers. That means in Mark's garden there are 25/100 * 28 = 25/100*28=77 green flowers. So in total Mark has 28 + 7 = 28+7=3535 plants in his garden.
-          Final answer: $\boxed{35}$
-          ---
-          Question:
-        generation_delimiter: "Reasoning:"
+  # trivia_qa_2_60k:
+  #   answer_type: open_ended
+  #   subsets:
+  #     - main
+  #   format: csv
+  #   eval_type: list_of_answers
+  #   max_new_tokens: 128
+  #   stop_words: ["{eos_token}", "\n"]
+  #   col_map:
+  #     prompt: question
+  #     answer: correct_answer
+  #   prompts:
+  #     base: |-
+  #       I am going to ask you a question. Answer concisely. End your sentence with {eos_token}.
+  #       Here are some examples of questions that might help you:
+  #       ---
+  #       Question: In which month are St David's Day and St Patrick's Day celebrated in the UK? 
+  #       Answer: March{eos_token}
+  #       ---
+  #       Question: What is the common English name of Mozart's Serenade for Strings in d major?
+  #       Answer: A little night music{eos_token}
+  #       ---
+  #       Question: In which US State do teams play baseball in the Cactus League?
+  #       Answer: Arizona{eos_token}
+  #       ---
+  #       Question: 
+  # math_operations_6k:
+  #   answer_type: open_ended
+  #   subsets:
+  #     - main
+  #   format: csv
+  #   eval_type: exact_match
+  #   max_new_tokens: 128
+  #   stop_words: ["{eos_token}", "\n"]
+  #   col_map:
+  #     prompt: question
+  #     answer: correct_answer
+  #   prompts:
+  #     base: |-
+  #       I am going to ask you to questions about maths. Answer with an integer value, without decimal places. End your sentence with {eos_token}.
+  #       Here are some examples of questions that might help you:
+  #       ---
+  #       Question: What is 604 minus 866?
+  #       Answer: -262{eos_token}
+  #       ---
+  #       Question: What is 927 plus 855?
+  #       Answer: 1782{eos_token}
+  #       ---
+  #       Question: What is 531 times 955?
+  #       Answer: 507105{eos_token}
+  #       ---
+  #       Question:
+  # gsm8k:
+  #   hf_repo_id: openai/gsm8k
+  #   answer_type: open_ended
+  #   answer_delim: "####"
+  #   answer_regex: (?<=\$\\boxed\{)\d+(?=\}\$)
+  #   eval_type: regex_match
+  #   max_new_tokens: 1024
+  #   stop_words: ["}$"]
+  #   col_map:
+  #     prompt: question
+  #     answer: answer
+  #   subsets:
+  #     - main
+  #   prompts:
+  #     # TODO: replace with other n-shot examples
+  #     base_3_shot: 
+  #         text: |-
+  #           Give your answer in this format: $\boxed{answer}$
+  #           Here are some examples to help you understand the format:
+  #           ---
+  #           Question: Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?
+  #           Answer: $\boxed{10}$
+  #           ---
+  #           Question: Julie is reading a 120-page book. Yesterday, she was able to read 12 pages and today, she read twice as many pages as yesterday. If she wants to read half of the remaining pages tomorrow, how many pages should she read?
+  #           Answer: $\boxed{42}$
+  #           ---
+  #           Question: Mark has a garden with flowers. He planted plants of three different colors in it. Ten of them are yellow, and there are 80% more of those in purple. There are only 25% as many green flowers as there are yellow and purple flowers. How many flowers does Mark have in his garden?
+  #           Answer: $\boxed{35}$
+  #           ---
+  #           Question:
+  #         generation_delimiter: "Answer:"
+      # cot_3_shot: 
+      #   text: |-
+      #     Think step by step about the following problem.
+      #     Give your answer in this format: $\boxed{answer}$
+      #     Here are some examples to help you understand the format:
+      #     ---
+      #     Question: Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?
+      #     Reasoning: Weng earns 12/60 = $12/60=0.20.2 per minute. Working 50 minutes, she earned 0.2 x 50 = $0.2*50=1010.
+      #     Final answer: $\boxed{10}$
+      #     ---
+      #     Question: Julie is reading a 120-page book. Yesterday, she was able to read 12 pages and today, she read twice as many pages as yesterday. If she wants to read half of the remaining pages tomorrow, how many pages should she read?
+      #     Reasoning: Julie read 12 x 2 = 12*2=2424 pages today. So she was able to read a total of 12 + 24 = 12+24=3636 pages since yesterday. There are 120 - 36 = 120-36=8484 pages left to be read. Since she wants to read half of the remaining pages tomorrow, then she should read 84/2 = 84/2=4242 pages.
+      #     Final answer: $\boxed{42}$
+      #     ---
+      #     Question: Mark has a garden with flowers. He planted plants of three different colors in it. Ten of them are yellow, and there are 80% more of those in purple. There are only 25% as many green flowers as there are yellow and purple flowers. How many flowers does Mark have in his garden?
+      #     Reasoning: There are 80/100 * 10 = 80/100*10=88 more purple flowers than yellow flowers. So in Mark's garden, there are 10 + 8 = 10+8=1818 purple flowers. Purple and yellow flowers sum up to 10 + 18 = 10+18=2828 flowers. That means in Mark's garden there are 25/100 * 28 = 25/100*28=77 green flowers. So in total Mark has 28 + 7 = 28+7=3535 plants in his garden.
+      #     Final answer: $\boxed{35}$
+      #     ---
+      #     Question:
+      #   generation_delimiter: "Reasoning:"
 
 
 models:
@@ -368,7 +375,7 @@ format_datasets:
 generate_answers:
   models:
     - ministral_8b_instruct
-    # - qwen_2.5_7b_instruct
+    - qwen_2.5_7b_instruct
     - llama3.1_8b_chat
     - mistral_7b_instruct 
   max_dataset_size: false
