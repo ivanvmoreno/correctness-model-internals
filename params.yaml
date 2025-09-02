@@ -20,6 +20,7 @@ datasets:
       format: gzip
       target: cross-verified-database.csv.gz
     eval_type: exact_match
+    embeddings_override_raw_path: main.csv
     max_new_tokens: 128
     stop_words: ["{eos_token}", "\n"]
     col_map:
@@ -28,6 +29,8 @@ datasets:
       occupation: level3_main_occ
       birthplace: area1_of_rattachment
       notoriety: sum_visib_ln_5criteria
+      prompt: question
+      answer: correct_answer
     filter: |-
        notoriety >= 30 and birth_year >= 1800
     question_tpl: |-

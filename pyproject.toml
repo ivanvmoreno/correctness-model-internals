@@ -31,6 +31,7 @@ dependencies = [
     "litellm>=1.63.14",
     "xgboost>=3.0.0",
     "seaborn>=0.13.2",
+    "chardet>=5.2.0",
 ]
 name = "correctness-model-internals"
 version = "0.1.0"
