@@ -39,7 +39,6 @@ class ExperimentGrid:
             self,
             "dataset_prompt_map",
             {
-                "birth_years_4k": ["base"],
                 "cities_10k": ["base"],
                 "gsm8k": ["base_3_shot", "cot_3_shot"],
                 "math_operations_6k": ["base"],
@@ -54,7 +53,6 @@ class ExperimentGrid:
             {
                 "trivia_qa_2_60k": 10000,
                 "gsm8k": 0,
-                "birth_years_4k": 0,
                 "cities_10k": 0,
                 "math_operations_6k": 0,
                 "notable_people": 0,

@@ -66,7 +66,7 @@ def generate_embeddings(
                 if dataset_conf.get("embeddings_override_raw_path", None)
                 else load_dataset(datasets_path)
             )
-            statements = statements[dataset_conf.col_map["prompt"]].tolist()
+            statements = statements["question"].tolist()
 
             num_statements = len(statements)
             total_batches = (num_statements + batch_size - 1) // batch_size
