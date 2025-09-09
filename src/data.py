@@ -8,19 +8,38 @@ import torch
 
 def load_dataset(
     dataset_path: str,
+    target_file: str = None,
 ) -> pd.DataFrame:
     """Load a dataset from a given path. Detects files in the path, and loads them as a pandas DataFrame."""
+    files = [target_file] if target_file else os.listdir(dataset_path)
     dataset = pd.DataFrame()
-    for file in os.listdir(dataset_path):
+    for file in files:
         if file.endswith(".csv"):
-            dataset = pd.concat(
-                [dataset, pd.read_csv(os.path.join(dataset_path, file))]
-            )
+            try:
+                dataset = pd.concat(
+                    [dataset, pd.read_csv(os.path.join(dataset_path, file))]
+                )
+            except Exception as e:
+                try:
+                    dataset = pd.concat(
+                        [
+                            dataset,
+                            pd.read_csv(
+                                os.path.join(dataset_path, file),
+                                low_memory=False,
+                                encoding_errors="replace",
+                                on_bad_lines="skip",
+                            ).dropna(),
+                        ]
+                    )
+                except Exception as e:
+                    logger.warning("Failed to load %s: %s", file, e)
         elif file.endswith(".parquet"):
             dataset = pd.concat(
                 [dataset, pd.read_parquet(os.path.join(dataset_path, file))]
             )
     return dataset
+
 
 def load_statements(dataset_path: str) -> list[tuple[str, str]]:
     dataset = pd.read_csv(dataset_path)
@@ -98,18 +117,38 @@ def format_notable(
     path: str,
     sys_prompt: str,
     col_names: dict[str, str],
-    generation_delimiter: str ="Answer:",
+    generation_delimiter: str = "Answer:",
     question_tpl: str = "What year was {name} ({occupation}, {birthplace}) born?",
     filter: str = None,
 ) -> pd.DataFrame:
     reversed_dict = {v: k for k, v in col_names.items()}
-    dataset_df = pd.read_csv(path, low_memory=False, encoding_errors="replace", sep=",", quotechar="'", on_bad_lines="skip", usecols=reversed_dict.keys()).rename(columns=reversed_dict).dropna()
+    dataset_df = (
+        pd.read_csv(
+            path,
+            low_memory=False,
+            encoding_errors="replace",
+            sep=",",
+            quotechar="'",
+            on_bad_lines="skip",
+            usecols=reversed_dict.keys(),
+        )
+        .rename(columns=reversed_dict)
+        .dropna()
+    )
     if filter:
         dataset_df = dataset_df.query(filter)
-    dataset_df.loc[:, "name"] = dataset_df["name"].str.replace("_", " ", regex=False)
-    dataset_df.loc[:, "occupation"] = dataset_df["occupation"].str.replace("_", " ", regex=False)
+    dataset_df.loc[:, "name"] = dataset_df["name"].str.replace(
+        "_", " ", regex=False
+    )
+    dataset_df.loc[:, "occupation"] = dataset_df["occupation"].str.replace(
+        "_", " ", regex=False
+    )
     birthplace_pattern = r"(?:D:_')?([^']+)(?:'[^']*)?"
-    dataset_df.loc[:, "birthplace"] = dataset_df["birthplace"].str.extract(birthplace_pattern, expand=False).str.replace("_", " ", regex=False)
+    dataset_df.loc[:, "birthplace"] = (
+        dataset_df["birthplace"]
+        .str.extract(birthplace_pattern, expand=False)
+        .str.replace("_", " ", regex=False)
+    )
     questions = dataset_df.apply(
         lambda row: question_tpl.format(
             name=row["name"],
