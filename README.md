@@ -11,3 +11,7 @@ Predictive power saturates in intermediate layers, suggesting that self‐assess
 Moreover, for models responding “I don’t know”, doing so strongly correlates with the probe score, indicating that the same direction also captures confidence.
 
 By complementing findings on truthfulness and other behaviours obtained with probes and sparse auto-encoders, our work contributes to elucidating LLM internals and is a proof-of-concept for a lightweight anticipatory tool that augments existing confidence estimators.
+
+---
+
+All datasets, experiment data and results are available for download at [Academic Torrents](https://academictorrents.com/details/011a9b941bd460d219e563eb5eccc470aadd8f20).
