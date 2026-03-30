@@ -1,0 +1,336 @@
+\begin{thebibliography}{39}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Azaria \& Mitchell(2023)Azaria and
+  Mitchell]{azaria-mitchell-2023-internal}
+Amos Azaria and Tom Mitchell.
+\newblock The internal state of an {LLM} knows when it`s lying.
+\newblock In Houda Bouamor, Juan Pino, and Kalika Bali (eds.), \emph{Findings
+  of the Association for Computational Linguistics: EMNLP 2023}, pp.\
+  967--976, Singapore, December 2023. Association for Computational
+  Linguistics.
+\newblock \doi{10.18653/v1/2023.findings-emnlp.68}.
+\newblock URL \url{https://aclanthology.org/2023.findings-emnlp.68/}.
+
+\bibitem[Bao et~al.(2025)Bao, Zhang, Du, Zhao, Feng, Peng, and
+  Yin]{bao2025probing}
+Yuntai Bao, Xuhong Zhang, Tianyu Du, Xinkui Zhao, Zhengwen Feng, Hao Peng, and
+  Jianwei Yin.
+\newblock Probing the geometry of truth: Consistency and generalization of
+  truth directions in llms across logical transformations and question
+  answering tasks.
+\newblock \emph{arXiv preprint arXiv:2506.00823}, 2025.
+
+\bibitem[Beaglehole et~al.(2025)Beaglehole, Radhakrishnan, Boix-Adser{\`a}, and
+  Belkin]{beaglehole2025aggregate}
+Daniel Beaglehole, Adityanarayanan Radhakrishnan, Enric Boix-Adser{\`a}, and
+  Mikhail Belkin.
+\newblock Aggregate and conquer: detecting and steering llm concepts by
+  combining nonlinear predictors over multiple layers.
+\newblock \emph{arXiv preprint arXiv:2502.03708}, 2025.
+
+\bibitem[Bricken et~al.(2023)Bricken, Templeton, Batson, Chen, Jermyn, Conerly,
+  Turner, Anil, Denison, Askell, Lasenby, Wu, Kravec, Schiefer, Maxwell,
+  Joseph, Hatfield-Dodds, Tamkin, Nguyen, McLean, Burke, Hume, Carter,
+  Henighan, and Olah]{bricken2023monosemanticity}
+Trenton Bricken, Adly Templeton, Joshua Batson, Brian Chen, Adam Jermyn, Tom
+  Conerly, Nick Turner, Cem Anil, Carson Denison, Amanda Askell, Robert
+  Lasenby, Yifan Wu, Shauna Kravec, Nicholas Schiefer, Tim Maxwell, Nicholas
+  Joseph, Zac Hatfield-Dodds, Alex Tamkin, Karina Nguyen, Brayden McLean,
+  Josiah~E Burke, Tristan Hume, Shan Carter, Tom Henighan, and Christopher
+  Olah.
+\newblock Towards monosemanticity: Decomposing language models with dictionary
+  learning.
+\newblock \emph{Transformer Circuits Thread}, 2023.
+\newblock
+  https://transformer-circuits.pub/2023/monosemantic-features/index.html.
+
+\bibitem[Burger et~al.(2024)Burger, Hamprecht, and Nadler]{burger2024truth}
+Lennart Burger, Fred~A Hamprecht, and Boaz Nadler.
+\newblock Truth is universal: Robust detection of lies in llms.
+\newblock \emph{Advances in Neural Information Processing Systems},
+  37:\penalty0 138393--138431, 2024.
+
+\bibitem[Burns et~al.(2022)Burns, Ye, Klein, and
+  Steinhardt]{burns2022discovering}
+Collin Burns, Haotian Ye, Dan Klein, and Jacob Steinhardt.
+\newblock Discovering latent knowledge in language models without supervision.
+\newblock \emph{arXiv preprint arXiv:2212.03827}, 2022.
+
+\bibitem[Chaudhry et~al.(2024)Chaudhry, Thiagarajan, and
+  Gorur]{chaudhry2024finetuning}
+Arslan Chaudhry, Sridhar Thiagarajan, and Dilan Gorur.
+\newblock Finetuning language models to emit linguistic expressions of
+  uncertainty.
+\newblock \emph{arXiv preprint arXiv:2409.12180}, 2024.
+
+\bibitem[Chen \& Guestrin(2016)Chen and Guestrin]{chen2016xgboost}
+Tianqi Chen and Carlos Guestrin.
+\newblock Xgboost: A scalable tree boosting system.
+\newblock In \emph{Proceedings of the 22nd acm sigkdd international conference
+  on knowledge discovery and data mining}, pp.\  785--794, 2016.
+
+\bibitem[Cobbe et~al.(2021)Cobbe, Kosaraju, Bavarian, Chen, Jun, Kaiser,
+  Plappert, Tworek, Hilton, Nakano, Hesse, and Schulman]{Cobbe2021TrainingVT}
+Karl Cobbe, Vineet Kosaraju, Mo~Bavarian, Mark Chen, Heewoo Jun, Lukasz Kaiser,
+  Matthias Plappert, Jerry Tworek, Jacob Hilton, Reiichiro Nakano, Christopher
+  Hesse, and John Schulman.
+\newblock Training verifiers to solve math word problems.
+\newblock \emph{ArXiv}, abs/2110.14168, 2021.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:239998651}.
+
+\bibitem[Fadeeva et~al.(2024)Fadeeva, Rubashevskii, Shelmanov, Petrakov, Li,
+  Mubarak, Tsymbalov, Kuzmin, Panchenko, Baldwin, Nakov, and
+  Panov]{fadeeva-etal-2024-fact}
+Ekaterina Fadeeva, Aleksandr Rubashevskii, Artem Shelmanov, Sergey Petrakov,
+  Haonan Li, Hamdy Mubarak, Evgenii Tsymbalov, Gleb Kuzmin, Alexander
+  Panchenko, Timothy Baldwin, Preslav Nakov, and Maxim Panov.
+\newblock Fact-checking the output of large language models via token-level
+  uncertainty quantification.
+\newblock In Lun-Wei Ku, Andre Martins, and Vivek Srikumar (eds.),
+  \emph{Findings of the Association for Computational Linguistics: ACL 2024},
+  pp.\  9367--9385, Bangkok, Thailand, August 2024. Association for
+  Computational Linguistics.
+\newblock \doi{10.18653/v1/2024.findings-acl.558}.
+\newblock URL \url{https://aclanthology.org/2024.findings-acl.558/}.
+
+\bibitem[Ferrando et~al.(2025)Ferrando, Obeso, Rajamanoharan, and
+  Nanda]{ferrando2025do}
+Javier Ferrando, Oscar~Balcells Obeso, Senthooran Rajamanoharan, and Neel
+  Nanda.
+\newblock Do i know this entity? knowledge awareness and hallucinations in
+  language models.
+\newblock In \emph{The Thirteenth International Conference on Learning
+  Representations}, 2025.
+\newblock URL \url{https://openreview.net/forum?id=WCRQFlji2q}.
+
+\bibitem[Gal \& Ghahramani(2016)Gal and Ghahramani]{gal2016dropout}
+Yarin Gal and Zoubin Ghahramani.
+\newblock Dropout as a {B}ayesian approximation: Representing model uncertainty
+  in deep learning.
+\newblock In \emph{international conference on machine learning}, pp.\
+  1050--1059. PMLR, 2016.
+
+\bibitem[Goldowsky-Dill et~al.(2025)Goldowsky-Dill, Chughtai, Heimersheim, and
+  Hobbhahn]{goldowsky2025detecting}
+Nicholas Goldowsky-Dill, Bilal Chughtai, Stefan Heimersheim, and Marius
+  Hobbhahn.
+\newblock Detecting strategic deception using linear probes.
+\newblock \emph{arXiv preprint arXiv:2502.03407}, 2025.
+
+\bibitem[Guo et~al.(2017)Guo, Pleiss, Sun, and Weinberger]{guo2017calibration}
+Chuan Guo, Geoff Pleiss, Yu~Sun, and Kilian~Q Weinberger.
+\newblock On calibration of modern neural networks.
+\newblock In \emph{International conference on machine learning}, pp.\
+  1321--1330. PMLR, 2017.
+
+\bibitem[Heindrich et~al.(2025)Heindrich, Torr, Barez, and
+  Thost]{heindrich2025sparse}
+Lovis Heindrich, Philip Torr, Fazl Barez, and Veronika Thost.
+\newblock Do sparse autoencoders generalize? {A} case study of answerability.
+\newblock \emph{arXiv preprint arXiv:2502.19964}, 2025.
+
+\bibitem[Hern{\'a}ndez-Orallo et~al.(2022)Hern{\'a}ndez-Orallo, Schellaert, and
+  Mart{\'\i}nez-Plumed]{hernandez2022training}
+Jos{\'e} Hern{\'a}ndez-Orallo, Wout Schellaert, and Fernando
+  Mart{\'\i}nez-Plumed.
+\newblock Training on the test set: Mapping the system-problem space in {AI}.
+\newblock In \emph{Proceedings of the AAAI conference on artificial
+  intelligence}, volume~36, pp.\  12256--12261, 2022.
+
+\bibitem[Joshi et~al.(2017)Joshi, Choi, Weld, and Zettlemoyer]{TriviaQA}
+Mandar Joshi, Eunsol Choi, Daniel Weld, and Luke Zettlemoyer.
+\newblock {T}rivia{QA}: A large scale distantly supervised challenge dataset
+  for reading comprehension.
+\newblock In Regina Barzilay and Min-Yen Kan (eds.), \emph{Proceedings of the
+  55th Annual Meeting of the Association for Computational Linguistics (Volume
+  1: Long Papers)}, pp.\  1601--1611, Vancouver, Canada, July 2017. Association
+  for Computational Linguistics.
+\newblock \doi{10.18653/v1/P17-1147}.
+\newblock URL \url{https://aclanthology.org/P17-1147/}.
+
+\bibitem[Jospin et~al.(2022)Jospin, Laga, Boussaid, Buntine, and
+  Bennamoun]{jospin2022hands}
+Laurent~Valentin Jospin, Hamid Laga, Farid Boussaid, Wray Buntine, and Mohammed
+  Bennamoun.
+\newblock Hands-on bayesian neural networks—a tutorial for deep learning
+  users.
+\newblock \emph{IEEE Computational Intelligence Magazine}, 17\penalty0
+  (2):\penalty0 29--48, 2022.
+
+\bibitem[Kadavath et~al.(2022)Kadavath, Conerly, Askell, Henighan, Drain,
+  Perez, Schiefer, Hatfield-Dodds, DasSarma, Tran-Johnson, Johnston, Showk,
+  Jones, Elhage, Hume, Chen, Bai, Bowman, Fort, Ganguli, Hernandez, Jacobson,
+  Kernion, Kravec, Lovitt, Ndousse, Olsson, Ringer, Amodei, Brown, Clark,
+  Joseph, Mann, McCandlish, Olah, and
+  Kaplan]{DBLP:journals/corr/abs-2207-05221}
+Saurav Kadavath, Tom Conerly, Amanda Askell, Tom Henighan, Dawn Drain, Ethan
+  Perez, Nicholas Schiefer, Zac Hatfield-Dodds, Nova DasSarma, Eli
+  Tran-Johnson, Scott Johnston, Sheer~El Showk, Andy Jones, Nelson Elhage,
+  Tristan Hume, Anna Chen, Yuntao Bai, Sam Bowman, Stanislav Fort, Deep
+  Ganguli, Danny Hernandez, Josh Jacobson, Jackson Kernion, Shauna Kravec,
+  Liane Lovitt, Kamal Ndousse, Catherine Olsson, Sam Ringer, Dario Amodei, Tom
+  Brown, Jack Clark, Nicholas Joseph, Ben Mann, Sam McCandlish, Chris Olah, and
+  Jared Kaplan.
+\newblock Language models (mostly) know what they know.
+\newblock \emph{CoRR}, abs/2207.05221, 2022.
+\newblock URL \url{https://doi.org/10.48550/arXiv.2207.05221}.
+
+\bibitem[Kamath et~al.(2020)Kamath, Jia, and Liang]{kamath-etal-2020-selective}
+Amita Kamath, Robin Jia, and Percy Liang.
+\newblock Selective question answering under domain shift.
+\newblock In Dan Jurafsky, Joyce Chai, Natalie Schluter, and Joel Tetreault
+  (eds.), \emph{Proceedings of the 58th Annual Meeting of the Association for
+  Computational Linguistics}, pp.\  5684--5696, Online, July 2020. Association
+  for Computational Linguistics.
+\newblock \doi{10.18653/v1/2020.acl-main.503}.
+\newblock URL \url{https://aclanthology.org/2020.acl-main.503/}.
+
+\bibitem[Kapoor et~al.(2024)Kapoor, Gruver, Roberts, Collins, Pal, Bhatt,
+  Weller, Dooley, Goldblum, and Wilson]{kapoor2024large}
+Sanyam Kapoor, Nate Gruver, Manley Roberts, Katherine~M. Collins, Arka Pal,
+  Umang Bhatt, Adrian Weller, Samuel Dooley, Micah Goldblum, and Andrew~Gordon
+  Wilson.
+\newblock Large language models must be taught to know what they
+  don{\textquoteright}t know.
+\newblock In \emph{The Thirty-eighth Annual Conference on Neural Information
+  Processing Systems}, 2024.
+\newblock URL \url{https://openreview.net/forum?id=QzvWyggrYB}.
+
+\bibitem[Kim et~al.(2018)Kim, Wattenberg, Gilmer, Cai, Wexler, Viegas,
+  et~al.]{kim2018interpretability}
+Been Kim, Martin Wattenberg, Justin Gilmer, Carrie Cai, James Wexler, Fernanda
+  Viegas, et~al.
+\newblock Interpretability beyond feature attribution: Quantitative testing
+  with concept activation vectors (tcav).
+\newblock In \emph{International conference on machine learning}, pp.\
+  2668--2677. PMLR, 2018.
+
+\bibitem[Kudo et~al.(2024)Kudo, Aoki, Kuribayashi, Sone, Taniguchi, Brassard,
+  Sakaguchi, and Inui]{Kudo2024ThinktoTalkOT}
+Keito Kudo, Yoichi Aoki, Tatsuki Kuribayashi, Shusaku Sone, Masaya Taniguchi,
+  Ana Brassard, Keisuke Sakaguchi, and Kentaro Inui.
+\newblock Think-to-talk or talk-to-think? when llms come up with an answer in
+  multi-step reasoning.
+\newblock \emph{ArXiv}, abs/2412.01113, 2024.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:274436653}.
+
+\bibitem[Kuhn et~al.(2023)Kuhn, Gal, and Farquhar]{kuhn2023semantic}
+Lorenz Kuhn, Yarin Gal, and Sebastian Farquhar.
+\newblock Semantic uncertainty: Linguistic invariances for uncertainty
+  estimation in natural language generation.
+\newblock \emph{arXiv preprint arXiv:2302.09664}, 2023.
+
+\bibitem[Lee et~al.(2025)Lee, Padhi, Ramamurthy, Miehling, Dognin, Nagireddy,
+  and Dhurandhar]{lee2025programming}
+Bruce~W. Lee, Inkit Padhi, Karthikeyan~Natesan Ramamurthy, Erik Miehling,
+  Pierre Dognin, Manish Nagireddy, and Amit Dhurandhar.
+\newblock Programming refusal with conditional activation steering.
+\newblock In \emph{The Thirteenth International Conference on Learning
+  Representations}, 2025.
+\newblock URL \url{https://openreview.net/forum?id=Oi47wc10sm}.
+
+\bibitem[Lin et~al.(2022)Lin, Hilton, and Evans]{lin2022teaching}
+Stephanie Lin, Jacob Hilton, and Owain Evans.
+\newblock Teaching models to express their uncertainty in words.
+\newblock \emph{Transactions on Machine Learning Research}, 2022.
+\newblock ISSN 2835-8856.
+\newblock URL \url{https://openreview.net/forum?id=8s8K2UZGTZ}.
+
+\bibitem[Marks \& Tegmark(2023)Marks and Tegmark]{Marks2023TheGO}
+Samuel Marks and Max Tegmark.
+\newblock The geometry of truth: Emergent linear structure in large language
+  model representations of true/false datasets.
+\newblock \emph{ArXiv}, abs/2310.06824, 2023.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:263831277}.
+
+\bibitem[Nguyen et~al.(2025)Nguyen, Hoang, Attubato, and
+  Hofst{\"a}tter]{nguyen2025probing}
+Jord Nguyen, Khiem Hoang, Carlo~Leonardo Attubato, and Felix Hofst{\"a}tter.
+\newblock Probing evaluation awareness of language models.
+\newblock \emph{arXiv preprint arXiv:2507.01786}, 2025.
+
+\bibitem[Pacchiardi et~al.(2024)Pacchiardi, Cheke, and
+  Hernández-Orallo]{pacchiardi2024100instancesneedpredicting}
+Lorenzo Pacchiardi, Lucy~G. Cheke, and José Hernández-Orallo.
+\newblock 100 instances is all you need: predicting the success of a new {LLM}
+  on unseen data by testing on a few instances, 2024.
+\newblock URL \url{https://arxiv.org/abs/2409.03563}.
+
+\bibitem[Pacchiardi et~al.(2025)Pacchiardi, Voudouris, Slater,
+  Martínez-Plumed, Hernández-Orallo, Zhou, and
+  Schellaert]{pacchiardi2025predictaboardbenchmarkingllmscore}
+Lorenzo Pacchiardi, Konstantinos Voudouris, Ben Slater, Fernando
+  Martínez-Plumed, José Hernández-Orallo, Lexin Zhou, and Wout Schellaert.
+\newblock {PredictaBoard}: Benchmarking {LLM} score predictability, 2025.
+\newblock URL \url{https://arxiv.org/abs/2502.14445}.
+
+\bibitem[Parrack et~al.(2025)Parrack, Attubato, and
+  Heimersheim]{parrack2025benchmarking}
+Avi Parrack, Carlo~Leonardo Attubato, and Stefan Heimersheim.
+\newblock Benchmarking deception probes via black-to-white performance boosts.
+\newblock \emph{arXiv preprint arXiv:2507.12691}, 2025.
+
+\bibitem[Pawitan \& Holmes(2024)Pawitan and Holmes]{pawitan2024confidence}
+Yudi Pawitan and Chris Holmes.
+\newblock Confidence in the reasoning of large language models.
+\newblock \emph{arXiv preprint arXiv:2412.15296}, 2024.
+
+\bibitem[Sam et~al.(2025)Sam, Finzi, and
+  Kolter]{sam2025predictingperformanceblackboxllms}
+Dylan Sam, Marc Finzi, and J.~Zico Kolter.
+\newblock Predicting the performance of black-box llms through self-queries,
+  2025.
+\newblock URL \url{https://arxiv.org/abs/2501.01558}.
+
+\bibitem[Schellaert et~al.(2024)Schellaert, Mart{\'\i}nez-Plumed, and
+  Hern{\'a}ndez-Orallo]{schellaert2024analysing}
+Wout Schellaert, Fernando Mart{\'\i}nez-Plumed, and Jos{\'e}
+  Hern{\'a}ndez-Orallo.
+\newblock Analysing the predictability of language model performance.
+\newblock \emph{ACM Transactions on Intelligent Systems and Technology}, 2024.
+
+\bibitem[Shorinwa et~al.(2024)Shorinwa, Mei, Lidard, Ren, and
+  Majumdar]{shorinwa2024survey}
+Ola Shorinwa, Zhiting Mei, Justin Lidard, Allen~Z Ren, and Anirudha Majumdar.
+\newblock A survey on uncertainty quantification of large language models:
+  Taxonomy, open research challenges, and future directions.
+\newblock \emph{arXiv preprint arXiv:2412.05563}, 2024.
+
+\bibitem[Shrivastava et~al.(2025)Shrivastava, Kumar, and
+  Liang]{shrivastava2025language}
+Vaishnavi Shrivastava, Ananya Kumar, and Percy Liang.
+\newblock Language models prefer what they know: Relative confidence estimation
+  via confidence preferences.
+\newblock \emph{arXiv preprint arXiv:2502.01126}, 2025.
+
+\bibitem[Yang et~al.(2024)Yang, Sun, and Buzsaki]{yang2024interpretability}
+Wannan Yang, Chen Sun, and Gyorgy Buzsaki.
+\newblock {INTERPRETABILITY} {OF} {LLM} {DECEPTION}: {UNIVERSAL} {MOTIF}.
+\newblock In \emph{Neurips Safe Generative AI Workshop 2024}, 2024.
+\newblock URL \url{https://openreview.net/forum?id=DRWCDFsb2e}.
+
+\bibitem[Zhou et~al.(2022)Zhou, Mart{\'\i}nez-Plumed, Hern{\'a}ndez-Orallo,
+  Ferri, and Schellaert]{zhou2022reject}
+Lexin Zhou, Fernando Mart{\'\i}nez-Plumed, Jos{\'e} Hern{\'a}ndez-Orallo,
+  C{\`e}sar Ferri, and Wout Schellaert.
+\newblock Reject before you run: Small assessors anticipate big language
+  models.
+\newblock In \emph{EBeM@ IJCAI}, 2022.
+
+\bibitem[Zhou et~al.(2024)Zhou, Moreno-Casares, Martínez-Plumed, Burden,
+  Burnell, Cheke, Ferri, Marcoci, Mehrbakhsh, Moros-Daval, hÉigeartaigh,
+  Rutar, Schellaert, Voudouris, and
+  Hernández-Orallo]{zhou2024predictableartificialintelligence}
+Lexin Zhou, Pablo~A. Moreno-Casares, Fernando Martínez-Plumed, John Burden,
+  Ryan Burnell, Lucy Cheke, Cèsar Ferri, Alexandru Marcoci, Behzad Mehrbakhsh,
+  Yael Moros-Daval, Seán~Ó hÉigeartaigh, Danaja Rutar, Wout Schellaert,
+  Konstantinos Voudouris, and José Hernández-Orallo.
+\newblock Predictable artificial intelligence, 2024.
+\newblock URL \url{https://arxiv.org/abs/2310.06167}.
+
+\end{thebibliography}

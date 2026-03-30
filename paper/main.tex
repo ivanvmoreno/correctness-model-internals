@@ -1,0 +1,1175 @@
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2026_conference,times}
+
+\iclrfinalcopy
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+\input{math_commands.tex}
+
+
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{enumitem}
+
+
+\title{No Answer Needed: Predicting LLM Answer\\Accuracy from Question-Only Linear Probes}
+
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+
+\author{%
+  Iván Vicente Moreno Cencerrado\thanks{Equal contribution; order decided randomly.} \\
+  Universidad Internacional de Valencia, MARS\thanks{The Mentorship for Alignment Research Students program by the Cambridge AI Safety Hub.} \\
+  \texttt{imorenocencerrado@alumnos.viu.es} 
+  \And
+  Arnau Padrés Masdemont\footnotemark[1] \\
+  University of Cambridge, MARS\footnotemark[2] \\
+  \texttt{ap2452@cantab.ac.uk}
+  \And
+  Anton Gonzalvez Hawthorne\footnotemark[1] \\
+  Independent Researcher, MARS\footnotemark[2] \\
+  \texttt{antonhawthorne2@gmail.com}
+  \And
+  David Demitri Africa\footnotemark[1]\\
+  University of Cambridge, MARS\footnotemark[2] \\
+  \texttt{dda28@cam.ac.uk}
+  \And
+  Lorenzo Pacchiardi \\
+  University of Cambridge \\
+  \texttt{lp666@cam.ac.uk}
+}
+
+
+
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+%\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{booktabs}       % professional-quality tables
+% \usepackage{makecell}       % split table cells
+\usepackage{multirow}       % add multiple entries in the same row
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{graphicx}       % includegraphics for images
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{amsmath}
+\usepackage{comment}
+\usepackage{subcaption}
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable}
+\tcbset{
+	graybox/.style={
+		breakable,
+		colback=gray!20,    % background color
+		colframe=gray!50,   % frame color
+		left=1mm,           % inner padding
+		right=1mm,
+		top=1mm,
+		bottom=1mm,
+		boxrule=0pt,        % no border line
+		arc=2mm             % slightly rounded corners
+	}
+}
+\begin{document}
+
+\everypar{\looseness=-1}
+\maketitle
+% 9 page limit
+
+\begin{comment}
+OLD ABSTRACT
+As large language models (LLMs) move toward increasingly critical real-world tasks, it becomes crucial to know when they are about to fail or provide incorrect outputs. We study whether an LLM's internal activations contain information that a linear probe can use to predict the correctness of responses before they are produced. By extracting hidden representations immediately after a query is processed and before answer generation, our approach uncovers a latent correctness direction in the activation space. To avoid the probe overfitting on dataset-specific features, we conduct extensive out-of-distribution (OOD) studies. We find that all models we consider have the most predictive activations at intermediate transformer layers. 
+Moreover, predictive probes (OOD AUC>0.?) exist across all models and generalise across multiple datasets, outcompeting black-box and (predictive) stated confidence. Interestingly, probes do \textit{not} generalise well to a dataset testing arithmetic knowledge, indicating that... Finally, the position on the correctness direction is reflected in utterances of ``I don't know'' (for models that do so) and qualitative aspects of the question. 
+Overall, this work 
+%offers new insights into the self-assessment capabilities of LLMs 
+and advances the understanding of how LLM internals encode correctness self-prediction. 
+\end{comment}
+
+\begin{comment}
+    ABSTRACT: points to make
+    - In this work, we investigate whether LLMs known when they will answer a question correctly.
+    - More precisely, we extract activations of LLMs when a question is input and before the output is generated
+    - Then, we train linear probes by targeting a binary label indicating whether the model’s eventual answer will be correct, giving a self-correctness direction in activation space.
+    - We do extensive experiments with OOD and OS models from 3 families up to 70 billion parameters
+    - We find that predictive probes exist across all models and generalise across multiple datasets, outcompeting black-box and (predictive) stated confidence.
+    - [unsure if worth mentioning] saturates at intermediate transformation layers
+    - Interestingly, probes do \textit{not} generalise well to a dataset testing arithmetic knowledge, indicating that
+    - [unsure if worth mentioning]  For models capable of saying “I don’t know,” the frequency of such refusals is strongly correlated with their position along our direction, indicating that the probe also captures an implicit confidence axis.
+    - This complements other probing studies [eg truthfulness, deception]? -> help understand the internal represntation of LLMs 
+    - [real-world context] further, it also complements other methods to estimate model confidence, useful as it is becoming crucial to know when LLMs are about to fail due to their use in high-stakes scenarios
+\end{comment}
+
+\begin{abstract}
+Do large language models (LLMs) anticipate when they will answer correctly?  To study this, we extract activations \emph{after} a question is read but \emph{before} any tokens are generated, and train linear probes to predict whether the model’s forthcoming answer will be correct. Across three open‐source model families ranging from 7 to 70 billion parameters, projections on this “in-advance correctness direction’’ trained on generic trivia questions predict success in distribution and on diverse out‐of‐distribution knowledge datasets, indicating a deeper signal than dataset-specific spurious features, and outperforming black‐box baselines and verbalised predicted confidence. Predictive power saturates in intermediate layers and, notably, generalisation falters on questions requiring mathematical reasoning. Moreover, for models responding “I don’t know’’, doing so strongly correlates with the probe score, indicating that the same direction also captures confidence.
+% , corroborating recent findings using sparse auto-encoders
+By complementing previous results on truthfulness and other behaviours obtained with probes and sparse auto-encoders, our work contributes essential findings to elucidate LLM internals.  
+% Our work complements findings on truthfulness and other behaviours obtained with probes and sparse auto-encoders in elucidating LLM internals, 
+%Our work complements probing studies on truthfulness and other behaviours and  recent findings using sparse auto-encoders in elucidating LLM internals, 
+%and is a proof-of-concept for a lightweight anticipatory tool that augments existing confidence estimators.
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SECTION 1: INTRODUCTION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}\label{sec:intro}
+
+Large language models (LLMs) internally encode information beyond what is immediately observable in their output \citep{burns2022discovering, azaria-mitchell-2023-internal, Marks2023TheGO, burger2024truth, Kudo2024ThinktoTalkOT, goldowsky2025detecting, ferrando2025do}. Studies have demonstrated that hidden activations can reveal latent concepts related to 
+statement truthfulness \citep{burns2022discovering, azaria-mitchell-2023-internal,Marks2023TheGO,  burger2024truth}, deception \citep{goldowsky2025detecting} and hallucination \citep{ferrando2025do}.
+
+In this work, we investigate the structure of self-correctness representations in LLMs. Specifically, we test the \textbf{Linear Representation Hypothesis} for correctness: does the residual stream activation (captured immediately after processing a query) contain a direction that linearly separates questions the model will answer correctly from those it will not? To do this, we employ a simple difference-of-means linear probe in order to verify whether the correctness signal is accessible as a linear feature of the representation space \citep{park2024linearrepresentationhypothesisgeometry}, distinct from complex non-linear correlations (which may be more complex than necessary to find such a signal in a production setup).
+
+% In this work, we investigate the complementary scientific question of whether an LLM’s residual stream activations—captured immediately after it processes a query—contain a latent signal that predicts if its eventual output will be correct. Instead of using the generated answer or token probabilities, we train a linear probe on the hidden state \textit{before the answer is produced} to distinguish questions the model will answer correctly from those it will not, capturing its internal prediction of correctness. In particular, we are interested in studying if the signal we identify indicates future performance without relying on dataset-specific spurious features, rather than optimising predictive power for specific deployment scenarios.
+
+\begin{comment}
+    Connect with: 
+    - Kadavaths'
+    - probes for truthfulness 
+    - other methods predicting accuracy
+        - self-confidence in answers/questions?
+
+    Also something about predictive assessment! -> should this go at the end of par 1? 
+    More motivation given that verbalised confidence may be poor.
+    This is motivated by verbalised self-confidence being poor [] and by the observation that probes were able to identify truthfulness. 
+
+    we should highlight scientific and practical importance of our work.
+
+    
+\end{comment}
+
+Empirically, our approach identifies the activation‐space vector linking the average residual stream activations for correctly answered questions to those for incorrectly answered ones  (similar to \citealp{burger2024truth}'s method for statement truthfulness). 
+We test our approach on open-source LLMs spanning three families and ranging from 7 to 70 billion parameters, and we find:
+\begin{itemize}[leftmargin=*, nosep]
+\item \textbf{Linear Separability:} We confirm that a correctness signal is indeed linearly separable in the activation space. A simple linear probe trained on TriviaQA \citep{TriviaQA} generalises to domain-specific knowledge datasets, outperforming non-linear baselines (XGBoost) that rely on model-independent question embeddings. This confirms that the internal activations contain unique, linearly accessible information regarding the model's own capabilities that is not present in the general semantic embeddings of the input.
+\item \textbf{Factual vs. Arithmetic Misalignment:} While the direction generalizes across factual domains (Trivia, Cities, People), it fails to generalize to mathematical reasoning (GSM8K). This indicates that "Factual Correctness" and "Arithmetic Correctness" may be distinct, orthogonal, or structurally misaligned vectors within the model.
+\item \textbf{Layer-wise Emergence:} For all models, the linear separability of correctness is low in early layers and saturates at intermediate transformer layers, suggesting the model's internal assessment of the prompt crystallizes mid-computation.
+\item \textbf{Correlation with Abstention:} For models that answer ``I don't know'' without being explicitly prompted, doing so correlates with the question's position along the in-advance correctness direction, suggesting this vector also captures an implicit confidence axis.
+\item \textbf{Scaling Trends:} The in-advance correctness signal is strongest and most consistent for the largest model we test (Llama 3.3 70B \citep{touvron2023llama}).
+\end{itemize}
+
+Overall, our analysis advances our understanding of how LLMs encode self-assessment, providing evidence for a general "Factual Correctness" direction while highlighting the structural distinctness of reasoning capabilities. Our codebase is accessible at \url{https://github.com/ivanvmoreno/correctness-model-internals}.
+%Overall, our findings suggest that even before generating an answer, LLMs maintain an internal, general representation that reflects their competence on the given task, particularly when it involves factual knowledge.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\linewidth]{figs/diagram.pdf}
+    \caption{Proposed methodology to find the in-advance correctness direction. \textbf{(A)} Residual stream activations for all model layers are extracted at the last token of the question, prior to sampling. \textbf{(B)} Model answers are generated and evaluated against the ground truth. \textbf{(C)} The direction which mostly discriminates activations related to correct and incorrect answers is identified (the first two principal components at a specific layer are visualised). \textbf{(D)} The most discriminative layer is chosen. \textbf{(E)} The final correctness classifier is trained on the identified layer, and its out-of-distribution performance is assessed.}
+    \label{fig:enter-label}
+\end{figure}
+
+ % use this link for annonymous submissions
+%\url{https://github.com/ivanvmoreno/correctness-model-internals}.
+
+%—in contrast, we directly learn linear representations for a larger suite of open-source models, scaling up to 70 billion parameters.
+
+
+%This insight has significant implications for the deployment of LLMs in real-world systems, as it enables proactive measures—such as redirecting queries to alternative systems or incorporating human oversight—when the model's confidence is low.
+
+
+
+%To summarise, we make the following contributions: (i) \textbf{strong evidence for a consistent and general correctness direction across several datasets and model architectures}, and (iii) \textbf{an investigation into how well the learned correctness direction generalizes out-of-distribution}.
+
+%Our paper is structured as follows: ... 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SECTION 2: RELATED WORK
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Related Work}
+\label{sec:related_work}
+
+
+
+% For example, probing techniques using linear classifiers have been applied to identify whether a model's internal state reflects a truthful or deceptive stance, drawing parallels with methods such as TCAV which quantify the presence of human-interpretable concepts in deep networks. Additionally, research on question answerability has highlighted that even in the absence of overt confidence signals, there exists an implicit representation of the model's internal belief about the correctness of a given response.
+By avoiding generation from the model, our approach contrasts with self-confidence estimation methods \citep{shorinwa2024survey} that consider token-level output logits \citep{fadeeva-etal-2024-fact}, train additional modules to predict uncertainty \citep{DBLP:journals/corr/abs-2207-05221}, measure ``semantic similarity'' of multiple model generations \citep{kuhn2023semantic}, or ask models to verbalise their uncertainty \citep{lin2022teaching, kapoor2024large}. 
+Notably, there is no consensus on the performance of these methods \citep{kapoor2024large}, which were shown to be brittle to shortcuts \citep{heindrich2025sparse} and to yield inconsistent results across different methods \citep{pawitan2024confidence}. 
+Importantly, our probe is applicable to free-form answers, while not all the above approaches are. 
+By avoiding model generation, our approach comes close to techniques training  correctness predictors using model-independent features of the input (``assessors'', \citealp{hernandez2022training, zhou2024predictableartificialintelligence, pacchiardi2025predictaboardbenchmarkingllmscore}), but differs from those in leveraging internal representations. %The additional information in internal representation also gives our approach the potential to overcome the debated quality \cite{kapoor2024large, pawitan2024confidence} and brittleness \cite{bihani2024reliabilityparadoxexploringshortcut} of self-confidence approaches. 
+On the other side, in contrast to our in-advance prediction of correctness, aforementioned works using model internals mostly focused on truthfulness of complete statements \citep{azaria-mitchell-2023-internal, burns2022discovering, Marks2023TheGO, burger2024truth, bao2025probing} or other properties such as questions answerability \citep{heindrich2025sparse}, deception \citep{yang2024interpretability, goldowsky2025detecting, parrack2025benchmarking}, and when in a chain of thought internals predict the answer the model will eventually produce \citep{Kudo2024ThinktoTalkOT}. 
+
+The closest works to ours are \citet{DBLP:journals/corr/abs-2207-05221}, which tested a similar probe to older proprietary models, but did not release any code to replicate or adapt their method, and \citet{ferrando2025do}, which identified the latents of pre-trained Sparse Auto-Encoders (SAEs, \citealp{bricken2023monosemanticity}) that best distinguish questions answered correctly from those answered incorrectly in small Gemma models \citep{gemmateam2024gemma2improvingopen}. As in these works, our work has the scientific goal of obtaining a better understanding of model internals, rather than optimizing for predictive power (which can be increased by combining internal embeddings with other features, as done in \citealp{kamath-etal-2020-selective}).
+% By considering multiple families of open-source models (scaling up to 70 billion parameters), conducting extensive out-of-distribution experiments, and directly learning linear representations, our work contributes essential findings on the ability of models to maintain an internal representation reflecting competence on tasks, its alignment with ``I don't know'' responses and its failure to generalise to a mathematical reasoning dataset. 
+Detailed discussion of the above and other related works can be found in Appendix \ref{app:related}.
+
+
+\begin{comment}
+    We could potentially have a section on related works about practical applications of prediction of performance, mentioning: 
+    - kamath-etal-2020-selective
+    - https://www.alignmentforum.org/posts/9tHEibBBhQCHEyFsa/do-llms-know-what-they-re-capable-of-why-this-matters-for-ai
+    - https://arxiv.org/abs/2506.00823
+\end{comment}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SECTION 3: METHOD
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Method}
+
+\paragraph{Problem Formulation.} Let \(M\) be a LLM that, given an input prompt $x$, produces residual stream activations (after the final prompt token) \(\{h^{(l)}\in\mathbb{R}^d\}\) at each layer \(l=1,\dots,L\). % (so \(h^{(l)}\) is the activation after processing the final token).  
+\begin{comment}
+By autoregressive sampling on \(M\), we obtain an answer \(y\).  We write
+\[\text{Correct}(x,y) \;=\;
+\begin{cases}
+1, & \text{if the answer is correct},\\
+0, & \text{otherwise}.
+\end{cases}
+\]. 
+\end{comment}
+For that prompt, \(M\) can be used to produce (by autoregressive sampling) an output answer \(y\). We define the correctness function \(\text{Correct}(x,y)\) as a binary indicator of whether the answer is correct. Our objective is to learn a classifier \(f_w\) (where \(w\) indicates the classifier weights) that predicts the correctness label\footnote{If LLM answer generation is done with non-zero temperature, the correctness label inherently possesses non-zero aleatoric uncertainty (randomness). Thus, the classifier cannot perfectly predict the label, but it can approximate the random correctness label as accurately as possible, thereby reducing the epistemic uncertainty. In our experiments (Section~\ref{sec:exp}), we set temperature to zero, so this consideration does not apply.} from an intermediate activation \(h^{(l)}(x)\), i.e.,
+\[
+f_w\bigl(h^{(l)}(x)\bigr) \approx \mathbf{1}\{\text{Correct}(x,M(x))\}\,.
+\]
+
+A key methodological decision in this work is the use of a simple linear classifier, specifically the difference-of-means direction, rather than more expressive non-linear probes (e.g., MLPs). We choose this to explicitly test if the correctness signal is \textit{linearly separable}, rather than to maximize accuracy. If a simple linear direction $w$ can successfully distinguish correct from incorrect inputs across diverse datasets, it suggests that "correctness" (or confidence) is represented as a coherent feature direction in the high-dimensional activation space, supporting the Linear Representation Hypothesis \citep{park2024linearrepresentationhypothesisgeometry}. If complex non-linear classifiers were required, it would imply the information is encoded in a more entangled manner.
+
+\paragraph{Learning a Latent Correctness Direction.}
+\label{sec:direction}
+
+Taking inspiration from \cite{burger2024truth}, we train a simple linear probe on fixed neural activations from a single layer obtained at the final prompt token.
+In particular, we partition the activations into two groups according to correctness. 
+%Let \( \{ h^{(l)}_{f,i} \}_{i=1}^{N_{\text{false}}} \) denote the activations corresponding to incorrect answers and \( \{ h^{(l)}_{c,j} \}_{j=1}^{N_{\text{true}}} \) those corresponding to correct answers. 
+We summarize each class by the average activation vector over all examples in that class—one centroid for the incorrect outputs, $\mu_{\text{false}}$, and one for the correct outputs, $\mu_{\text{true}}$. Then, we define the correctness direction as the difference of the centroids: $w  = \mu_{\text{true}} - \mu_{\text{false}}$. 
+
+\begin{comment}
+For each class, we measure how its average activation deviates from the midpoint of each centroid—and we attach a negative sign to the deviation for the incorrect class (so it points “away” from the correct side) and a positive sign to the deviation for the correct class (so it points “toward” the correct side). Finally, we take the average of those two signed deviations to get a single direction vector $w$, which represents the axis along which correct and incorrect activations differ most. The precise formulation of the approach can be found in Appendix~\ref{app:approach}.
+
+The centroids of these groups are computed as
+\[
+\mu_{\text{false}} = \frac{1}{N_{\text{false}}}\sum_{i=1}^{N_{\text{false}}} x_i,\quad \mu_{\text{true}} = \frac{1}{N_{\text{true}}}\sum_{j=1}^{N_{\text{true}}} y_j.
+\]
+When balancing the groups, the overall mean is defined as
+\[
+\mu = \frac{1}{2}\left(\mu_{\text{false}} + \mu_{\text{true}}\right).
+\]
+We then assess the deviation of each activation group from \(\mu\) with the appropriate sign: \(-1\) for the incorrect group and \(+1\) for the correct group. These signed deviations are
+\[
+d_{\text{false}} = -\frac{1}{N_{\text{false}}}\sum_{i=1}^{N_{\text{false}}} \left(x_i - \mu\right),\quad d_{\text{true}} = \frac{1}{N_{\text{true}}}\sum_{j=1}^{N_{\text{true}}} \left(y_j - \mu\right).
+\]
+The classifying direction is then obtained by averaging these deviations:
+\[
+w = \frac{1}{2}\left(d_{\text{false}} + d_{\text{true}}\right).
+\]
+\end{comment}
+
+For a given activation vector \(h\), we then compute its correctness score by subtracting the mean of the centroids $\mu = \frac{1}{2}\left(\mu_{\text{false}} + \mu_{\text{true}}\right) $ and projecting it on the normalized direction:
+\[
+\text{score}(h) = \frac{(h-\mu)^\top w}{\|w\|}. %, \quad \mu = \frac{1}{2}\left(\mu_{\text{false}} + \mu_{\text{true}}\right).
+\]
+This score quantifies the alignment between the activation and the vector associated with correctness. Importantly, we do not apply a sigmoid to transform this score into a probability, nor use a threshold to assign class labels, although doing so is possible and straightforward. Instead, we assess the discriminative power of this direction by computing the Area Under the Receiver Operating Characteristic curve (AUROC), which is invariant under monotonic transformations of the scores and independent of any particular threshold since it measures performance across all possible cut-offs.
+
+Therefore, our method does not produce a probabilistic classifier by default. It simply identifies a linear axis $w$ in activation space that optimally separates correct from incorrect outputs, and uses the projections onto this axis to evaluate their separability.
+
+
+\begin{comment}
+ 
+
+At inference, the classifier computes
+\[
+\Pr(\text{Correct}\mid h)
+=\sigma\bigl(\text{score}(h)+b\bigr),
+\]
+on which we evaluate classification accuracy and AUROC on held‐out data.  In this way, the learned direction \(w\) serves as the single most discriminative activation feature for distinguishing correct from incorrect model outputs.
+
+This scalar score is transformed via the sigmoid function to yield the probability estimate:
+\[
+\Pr(\text{Correct} \mid h) = \sigma\bigl(\text{score}(h)\bigr).
+\]
+In this manner, the latent direction \(w\) encapsulates the axis in the activation space along which the binary correctness of the model's output is most discriminative.
+
+\subsection{Layer Selection}
+As previously discussed, activations are extracted from a specified layer. Not all layers are equal, with some offering more discriminative capacity than others. We evaluate the best directional classifier for each layer on ... We also present  
+\end{comment}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SECTION 4: EXPERIMENTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Experiments and Results}
+\label{sec:exp}
+
+%%%
+
+\subsection{Setup}
+For each dataset–model pair, we collect a dataset of activations and correctness by prompting the model on every question~\(x\), extracting activations \(h^{(l)}(x)\)  (for layer $l$) at the question’s final token, sampling the answer~\(y\) (temperature~0), and recording its correctness (0 or 1) against the gold answer. We then learn the direction as described in Section~\ref{sec:direction}. To conduct the experiments, we used GPU resources on RunPod, employing approximately 60 hours of NVIDIA A100 time for evaluating the larger models, and around 100 hours of NVIDIA A40 time for the smaller models. We notice how most of the computational effort was spent in collecting the models' activations: our probe's training is a one-shot learning of a \(d\)-dimensional parameter vector on 10 k cached activations, and it takes less than three minutes on CPU; applying the probe involves a linear project, which is light-weight relatively to generation from a model.
+
+\paragraph{Datasets.}\label{sec:datasets}
+
+We choose datasets where the performance of the considered models is in the mid range, so that enough samples are available for each of the two classes to accurately estimate the mean. %the corresponding activation-correctness dataset is balanced  and the direction could be easily obtained.
+Moreover, we avoid multiple-choice formats to prevent chance-correct answers from biasing our results. Instead, every dataset uses  open-ended questions. Although some answer sets (e.g., countries or years) are bounded, they’re broad enough that the impact of random guessing is effectively negligible.
+
+%Our goal was to create a balanced dataset from which the direction could be easily obtained, so we looked for datasets where the performance of the considered models is in the mid range. 
+%so we aimed for datasets which were not too easy but also not too hard. Ideally, we wanted our models to answer correctly about half of the questions in each dataset so that the training and testing of the correctess predictors would be carried out with a similar amount of right and wrong answers. 
+
+% We did not want to use multiple choice datasets, as we wanted to avoid at all cost that the model randomly guesses the correct answer since this could mess with our results. Therefore, all our datasets contain explicit questions for which the model needs to provide an unconstrained answer. For some of our datasets, the set of reasonable answers is constrained, such as countries or years, but the set of reasonable answers is always large enough so that the effect of random guesses is neglectable. 
+
+Therefore, we select two publicly available datasets and generate a few synthetic datasets (see Table~\ref{tab:datasets}). In particular, we derive our largest and most diverse dataset from a subset of TriviaQA \citep{TriviaQA}, which encompasses trivia-style questions covering a wide range of topics. To complement this, we construct three datasets from public tables to evaluate the in-advance correctness directions in specific factual-knowledge domains\footnote{This is because we could not find existing datasets that simultaneously offered (i) free-form answers, (ii) a narrow topical scope that lets us measure cross-domain transfer, and (iii) fully automatic grading.  Our Cities, Notable People and Medals datasets satisfy all three. Although small (6 k–16 k samples) they stress the probe with questions that differ markedly from TriviaQA’s trivia style.}.%Birth years are taken verbatim from a public table so that only wording is synthetic.
+%For a detailed breakdown, see Table \ref{tab:datasets}. In the remainder of this paper, we demonstrate our method’s ability to generalize across all these datasets.
+The first
+\footnote{Generated from the \href{https://public.opendatasoft.com/explore/dataset/geonames-all-cities-with-a-population-1000/}{Geonames dataset} from OpenDataSoft, licensed under CC BY 4.0.} asks which country a city belongs to; the second \footnote{Generated from the \href{https://data.sciencespo.fr/dataset.xhtml?persistentId=doi:10.21410/7E4/RDAG3O}{A Brief History of Human Time dataset} from SciencesPo, licensed under CC-BY-SA.} requests to provide a notable person’s birth year; and the 
+third\footnote{Generated from the \href{https://www.kaggle.com/datasets/heesoo37/120-years-of-olympic-history-athletes-and-results}{Olympic History dataset} on Kaggle, licensed under CC0 1.0.} queries which country won the gold medal in a specified sport at a particular edition of the Olympic Games. In addition, we construct our own dataset of arithmetic problems and employ GSM8K \citep{Cobbe2021TrainingVT}, a benchmark for mathematical reasoning.
+
+
+
+\begin{table}[]
+    \centering
+    \caption{Details of the datasets employed in our work. }
+    \label{tab:datasets}
+    %\begin{tabular}{lccp{7cm}}
+        \resizebox{\columnwidth}{!}{%
+    \begin{tabular}{ l c  c  p{7cm}}
+    \toprule
+         \textbf{Dataset} & \textbf{N. samples} & \textbf{Source} & \textbf{Example} \\
+         \midrule
+        TriviaQA \citep{TriviaQA} & 60K & Public (subset) & \small{What is the collective name of the four holy books of the Hindu religion?} \\ 
+        \midrule
+        Cities & 10K & Custom (public data) & \small{In which country is the city of Hungerford located?} \\ 
+        \midrule
+        Notable People & 16K & Custom (public data) & \small{What year was Thabo Mbeki (politician from South Africa) born?} \\ 
+        \midrule
+        Medals & 9K & Custom (public data) & \small{Which country won gold in Gymnastics Men's Team All-Around in the 1948 Summer Olympics?} \\ 
+        \midrule
+        Math operations & 6K & Custom & \small{What is 5 plus 2?} \\ 
+        \midrule
+        GSM8K \citep{Cobbe2021TrainingVT} & 8K & Public & \small{Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?} \\ 
+         \bottomrule
+    \end{tabular}}
+\end{table}
+
+% SOURCES
+% TriviaQA: https://huggingface.co/datasets/mandarjoshi/trivia_qa
+% Cities: https://public.opendatasoft.com/explore/dataset/geonames-all-cities-with-a-population-1000/table/?disjunctive.cou_name_en&sort=name
+% Birth years: https://www.kaggle.com/datasets/mexwell/famous-birthdays
+% Medals: https://www.kaggle.com/datasets/heesoo37/120-years-of-olympic-history-athletes-and-results
+% GSM8K: https://huggingface.co/datasets/openai/gsm8k?row=0
+
+
+\paragraph{Language models.}
+
+
+We conduct our experiments on open large language models (Table~\ref{tab:LLMs}) varying in both training regimen and scale. Specifically, we evaluate Llama 3.1 8B, Llama 3.3 70B Instruct, Qwen 2.5 7B Instruct, DeepSeek R1 Distill Qwen 32B, Mistral 7B Instruct v0.3, and Ministral 8B Instruct 2410. 
+We use three-shot prompting to mitigate answer formatting errors (exact prompts\footnote{Exploratory investigation found  the specific few-shot examples to not significantly affect performance.} in Appendix~\ref{sec:prompts}). The performance for each model on each dataset can be found in Table~\ref{tab:performance} in Appendix~\ref{sec:performance}. Although we use a reasoning-trained model (Deepseek R1 Distill Qwen 32B), we do not employ reasoning-specific prompting and treat that identically to the other models.
+
+\subsection{Baselines.}\label{sec:baselines}
+
+To establish a point of reference to evaluate our approach, we consider two baseline approaches.
+
+\textbf{Verbalized confidence.} We prompt each model to output a confidence score (0–100\%) indicating its likelihood of answering each question correctly. The exact prompt can be found in Appendix~\ref{sec:prompts}. 
+
+
+\textbf{Assessors.} We train LLM-specific binary classifiers using  question text embeddings as model-independent inputs and the corresponding evaluated model answers as labels. These black-box 
+\textit{assessors} \citep{hernandez2022training} predict an LLM’s performance on unseen questions based on the question's embedded features. Following \cite{pacchiardi2024100instancesneedpredicting}, we use OpenAI’s \texttt{openai\_text-embedding-3-large} model to obtain 3,072-dimensional question embeddings, and we explore logistic regression and gradient boosted decision trees \citep{chen2016xgboost} to establish linear and non-linear baseline assessors, respectively.
+
+\subsection{Identifying the most discriminative layer}\label{sec: find_layer}
+
+For each LLM, we first identify 
+%the first step in implementing the approach described in Section~\ref{sec:direction} is to select 
+the layer that most effectively discriminates between questions the model answers correctly and those it answers incorrectly, with the approach in Section~\ref{sec:direction}. We perform this evaluation on TriviaQA because it offers a diverse array of questions across multiple domains and complexity levels, which mitigates the risk of discovering an activation direction tied to features merely correlated with model success rather than the model’s internal correctness prediction. The remaining datasets are kept held-out for further evaluation.
+%We do so on TriviaQA, owing to it featuring a diverse set of questions across various domains and levels of complexity, which reduces the risk of learning an activation direction that represents features correlated to model success, rather than the model's internal correctness prediction. We keep the other datasets as held-out to further evaluate this.
+%To preserve the method’s generalization and avoid any data leakage when evaluating on held-out datasets, we refrain from selecting the best-performing layer using multiple datasets. Instead, we use TriviaQA to extract the correctness direction, owing to its cross-disciplinary composition—featuring a diverse set of questions across various domains and levels of complexity.
+Appendix~\ref{app:all-layers} contains similar experiments with all other datasets.
+
+Thus, we dedicate a subset of 10,000 samples from TriviaQA exclusively to this step. We collect activation samples every 2 layers for small (<10B parameters) models and every 4 for larger (>10B parameters) models. On this data, for each model and layer, we perform 3-fold cross-validation and train the model described in Section~\ref{sec:direction}. Figure~\ref{fig:AUC_vs_layer} presents the average AUROC over folds, and Table~\ref{tab:LLMs} lists the resulting optimal layers. We observe that the early layers generally perform poorly and performance saturates around the midpoint, with the optimal layer typically lying between the midpoint and the final layer. %, although differences within this range are relatively small. 
+This suggests the model’s understanding of its own answering ability emerges progressively across layers, consistent with \cite{ferrando2025do}  and \cite{burger2024truth}, who also found representations in the middle layers to perform better for their task.
+
+%We interpret this as the model progressively developing an understanding of its ability to answer the question across layers. This aligns with the findings of Ferrando et al. \cite{ferrando2025do} and Burger et al. \cite{burger2024truth}, which both found representations in the middle layers to perform better for their task.
+
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\linewidth]{figs/find_best_layer_plot.pdf}
+    \caption{TriviaQA AUROC (average over 3 folds) across layers. We collect activations every 2 layers for small (<10B parameters) models and every 4 layers for large (>10B parameters) models.}
+    \label{fig:AUC_vs_layer}
+\end{figure}
+
+\subsection{Correctness direction generalization}
+\label{sec:exp_gen}
+%Considering the most informative layer for each model identified using the TriviaQA dataset as described above, we evaluate the generalization of the corresponding correctness direction to other datasets. Specifically, we test whether the correctness direction on the most discriminative layer generalizes to our other datasets. 
+\paragraph{Training on TriviaQA.}
+
+After identifying each model’s most informative layer on TriviaQA (Section~\ref{sec: find_layer}), we evaluate whether the corresponding in-advance correctness direction generalises to other datasets. To do so, we split each dataset (excluding the first 10,000 elements of TriviaQA, used for layer selection, Section~\ref{sec: find_layer}) into 5 folds, we train the correctness direction by iteratively considering 4 folds of TriviaQA and evaluating on the remaining one (for in-distribution performance) and on one individual fold for each of the out-of-distribution (OOD) datasets\footnote{This is done so that the results are comparable to the ones obtained by training the correctness direction on the OOD dataset--which are too small for cross-validation to be applied--as discussed immediately below. Throughout training we always test on the held-out fold of the dataset whose AUROC we report, however, we train the probe in two alternative ways: (i) on the four remaining folds of TriviaQA (to assess cross-domain generalisation) or (ii) on the four folds of that same OOD dataset as an upper-bound. Hence, every cell of Table \ref{tab:results} compares methods on identical test questions, irrespective of training set.}. 
+Similarly, we train the assessor baselines on TriviaQA and test them on the other datasets (the confidence baseline instead requires no training set).
+Table~\ref{tab:results} reports the resulting average AUROC for each method: the correctness direction found on TriviaQA demonstrates significantly stronger  generalization to all other datasets, with the exception of GSM8K, than the baseline methods (Section~\ref{sec:baselines}), despite being slightly outperformed by the logistic regression assessor in distribution. The direction approach improves on the best baseline by 10–22 AUROC points on Notable People, 5–18 points on Cities and 28–39 points on Math-Operations. On Medals, it remains the strongest method, but the margin contracts to 4–15 points, indicating that the gain diminishes on this harder multi-hop task.  These patterns suggest that recognising one’s own competence scales with question difficulty and with model size: only the 70 B model shows a sizeable advantage on Medals.  In contrast, no method can skilfully predict any of the models' success on GSM8K well, confirming that the correctness signal does not transfer to arithmetic-reasoning tasks and indicating a potential limitation of current models. In Table~\ref{tab:direction_extended}, the standard deviation over the 5 folds for the learned direction is reported, showing that this is smaller than 0.035.
+% This suggests that the ability of a model to recognise its ability to answer a complex question may only emerge when the model has sufficient scale. On a similar note, none of the models perform well on predicting success on GSM8K which also suggests that this ability does not transfer to complex tasks requiring more extensive reasoning. 
+
+In Figure~\ref{fig:n_samples}, we analyze the sample efficiency of the linear probe. Identifying the correctness direction requires very little data: robust performance is achieved with as few as 160 samples, and 2,560 samples are sufficient to match the performance obtained using the full 48,540 TriviaQA dataset. This high sample efficiency provides strong support for the Linear Representation Hypothesis: if the correctness signal were encoded in a complex, highly non-linear manifold, a simple difference-of-means probe would likely require significantly more data to generalize effectively. Notably, larger models require fewer samples to converge, suggesting that as model scale increases, the internal representation of correctness becomes more distinct and linearly accessible. Conversely, performance on GSM8K plateaus near random chance regardless of dataset size, reinforcing that the "Factual Correctness" direction is structurally misaligned with reasoning tasks, rather than simply being noisy or under-sampled.
+
+We observe that while the Assessor baselines (trained on OpenAI embeddings) achieve slightly higher in-distribution scores, they suffer significant degradation out-of-distribution compared to our linear probe. This contrast highlights the nature of the signal: the Assessor likely relies on spurious correlations in the semantic embeddings of the question text, which fail to hold across domain shifts. In contrast, our linear probe targets the model's internal state. The fact that a simple linear direction on internal activations generalizes better than a non-linear XGBoost classifier on external embeddings (see Appendix \ref{sec:assessors}) confirms that the residual stream contains a genuine, transferable signal of self-competence that is not present in the surface semantics of the question alone.
+
+
+%but improved generalization to OOD datasets (between 6\% and 33\% improvement over the best baseline)
+
+
+\paragraph{Training on other datasets.} Next, to understand if the generalization is due to training on TriviaQA or if it can be instead obtained with any other dataset, we train and test the correctness direction on all dataset combinations, keeping the same folds as described above. %. We use the layers selected in Section~\ref{sec: find_layer} and consider several train and test splits for each combination to reduce the variance of the experiment. 
+We report results for Mistral 7B Instruct and Llama 3.3 70B in Figure~\ref{fig:cross_auroc} (other models in Appendix~\ref{sec:heatmaps}). In some cases, the direction learned on the smaller specific datasets (such as Cities and Notable People) transfers well to others, but this does not always happen; at the same time, all datasets lead to decent in-distribution performance, with Medals being often the lowest one (even considering the other models in Appendix~\ref{sec:heatmaps}). 
+In Appendix~\ref{app:cosine}, we further report the cosine similarity between the directions learned on the different datasets, which shows how the directions learned on the small datasets are mostly orthogonal, except for a few cases (Cities and Notable People), which are also more aligned with the direction learned on TriviaQA.
+%partly reflect the patterns shown in Fig.~\ref{fig:cross_auroc}.
+These observations suggest that, for certain datasets, the learned direction captures dataset-specific cues correlated with correctness rather than correctness itself\footnote{For context, QA accuracies on GSM8K range from 10.7\% to 44.3\% and on Cities from 45.8\% to 80.3\% (Table~\ref{tab:performance}), so all datasets have substantial mass in both classes, an ‘always correct’ baseline would has AUROC 0.5 by construction.}. Over all models, moreover, the direction learned from TriviaQA shows the strongest generalisation (except for GSM8K and Medals, as already discussed above), likely because its diverse nature makes it less likely to contain exploitable dataset-specific patterns. Further, comparing the models, we find that Llama 3.3 70B generalizes well across the largest number of train–test dataset pairs, suggesting that this larger model has a more consistent correctness direction. 
+
+
+\begin{table}[!t]
+  \centering
+    \caption{AUROC for each dataset, model and method. All directions are trained on the TriviaQA dataset on the optimal layer found in Section~\ref{sec: find_layer}. Average AUROC over 5 folds is reported (Section~\ref{sec:exp_gen}, variance reported in Table~\ref{tab:direction_extended}). For the assessors, we only report the best performing one (logistic regression; all results in Appendix~\ref{sec:assessors}). As the probes are trained on finite samples, weak or noisy signal might result in AUROC slightly below 0.5.}
+    \label{tab:results}
+        \resizebox{\columnwidth}{!}{%
+  \begin{tabular}{p{2.5cm}  l c c c c c c}
+    \toprule
+    \multirow{2}{*}{\parbox{2.5cm}{\centering\textbf{Model}}} & \multirow{2}{*}{\parbox{1.5cm}{\centering\textbf{Method}}} & \multicolumn{6}{c}{\textbf{Test dataset}} \\
+    & & TriviaQA & N. people & Cities & Math ops. & Medals & GSM8K \\
+    
+    \midrule
+    
+    \multirow{3}{*}{\parbox{2.5cm}{\centering Llama 3.1 8B}}
+        & Assessor & \textbf{0.852} & 0.630 & 0.663 & 0.528 & 0.623 & \textbf{0.558} \\
+        & Verb. conf. & 0.502 & 0.499 & 0.500 & 0.623 & 0.500 & 0.540 \\
+        & Direction & 0.804 & \textbf{0.722} & \textbf{0.732} & \textbf{0.858} & \textbf{0.680} & 0.534 \\
+
+    \midrule
+
+    \multirow{3}{*}{\parbox{2.5cm}{\centering Llama 3.3 70B Instruct}}
+        & Assessor & 0.759 & 0.583 & 0.672 & 0.449 & 0.568 & 0.573 \\
+        & Verb. conf. & 0.580 & 0.594 & 0.694 & \textbf{0.913} & 0.665 & \textbf{0.598} \\
+        & Direction & \textbf{0.826} & \textbf{0.708} & \textbf{0.880} & 0.835 & \textbf{0.770} & 0.499 \\
+
+    \midrule
+    
+    \multirow{3}{*}{\parbox{2.5cm}{\centering Qwen 2.5 7B Instruct}}
+        & Assessor & \textbf{0.807} & 0.723 & 0.708 & 0.400 & \textbf{0.622} & 0.584 \\
+        & Verb. conf. & 0.643 & 0.637 & 0.758 & 0.517 & 0.531 & 0.513 \\
+        & Direction & 0.758 & \textbf{0.800} & \textbf{0.842} & \textbf{0.837} & 0.586 & \textbf{0.601} \\
+
+    \midrule
+    
+    \multirow{3}{*}{\parbox{2.5cm}{\centering DeepSeek R1 Distill Qwen 32B}}
+        & Assessor & \textbf{0.790} & 0.709 & 0.663 & 0.337 & 0.601 & \textbf{0.576} \\
+        & Verb. conf. & 0.619 & 0.605 & 0.577 & 0.499 & 0.563 & 0.503 \\
+        & Direction & 0.735 & \textbf{0.825} & \textbf{0.879} & \textbf{0.847} & \textbf{0.638} & 0.552 \\
+
+    \midrule
+    
+    \multirow{3}{*}{\parbox{2.5cm}{\centering Mistral 7B Instruct v0.3}}
+        & Assessor & \textbf{0.846} & 0.673 & 0.710 & 0.493 & 0.638 & 0.559 \\
+        & Verb. conf. & 0.570 & 0.625 & 0.705 & 0.617 & 0.558 & 0.525 \\
+        & Direction & 0.796 & \textbf{0.760} & \textbf{0.880} & \textbf{0.782} & \textbf{0.645} & \textbf{0.579} \\
+
+    \midrule
+    
+    \multirow{3}{*}{\parbox{2.5cm}{\centering Ministral 8B Instruct 2410}}
+        & Assessor & \textbf{0.789} &0.623 & 0.682 & 0.454 & 0.626 & \textbf{0.598} \\
+        & Verb. conf. & 0.515 & 0.500 & 0.554 & 0.500 & 0.502 & 0.577 \\
+        & Direction & 0.734 & \textbf{0.680} & \textbf{0.840} & \textbf{0.844} & \textbf{0.670} & 0.578 \\
+    
+    \midrule
+  \end{tabular}}
+      \vspace{-1em}
+\end{table}
+
+
+\begin{figure}[!tb]
+  \centering
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/heatmap_auc_mistral_7b_best_layer.pdf}
+  \end{subfigure}
+  \quad 
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/heatmap_auc_llama_3_70b_best_layer.pdf}
+  \end{subfigure}
+  \caption{AUROC scores on each dataset for the direction learned on each dataset individually, for two selected models (others in Appendix~\ref{sec:heatmaps}). Average AUROC over 5 folds is reported (Section~\ref{sec:exp_gen}).}
+  \label{fig:cross_auroc}
+\end{figure}
+
+\subsection{Qualitative Investigation}
+%\label{app:qualitative}
+Alongside our main experiments, we observe several behaviours and patterns that are not easily quantifiable but nonetheless offer a valuable insight into the quality of the direction we find. In particular, we show how some models, despite being urged to give an answer in a specific format, produced some form of abstention; these answers are located on the negative extreme of the correctness direction, and suggests that our correctness-prediction direction also captures abstention. We also conduct a manual investigation of correct and incorrect answers with the highest positive and negative values of correctness scores, showing patterns which intuitively align with confidence scores (e.g., wrong answers with high scores being near-misses where the model fails by one or a few years).
+
+%We also conduct further qualitative investigations in Appendix \ref{app:qualitative}. In Appendix \ref{sec:IDK}, we find that some models, despite being urged to give an answer in a specific format, produced some form of abstention. Answers of this form are located on the negative extreme of the correctness direction, and suggests that our correctness-prediction direction also captures abstention. In Appendix \ref{app:qualitative}, we conduct a manual investigation of correct and incorrect answers with the highest positive and negative values of correctness scores, and observe patterns which intuitively align with confidence scores (e.g., wrong answers with high scores being near-misses where the model fails by one or a few years).
+
+\paragraph{Location of ``I don't know'' responses.}\label{sec:IDK}
+
+Some of the models we tested, despite being urged to give a specific answer format by our prompt, produced answers of the form ``I don't know'' (IDK) or similar to some questions.  When training the correctness direction, these were considered as incorrect answers. By visualizing (Figure~\ref{fig:IDK}) the distribution of activation projections on the correctness direction at the optimal layer found in Section~\ref{sec: find_layer}, we see that the questions where the model answers IDK are consistently located more at the negative extreme of the correctness direction than the questions where the model attempts an answer but fails.
+%opposite to the questions which are answered correctly ). 
+This behaviour demonstrates that the overall internal state, causally upstream of the model outputting "I don't know" or attempt an answer, is strongly captured in the direction that we find. This aligns with \citet{ferrando2025do}'s finding of ``knowledge-awareness'' directions causally affecting answer refusal.
+Thus, our ``correctness-prediction'' direction could also be interpreted as a confidence direction: the model will only say that it doesn't know if its confidence on whether it can answer the question is very low. 
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{figs/idk_plot.pdf}
+    \caption{Distribution of values of activation  projections on the correctness direction from TriviaQA, grouped by produced answer (right, wrong,``I don't know''), for a selection of models and datasets.}
+    \vspace{-1em}
+    \label{fig:IDK}
+\end{figure}
+\paragraph{Manual investigation of extreme values.}
+\label{sec:manual}
+\looseness=-1
+Finally, we report in Table~\ref{tab:extremal} the correct and incorrect answer with the highest positive and negative values of correctness scores for Mistral 7B Instruct. The patterns we observe are intuitive: among the incorrect answers with low confidence scores, we find IDK responses, which is consistent with the behaviour discussed in Section~\ref{sec:IDK}. For wrong answers with high scores, we often see questions for which the model fails by one or a few years, and the correct answers with the highest confidence involve very well-known individuals, which aligns with the interpretation that we are finding a confidence direction. %, as in this cases it makes sense that the model is very confident on its answer. 
+
+
+\begin{table}[!th]
+  \centering
+    \caption{Questions of the Notable People dataset with the most extreme values on the correctness direction trained on TriviaQA for Mistral 7B Instruct.}
+  \label{tab:extremal}
+  \begin{tabular}{ p{1.2cm}  p{0.9cm} c  c }
+    \toprule
+    & & Person & Answer (Correct)  \\
+    \midrule
+    \multirow{6}{*}{\shortstack{Wrong\\answers}} &
+    \multirow{2}{*}{\shortstack{Low\\scores}} & Victoria (Royal Family from Germany) & IDK (1840) \\
+    & & Yokozuna (wrestler from US) & 1972 (1966)\\
+    \cmidrule(lr){2-4}
+    & \multirow{2}{*}{\shortstack{High\\scores}} & Kazimir Malevich (painter from Russia) & 1961 (1962)   \\
+    & & A. A. Milne (writer from United Kingdom) & 1892 (1882)   \\
+    \midrule
+    \multirow{6}{*}{\shortstack{Right\\answers}} &
+    \multirow{2}{*}{\shortstack{Low\\scores}} & Jim Carter (actor from United Kingdom) & 1948 (1948)   \\
+    & & David Keith (film-maker from US) & 1954 (1954)   \\
+    \cmidrule(lr){2-4}
+    & \multirow{2}{*}{\shortstack{High\\scores}} & Charles Darwin (biologist from United Kingdom) & 1809 (1809)   \\
+    & & Albert Einstein (physicist from Germany) & 1879 (1879)   \\
+    \midrule
+  \end{tabular}
+\end{table}
+
+%\subsection{Discussion}
+
+%We also conduct further qualitative investigations in Appendix \ref{app:qualitative}. In Appendix \ref{sec:IDK}, we find that some models, despite being urged to give an answer in a specific format, produced some form of abstention. Answers of this form are located on the negative extreme of the correctness direction, and suggests that our correctness-prediction direction also captures abstention. In Appendix \ref{app:qualitative}, we conduct a manual investigation of correct and incorrect answers with the highest positive and negative values of correctness scores, and observe patterns which intuitively align with confidence scores (e.g., wrong answers with high scores being near-misses where the model fails by one or a few years).
+
+\section{Conclusion}
+
+We have provided evidence for the Linear Representation Hypothesis regarding LLM self-correctness. By analyzing the residual stream before token generation, we identified a "correctness direction" that is linearly separable and generalizes across diverse factual tasks. Our comparison with external-embedding baselines confirms that this signal is intrinsic to the model's internal state. However, the failure to generalize to mathematical reasoning suggests that factual retrieval and arithmetic reasoning may rely on distinct internal verification mechanisms. These findings advance our scientific understanding of how LLMs encode their own capabilities and limitations.
+
+Specifically: (1) we provide evidence that LLMs embed a latent correctness signal mid-computation; (2) we show that a simple linear probe can extract this signal (providing evidence for linear separability), yielding generalisation across knowledge datasets; (3) we highlight the limits of this approach, suggesting that deeper reasoning and arithmetic capabilities are not as easily captured in activations; (4) we find a stronger signal for the largest model we test (Llama 3.3 70B), suggesting that larger models may better predict their correctness, and (5) we demonstrate this direction aligns with abstention behaviour in models that say “I don’t know,” supporting its interpretation as a latent confidence axis. % Further, our code-base offers a framework for quickly experimenting with other activation-space directions.
+
+% This work contributes to mechanistic interpretability by identifying a  meaningful confidence direction within LLM activations, corroborating recent works with sparse auto-encoders \citep{ferrando2025do}. It also complements studies of truthfulness and hallucination, suggesting that models encode internal notions of confidence—even before answer generation—and truthfulness that are both general and accessible. % This supports the view that self-monitoring may be a learned, general-purpose capability in large models.
+
+Our findings have relevance for both AI safety and practical deployment. As LLMs are increasingly used in high-stakes settings, low-cost internal signals of impending failure offer a path toward safer, more robust systems. The correctness direction, combined with an ensemble of other black- and white-box methods, could inform early stopping, fallback mechanisms, or human-in-the-loop protocols, particularly where generating unreliable outputs is costly or dangerous.
+
+\begin{comment}
+
+Would be nice to summarize our contributions here. Contributions:
+
+\textbf{We find a successful and general correctness direction across several datasets and model architectures.}
+
+% \textbf{The strength of this direction is stronger for some models than others.}
+
+\textbf{Correctness displays itself consistently on many layers.}
+
+\textbf{Correctness is stronger for knowledge datasets than for reasoning datasets, and generalizes poorly to even basic arithmetic.}
+
+\textbf{We provide a framework to rapidly run directness experiments.} inference on a model, evaluate results, collect activations from a model's internals, 
+
+We have demonstrated that a latent correctness signal exists in the internal activations of large language models, which can be effectively extracted using a linear probe. This signal reliably predicts whether the model will generate a correct response, even before the answer is produced. The robustness of the correctness direction across diverse datasets and model architectures reinforces the idea that LLMs encode a rich internal representation of their own confidence. Our work advances the understanding of internal model dynamics and provides a foundation for developing safer and more reliable language systems.
+
+\end{comment}
+\section{Limitations}
+\label{sec:limitations}
+
+%While our work demonstrates generalisation across datasets and models, it has several limitations.
+
+\textbf{Correctness is represented as a binary label from a single sample.} This ignores  stochasticity of answer generation and the existence of questions with ambiguous or nuanced answers that cannot be captured by a single true/false label. Future work might involve generating multiple samples or assigning real-valued correctness scores to obtain a more robust estimate of expected correctness; a natural extension for reasoning specifically is to probe along the reasoning trajectory and to compare linear probes against stronger baselines on reasoning-heavy datasets.
+
+
+\textbf{Linear probes may underestimate predictive power.} We used linear representations as a model can more conceivably access them during answer generation, but higher-capacity non-linear classifiers may yield greater predictive power. Further, the probes are targeted towards a pre-generation factual correctness signal, which is not a memorisation-free notion of correctness, and should be carefully evaluated in future work.
+
+\textbf{Model diversity and scale.} We evaluate on six open-source models from three families, up to 70B parameters. While this spans a wide range, results may not fully generalize to proprietary models, alternative architectures (e.g., mixture-of-experts), or future frontier systems. Only a single large model (70B) was used due to compute limitations.
+
+\textbf{Layer selection is performed on a single dataset.} We identify the most discriminative layer for each model using a single large general dataset (TriviaQA). To ensure the generality of our findings, we could repeat the layer choice on other large generalist datasets.
+%This choice ensures consistent comparison across models, but may limit generalizability. Other datasets might reveal different optimal layers or more transferable directions.
+
+\begin{comment}
+we have to write something here!
+- only a single large model due to compute limitations
+- layer selection and the subsequent experiments were with a single dataset.
+\end{comment}
+\begin{comment}
+\begin{ack}
+Use unnumbered first level headings for the acknowledgments. All acknowledgments
+go at the end of the paper before the list of references. Moreover, you are required to declare
+funding (financial activities supporting the submitted work) and competing interests (related financial activities outside the submitted work).
+More information about this disclosure can be found at: \url{https://neurips.cc/Conferences/2024/PaperInformation/FundingDisclosure}.
+
+
+Do {\bf not} include this section in the anonymized submission, only in the final paper. You can use the \texttt{ack} environment provided in the style file to automatically hide this section in the anonymized submission.
+\end{ack}
+\end{comment}
+
+
+\section{Reproducibility Statement}
+We provide the codebase, raw datasets, and generated datasets to fully reproduce our work at \url{https://anonymous.4open.science/r/no-answer-needed}. 
+
+\bibliographystyle{iclr2026_conference}
+\bibliography{bib}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\appendix
+\section{Further Related Work}
+\label{app:related}
+\subsection{Uncertainty Quantification and Confidence Estimation in LLMs}
+Traditional uncertainty quantification approaches for deep learning models include looking at the logits of a multi-class classification network \citep{guo2017calibration} or training the model to embed a form of uncertainty (such as Bayesian Neural Networks, \citep{jospin2022hands} or Dropout \citep{gal2016dropout}). Some of these methods can be adapted to LLMs \citep{shorinwa2024survey}, for instance by considering token-level output logits \citep{DBLP:journals/corr/abs-2207-05221,fadeeva-etal-2024-fact} or training additional modules to predict uncertainty \citep{DBLP:journals/corr/abs-2207-05221}. In simple classification tasks with single-token or multiple-choice answers, these probabilities often track the LLM's confidence. However, extending these methods to open-ended answers is non-trivial, as low-level probabilities do not necessarily yield a clear answer-level confidence. To this end, methods based on "semantic similarity" \citep{kuhn2023semantic} were proposed, but these are costly as they require the generation of multiple answers from the model. A more recent approach  \citep{sam2025predictingperformanceblackboxllms} asks a set of “elicitation questions” after an answer is generated and uses the responses to predict its correctness; as for semantic similarity approaches, this requires repeated model queries.
+
+%and model confidence obtained by these various methods is not necessarily consistent. 
+%LLM training and inference can be costly, making it difficult to apply bespoke training approaches such as iterative fine-tuning \cite{deng2024don} or repeated self-queries \cite{sam2025predictingperformanceblackboxllms}.
+
+Alternatively, LLMs can be asked to explicitly verbalize their uncertainty, with or (rarely) without reference to a specific answer. For instance, \citep{lin2022teaching} and \cite{kapoor2024large} finetuned LLMs to numerically report their belief in the correctness of an answer, while  \cite{DBLP:journals/corr/abs-2207-05221} showed that older Anthropic models can verbally quantify their uncertainty about answers to multiple-choice questions and finetuned the models to predict the confidence of succeeding on a question without reference to a specific answer, which performed satisfactorily but struggled with novel tasks.
+Instead, \cite{chaudhry2024finetuning} finetuned LLMs to emit linguistic expressions of uncertainty (e.g., ``maybe'').
+Finally, arguing that absolute verbalised confidence estimation is poor, \cite{shrivastava2025language} prompted LLMs to estimate whether they are more confident in their answers to one question relative to another one, then aggregate many of these pairwise comparisons into confidence scores using a ranking procedure, finding small gains in discriminative power.
+%While such verbalized confidence is sometimes informative, it can also be manipulated or degraded when models are finetuned on certain datasets \citep{chaudhry2024finetuning}. % Pre-trained language models may also rely on shortcuts in general, producing overly confident predictions from unreliable decision rules \cite{bihani2024reliabilityparadoxexploringshortcut}.
+
+Notably, there is no consensus on the performance of 
+%the uncertainty quantification obtained by 
+these methods \citep{kapoor2024large}, which were shown to be brittle to shortcuts \citep{heindrich2025sparse} and to yield inconsistent results across different methods \citep{pawitan2024confidence}. 
+In contrast to the methods above, we directly leverage previously trained LLM internals \textit{before an answer is generated}, making our method applicable to free-form answers and avoiding generation from the model. Further, while sampling-based confidence estimators would typically need 10-20 candidate answers per query; our probe caches activations in a single forward pass, then applies a cheap linear projection.  Probe training is a one-shot learning of a \(d\)-dimensional parameter vector  on 10 k cached activations (<3 min on CPU); applying the probe involves a linear project, which is drastically lighter-weight in deployment. While the method assumes white-box access, it complements black-box sampling: practitioners can choose probes when speed or token budget is paramount and revert to sampling when internals are unavailable.
+
+
+\subsection{Anticipating LLM performance}
+
+Our approach aims to anticipate LLM's performance based on its internals before an answer is generated. Some works \citep{hernandez2022training, zhou2022reject, schellaert2024analysing, pacchiardi2024100instancesneedpredicting,pacchiardi2025predictaboardbenchmarkingllmscore} attempted to predict LLM performance by training independent score predictors (``assessors'') based on features of the input question obtained independently of the considered LLM. This is motivated by the idea of ``Predictable AI'' \citep{zhou2024predictableartificialintelligence}, which argues that predicting the inputs on which an AI system will behave as expected is a necessary component of safety. Our work can be seen as belonging to this research strand, with the key distinction of leveraging model internals, which provide more information than model-independent features. 
+
+
+A few works leveraged internals to predict models' ability to answer a question correctly, but no work has investigated directly training linear probes only relying on internals. First, \cite{kamath-etal-2020-selective} combined embeddings generated by a model prompted with a question with hand-crafted feature and the (anticipative) confidence scores of the model, and trained non-linear models (such as XGBoost) to predict correctness in advance of generating answers.  In contrast, our approach uses only linear probes on model internals to determine whether activations from correctly and incorrectly answered questions are linearly separable.
+More recently, \cite{ferrando2025do} contains two experiments using the latent representations of SAEs (pre-trained to reconstruct model representations in unsupervised manner) on base Gemma2 2B and 9B  and LLaMA 3.1 8B: in the first, they identified general ``knowledge-awareness'' directions that predominantly activate on known entities but not on unknown ones (and vice versa) and showed that steering the chat-fine-tuned version of the model using these directions induces hallucination or refusal. This parallels our finding that the activations lie at an extreme of the direction we identify when the model utters ``I don't know'' (Section~\ref{sec:IDK}). In the second experiment, closer to our setup, they posed questions to the chat model, excluded cases where the model refuses to respond, and identified the SAE latent that has the highest difference in values between when the model produces correct and incorrect answers (``uncertainty direction''), and found good predictive power. Notably, this analysis was confined to Gemma2 models; by contrast, we directly train simple linear directions across a broader range of models, scaling up to 70 billion parameters. Nevertheless, Ferrando et al.’s approach and ours produce consistent evidence, thereby reaffirming one another.
+
+Several contemporaneous works also use LLM internals to anticipate hallucination or non-factuality at question time \citep{snyder2024early,gottesman2024estimating,wang2024hidden,ji2024llm,slobodkin2023curious}. \citet{snyder2024early} and \citet{ji2024llm} focus on hallucination risk and often use richer information about the generation process, such as the first generated token or short trajectories. \citet{slobodkin2023curious} study (un)answerability in reading comprehension with an explicit context passage. \citet{gottesman2024estimating} shift the focus to the level of entities, and estimate whether a model ``knows'' facts about specific entities such as historical figures. \citet{wang2024hidden} are closest in spirit to our work, and train more expressive classifiers over internal states to predict non-factuality and to transfer signals across models. In contrast, we deliberately adopt a stricter and simpler setting. We work with a single one-dimensional difference-of-means direction in the residual stream of one layer, trained on question-only activations before any token is generated, and we study per-question self-correctness for free-form factual QA across six open-source models from three families. This minimal probe already predicts correctness across datasets and models, which strengthens the claim that a linearly accessible correctness or confidence signal exists in mid–late layers.
+
+\subsection{Probing other properties with Model Internals}
+
+Closely related to our work is the growing literature on using hidden activations to detect properties of the model's upcoming or generated outputs. Several papers \citep{burns2022discovering,azaria-mitchell-2023-internal,Marks2023TheGO,burger2024truth, bao2025probing} showed that linear or shallow probes on internal representations can detect whether a full statement (or question+answer) processed by the model is true or false. Analogously to our findings, \citet{bao2025probing} found that more capable models have stronger representations, and that probes trained on atomic statements generalise to more complex sentences.  %In these setups, the statement (or question+answer) is typically fed in full, and the activation vectors at certain layers are used for classification. 
+This is closely related to Concept Activation Vectors \citep{kim2018interpretability} in explainable AI, which describe a model's internal representations in terms of its sensitivity to user-defined examples for a concept.
+Our approach chiefly differs from those mentioned above by relying on the activations obtained \textit{in advance}  of the model generating an answer to a question. Experiments in this setup where conducted (among other things) in \citet{DBLP:journals/corr/abs-2207-05221} for proprietary models. Our work corroborates their promising results with evidence from newer open-source LLMs.
+
+
+Other works extracted other information from internals. For instance, \cite{heindrich2025sparse}  predicted question answerability. %, comparing probes and sparse autoencoders. 
+Our work focuses on correctness, which encapsulates when a question is possibly answerable but the model is incorrect. % Further, our work provides evidence on a more robust sweep of datasets and model architectures.
+\cite{Kudo2024ThinktoTalkOT} % instructed models to perform chain-of-thought reasoning and 
+studied internals across models' chain of thought  and analyse when they start predicting the answer the model eventually produces; in contrast, we study whether the internals predict \textit{correctness} of the answer.
+\cite{goldowsky2025detecting} studied the detection of deception (a model deliberately misleading its interlocutor); correctness is broader, and less dependent on the fragile role-play setting required to elicit such deceptive behaviour. It is worth noting that \cite{parrack2025benchmarking} found white box probes to be slightly better than black-box detection approaches. Relatedly, \cite{yang2024interpretability} analyse how LLMs internally separate truthful vs. lying scenarios (with the model instructed to lie) at different layers, using dimensionality reduction and intervention experiments ("patching" activations from a lying scenario into a truthful one). % Relatedly, we investigate how correctness vectors learned on one dataset or domain can transfer to others.
+Instead, \citep{nguyen2025probing} show that linear probes can separate tasks encountered during evaluations and deployment.
+
+Finally, \cite{lee2025programming} used activation steering to condition models to refuse harmful prompts; our work focuses on correctness rather than harmfulness, which requires understanding one's own capabilities. In certain cases, we expect correctness to be a prerequisite to harmfulness, as incorrectly answering a banal question may be harmful but correctly answering it may be completely safe. \cite{beaglehole2025aggregate} conducted a similar steering study, detecting semantic concepts using non-linear feature learning and aggregating features across layers. In contrast, we show that correctness, a particularly important semantic concept, can be captured using linear features in individual layers, indicating that the concept is strongly present and can be easily accessed by the model. %--- a desirable property for the explainability of our probes.
+
+
+\section{Additional Quantitative Results}
+
+\subsection{LLMs used in this work.}
+
+Table \ref{tab:LLMs} presents all LLMs used in this work, the number of transformer of layers, and the layer achieving the best in-distribution AUC for the direction learned on TriviaQA.
+
+\begin{table}[]
+    \centering
+        \caption{Large Language Models used in our work, number of transformer layers and layer achieving the best in-distribution AUC for the direction learned on TriviaQA (Section~\ref{sec: find_layer}). The first layer is 0.}
+    \label{tab:LLMs}
+    \begin{tabular}{lccc}
+    \toprule
+         \textbf{Model} & \textbf{N. layers} & \textbf{Best layer} \\
+         \midrule
+         Llama 3.1 8B & 32 & 14 \\ % https://huggingface.co/meta-llama/Llama-3.1-8B
+         Llama 3.3 70B Instruct & 80 & 76 \\ % https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct
+         Qwen 2.5 7B Instruct & 28 & 22 \\ % https://huggingface.co/Qwen/Qwen2.5-7B-Instruct
+         DeepSeek R1 Distill Qwen 32B & 64 & 44 \\ % https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+         Mistral 7B Instruct v0.3 & 32 & 16 \\ % https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3
+         Ministral 8B Instruct 2410 & 36 & 18 \\ % https://huggingface.co/mistralai/Ministral-8B-Instruct-2410
+         \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{LLM performance on datasets}\label{sec:performance}
+
+Table~\ref{tab:performance} reports performance of all models on each dataset with the prompts we used (Appendix~\ref{sec:prompts}).
+
+\begin{table}[ht]
+\centering
+\caption{Model performance across tasks (\%).}
+\label{tab:performance}
+        \resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+Model & TriviaQA & N. people & Cities & Math ops. & Medals & GSM8K \\
+\midrule
+Llama 3.1 8B                     & 85.6 & 93.4 & 67.4 & 77.5 & 46.0 & 13.3 \\
+Mistral 7B Instruct v0.3                   & 83.6 & 84.7 & 45.8 & 73.9 & 42.8 & 10.7 \\
+Llama 3.3 70B Instruct                    & 93.4 & 97.6 & 80.3 & 82.2 & 83.5 & 36.3 \\
+Qwen 2.5 7B Instruct                     & 73.8 & 42.8 & 62.9 & 80.8 & 29.8 & 36.0 \\
+Ministral 8B Instruct 2410      & 79.9 & 67.4 & 73.0 & 74.2 & 40.5 & 14.8 \\
+DeepSeek R1 Distill Qwen 32B                  & 59.9 & 50.8 & 60.3 & 82.0 & 33.0 & 44.3 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{Extended information on the direction approach}
+
+Extended experimental results on the direction approach are provided in this section, offering further context that was not included in the main text. Table \ref{tab:direction_extended} extends the results of the direction approach presented in Table \ref{tab:results} and Table \ref{tab:accuracies} provides the accuracy on all test datasets of a potential classifier derived from the correctness direction. 
+
+Table \ref{tab:layer_per_dataset} shows the AUROC values on the model optimal layer (from Section \ref{sec: find_layer}) and the AUROC values on the layer optimized per dataset for all models and datasets. This comparison demonstrates that the single model-optimal layer is already highly effective, achieving performance very close to the dataset-specific optimal layer.
+
+\begin{table}[!ht]
+  \centering
+    \caption{Mean and standard deviation AUROC of the 5 folds for the direction approach (Section~\ref{sec:direction}) for each dataset and model. All directions are trained on the TriviaQA dataset on the optimal layer found in Section~\ref{sec: find_layer}.}
+          \resizebox{\columnwidth}{!}{%
+    \label{tab:direction_extended}
+\begin{tabular}{p{2.5cm}  l c c c c c}
+    \toprule
+    \multirow{2}{*}{\parbox{2.5cm}{\centering\textbf{Model}}} & \multicolumn{6}{c}{\textbf{Test dataset}} \\
+    & TriviaQA & N. people & Cities & Math ops. & Medals & GSM8K \\
+    
+    \midrule
+    
+    \parbox{2.5cm}{\centering Llama 3.1 8B} & 0.804 ± 0.006 & 0.722 ± 0.010 & 0.732 ± 0.018 & 0.858 ± 0.027 & 0.680 ± 0.007 & 0.534 ± 0.022 \\
+
+    \midrule
+
+    \parbox{2.5cm}{\centering Llama 3.3 70B} & 0.826 ± 0.006 & 0.708 ± 0.018 & 0.880 ± 0.014 & 0.835 ± 0.031 & 0.770 ± 0.022 & 0.499 ± 0.015 \\
+
+    \midrule
+    
+    \parbox{2.5cm}{\centering Qwen 2.5 7B} & 0.758 ± 0.006 & 0.800 ± 0.013 & 0.842 ± 0.008 & 0.837 ± 0.032 & 0.586 ± 0.014 & 0.601 ± 0.015 \\
+
+    \midrule
+    
+    \parbox{2.5cm}{\centering Deepseek R1 32B} & 0.735 ± 0.005 & 0.825 ± 0.008 & 0.879 ± 0.007 & 0.847 ± 0.035 & 0.638 ± 0.020 & 0.552 ± 0.012 \\
+
+    \midrule
+    
+    \parbox{2.5cm}{\centering Mistral 7B} & 0.796 ± 0.009 & 0.760 ± 0.016 & 0.880 ± 0.008 & 0.782 ± 0.033 & 0.645 ± 0.005 & 0.579 ± 0.016 \\
+
+    \midrule
+    
+    \parbox{2.5cm}{\centering Ministral 8B} & 0.734 ± 0.004 & 0.680 ± 0.007 & 0.840 ± 0.021 & 0.844 ± 0.020 & 0.670 ± 0.015 & 0.578 ± 0.013 \\
+    
+    \midrule
+  \end{tabular}}
+\end{table}
+
+\begin{table}[!ht]
+  \centering
+    \caption{Accuracy of a classifier based on the correctness direction at the optimal layer from Section \ref{sec: find_layer}. For each test dataset, we display results for the direction trained on TriviaQA and for the direction trained on the dataset itself. The threshold for the classifier is chosen using only training data.}
+          \resizebox{\columnwidth}{!}{%
+    \label{tab:accuracies}
+\begin{tabular}{p{2.5cm}  c c c c c c c c c c c c}
+    \toprule
+    \multirow{2}{*}{\parbox{2.5cm}{\centering\textbf{Model}}} & \multicolumn{12}{c}{\textbf{Test dataset}} \\
+    & \multicolumn{2}{c}{TriviaQA} & \multicolumn{2}{c}{N. people} & \multicolumn{2}{c}{Cities} & \multicolumn{2}{c}{Math ops.} & \multicolumn{2}{c}{Medals} & \multicolumn{2}{c}{GSM8K} \\
+    {\centering Trained with} & TriviaQA & Itself & TriviaQA & Itself & TriviaQA & Itself & TriviaQA & Itself & TriviaQA & Itself & TriviaQA & Itself \\
+    \midrule
+    
+    \parbox{2.5cm}{\centering Llama 3.1 8B} & 0.728 & 0.728 & 0.522 & 0.688 & 0.551 & 0.714 & 0.755 & 0.874 & 0.612 & 0.682 & 0.500 & 0.670 \\
+    \midrule
+
+    \parbox{2.5cm}{\centering Llama 3.3 70B} & 0.750 & 0.750 & 0.621 & 0.651 & 0.797 & 0.808 & 0.520 & 0.943 & 0.553 & 0.782 & 0.500 & 0.671 \\
+
+    \midrule
+    
+    \parbox{2.5cm}{\centering Qwen 2.5 7B} & 0.688 & 0.688 & 0.639 & 0.764 & 0.515 & 0.762 & 0.792 & 0.938 & 0.512 & 0.640 & 0.501 & 0.654 \\
+
+    \midrule
+    
+    \parbox{2.5cm}{\centering Deepseek R1 32B} & 0.671 & 0.671 & 0.588 & 0.793 & 0.612 & 0.802 & 0.848 & 0.961 & 0.519 & 0.636 & 0.500 & 0.660 \\
+
+    \midrule
+    
+    \parbox{2.5cm}{\centering Mistral 7B} & 0.721 & 0.721 & 0.523 & 0.724 & 0.771 & 0.811 & 0.724 & 0.858 & 0.545 & 0.661 & 0.503 & 0.659 \\
+
+    \midrule
+    
+    \parbox{2.5cm}{\centering Ministral 8B} & 0.670 & 0.670 & 0.514 & 0.647 & 0.500 & 0.774 & 0.764 & 0.830 & 0.532 & 0.656 & 0.502 & 0.671 \\
+
+    \midrule
+
+  \end{tabular}}
+\end{table}
+
+\begin{table}[!ht]
+  \centering
+    \caption{AUROC values on the model optimal layer from Section \ref{sec: find_layer} and on the layer optimized per dataset for all models and datasets.}
+          \resizebox{\columnwidth}{!}{%
+    \label{tab:layer_per_dataset}
+\begin{tabular}{p{2.5cm} c c c c c c c c c c c}
+    \toprule
+    \multirow{2}{*}{\parbox{2.5cm}{\centering\textbf{Model}}} & & \multicolumn{10}{c}{\textbf{Test dataset}} \\
+    & & \multicolumn{2}{c}{TriviaQA} & \multicolumn{2}{c}{Cities} & \multicolumn{2}{c}{Math ops.} & \multicolumn{2}{c}{Medals} & \multicolumn{2}{c}{GSM8K} \\
+    {\centering Opt. layer over} & & Model & Dataset & Model & Dataset & Model & Dataset & Model & Dataset & Model & Dataset \\
+    \midrule
+    
+    \multirow{2}{*}{\parbox{2.5cm}{\centering Llama 3.1 8B}} & Layer & 14 & 16 & 14 & 30 & 14 & 12 & 14 & 28 & 14 & 12  \\
+& AUROC & 0.802 & 0.803 & 0.732 & 0.783 & 0.860 & 0.901 & 0.677 & 0.712 & 0.537 & 0.548 \\
+
+    \midrule
+
+    \multirow{2}{*}{\parbox{2.5cm}{\centering Llama 3.3 70B}} & Layer & 76 & 76 & 76 & 72 & 76 & 32 & 76 & 40 & 76 & 32 \\
+& AUROC & 0.821 & 0.821 & 0.881 & 0.890 & 0.835 & 0.979 & 0.772 & 0.794 & 0.499 & 0.625 \\
+
+    \midrule
+    
+    \multirow{2}{*}{\parbox{2.5cm}{\centering Qwen 2.5 7B}} & Layer & 22 & 22 & 22 & 20 & 22 & 20 & 22 & 20 & 22 & 20 \\
+& AUROC & 0.760 & 0.760 & 0.841 & 0.854 & 0.833 & 0.875 & 0.587 & 0.588 & 0.602 & 0.678 \\
+
+    \midrule
+    
+    \multirow{2}{*}{\parbox{2.5cm}{\centering Deepseek R1 32B}} & Layer & 44 & 44 & 44 & 48 & 44 & 52 & 44 & 48 & 44 & 12 \\
+& AUROC & 0.734 & 0.734 & 0.880 & 0.890 & 0.848 & 0.963 & 0.640 & 0.665 & 0.554 & 0.642 \\
+
+    \midrule
+    
+    \multirow{2}{*}{\parbox{2.5cm}{\centering Mistral 7B}} & Layer & 16 & 16 & 16 & 30 & 16 & 22 & 16 & 20 & 16 & 18 \\
+& AUROC & 0.798 & 0.798 & 0.879 & 0.914 & 0.801 & 0.915 & 0.647 & 0.699 & 0.579 & 0.592 \\
+
+    \midrule
+    
+    \multirow{2}{*}{\parbox{2.5cm}{\centering Ministral 8B}} & Layer & 18 & 18 & 18 & 16 & 18 & 16 & 18 & 16 & 18 & 2 \\
+& AUROC & 0.738 & 0.738 & 0.840 & 0.846 & 0.843 & 0.859 & 0.666 & 0.669 & 0.574 & 0.637 \\
+
+    \midrule
+
+  \end{tabular}}
+\end{table}
+
+\subsection{Assessors performance}
+\label{sec:assessors}
+
+For the gradient boosted decision tree assessors, we used XGBoost \citep{chen2016xgboost}. The number of trees were chosen individually for each model by performing 5-fold cross validation on the same training subset of TriviaQA as in Section \ref{sec:exp_gen}. The rest of XGBoost's hyperparameters were left as default.
+
+\begin{table}[!ht]
+  \centering
+    \caption{AUROC for logistic regression and Gradient Boosted Decision Tree (XGBoost) assessors.}
+          \resizebox{\columnwidth}{!}{%
+\begin{tabular}{p{2.5cm}  l c c c c c c}
+    \toprule
+    \multirow{2}{*}{\parbox{2.5cm}{\centering\textbf{Model}}} & \multirow{2}{*}{\parbox{1.5cm}{\centering\textbf{Assessor}}} & \multicolumn{6}{c}{\textbf{Test dataset}} \\
+    & & TriviaQA & N. people & Cities & Math ops. & Medals & GSM8K \\
+    
+    \midrule
+    
+    \multirow{2}{*}{\parbox{2.5cm}{\centering Llama 3.1 8B}}
+        & Log. regression & 0.852 & 0.630 & 0.663 & 0.528 & 0.623 & 0.558 \\
+        & XGBoost (133 trees)& 0.896 & 0.560 & 0.639 & 0.453 & 0.554 & 0.532 \\
+
+    \midrule
+
+    \multirow{2}{*}{\parbox{2.5cm}{\centering Llama 3.3 70B Instruct}}
+        & Log. regression & 0.759 & 0.583 & 0.672 & 0.449 & 0.568 & 0.573 \\
+        & XGBoost (150 trees)& 0.853 & 0.516 & 0.608 & 0.398 & 0.501 & 0.543 \\
+
+    \midrule
+    
+    \multirow{2}{*}{\parbox{2.5cm}{\centering Qwen 2.5 7B Instruct}}
+        & Log. regression & 0.807 & 0.723 & 0.708 & 0.400 & 0.622 & 0.584 \\
+        & XGBoost (47 trees)& 0.847 & 0.619 & 0.624 & 0.506 & 0.580 & 0.546 \\
+
+    \midrule
+    
+    \multirow{2}{*}{\parbox{2.5cm}{\centering DeepSeek R1 Distill Qwen 32B}}
+        & Log. regression & 0.790 & 0.709 & 0.663 & 0.337 & 0.601 & 0.576 \\
+        & XGBoost (51 trees)& 0.834 & 0.608 & 0.609 & 0.458 & 0.547 & 0.541 \\
+
+    \midrule
+    
+    \multirow{2}{*}{\parbox{2.5cm}{\centering Mistral 7B Instruct v0.3}}
+        & Log. regression & 0.846 & 0.673 & 0.710 & 0.493 & 0.638 & 0.559 \\
+        & XGBoost (130 trees)& 0.898 & 0.558 & 0.672 & 0.380 & 0.590 & 0.543 \\
+
+    \midrule
+    
+    \multirow{2}{*}{\parbox{2.5cm}{\centering Ministral 8B Instruct 2410}}
+        & Log. regression & 0.789 & 0.623 & 0.682 & 0.454 & 0.626 & 0.598 \\
+        & XGBoost (65 trees)& 0.846 & 0.545 & 0.611 & 0.498 & 0.551 & 0.556 \\
+    
+    \midrule
+  \end{tabular}}
+\end{table}
+
+
+
+\subsection{How much training data do we need to learn the correctness direction?}
+Figure~\ref{fig:n_samples} shows performance for the correctness direction trained on TriviaQA for an increasing number of training samples. Interestingly, Mathematical Operations has the highest data complexity, likely due to the fact that arithmetic errors are heteregenous and need a large amount of averaging out to cancel the variance of the activations.
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=\textwidth]{figs/training_samples_exp_all_models.pdf}
+  \caption{AUROC scores for each model and test dataset for different number of training samples from TriviaQA, for our correctness direction approach. To reduce variance, 10 experiments were performed for each number of training samples and the average AUROC is reported. Notice that the x scale is logarithmic.}
+  \label{fig:n_samples}
+\end{figure}
+
+\subsection{Heatmaps}\label{sec:heatmaps}
+
+Figure~\ref{fig:heatmaps} and Figure~\ref{fig:heatmaps_std} complement Figure~\ref{fig:cross_auroc} from the main text and reports AUROC mean and standard deviation scores for each combination of model, train dataset and test dataset.
+
+\begin{figure}[!h]
+  \centering
+  \begin{subfigure}[b]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/heatmap_auc_ministral_8b_best_layer.pdf}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/heatmap_auc_llama_31_8b_best_layer.pdf}
+  \end{subfigure}
+  
+  \vspace{1em}
+  
+  \begin{subfigure}[b]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/heatmap_auc_qwen_25_7b_best_layer.pdf}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/heatmap_auc_qwen_32b_best_layer.pdf}
+  \end{subfigure}
+
+  \vspace{1em}
+  
+  \begin{subfigure}[b]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/heatmap_auc_mistral_7b_best_layer.pdf}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/heatmap_auc_llama_3_70b_best_layer.pdf}
+  \end{subfigure}
+  
+  \caption{AUROC scores on each dataset for the direction learned on each dataset individually for all models. Average AUROC over 5 folds is reported (Section~\ref{sec:exp_gen}).}
+  \label{fig:heatmaps}
+\end{figure}
+
+\begin{figure}[!h]
+  \centering
+  \begin{subfigure}[b]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/heatmap_auc_std_ministral_8b_best_layer.pdf}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/heatmap_auc_std_llama_31_8b_best_layer.pdf}
+  \end{subfigure}
+  
+  \vspace{1em}
+  
+  \begin{subfigure}[b]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/heatmap_auc_std_qwen_25_7b_best_layer.pdf}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/heatmap_auc_std_qwen_32b_best_layer.pdf}
+  \end{subfigure}
+
+  \vspace{1em}
+  
+  \begin{subfigure}[b]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/heatmap_auc_std_mistral_7b_best_layer.pdf}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/heatmap_auc_std_llama_3_70b_best_layer.pdf}
+  \end{subfigure}
+  
+  \caption{Standard deviations of the values in Figure~\ref{fig:heatmaps}, computed over 5 folds.}
+  \label{fig:heatmaps_std}
+\end{figure}
+\newpage
+\null
+\newpage
+
+\subsection{Cosine similarities}
+\label{app:cosine}
+
+Figure~\ref{fig:cosine} reports cosine similarities between the directions learned on the different datasets, for all models. Notice the cosine similarity ranges from -1 to +1, with 0 indicating orthogonality.
+
+\begin{figure}[!h]
+  \centering
+  \begin{subfigure}[b]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cosine_similarities_best_layer_Ministral_8B_Instruct_2410.pdf}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cosine_similarities_best_layer_Llama_3.1_8B.pdf}
+  \end{subfigure}
+  
+  \vspace{1em}
+  
+  \begin{subfigure}[b]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cosine_similarities_best_layer_Qwen_2.5_7B_Instruct.pdf}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cosine_similarities_best_layer_Distill_Qwen_32B.pdf}
+  \end{subfigure}
+
+  \vspace{1em}
+  
+  \begin{subfigure}[b]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cosine_similarities_best_layer_Mistral_7B_Instruct_v0.3.pdf}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.42\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figs/cosine_similarities_best_layer_Llama_3.3_70B_Instruct.pdf}
+  \end{subfigure}
+  
+  \caption{Cosine similarities for directions trained with different datasets. Following the same method as in Section \ref{sec:exp_gen}, we average the directions over 5 folds and provide cosine similarities for these averages.}
+  \label{fig:cosine}
+\end{figure}
+
+\subsection{Correctness direction performance across layers}\label{app:all-layers}
+
+Figure~\ref{fig:all_data} shows the in-distribution performance of the direction trained on each dataset over the layers of each considered model, complementing Figure~\ref{fig:AUC_vs_layer}.
+
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figs/auc_across_layers_all_models.pdf}
+    \caption{AUROC for each dataset, model and layer for the direction approach explained in Sec~\ref{sec:direction}. The direction is trained and tested on the same dataset (using cross-validation). 
+    We collect activations every 2 layers for small (<10B parameters) models and every 4 layers for large (>10B parameters) models. The best layer is chosen as in Section~\ref{sec: find_layer}, and the first "good enough" layer is the first layer that achieves 90\% of the accuracy of the best layer in TriviaQA.}
+    \label{fig:all_data}
+\end{figure}
+
+\subsection{Prompts}\label{sec:prompts}
+Below we report the prompts used for our evaluations. 
+
+Prompt for Cities dataset:
+\begin{tcolorbox}[graybox]
+I am going to ask you a question about cities. End your sentence with \verb|{eos_token}|.Here are some examples of questions that might help you:\\
+        --- \\
+        Question: In which country is the city of Barcelona located?\\
+        Answer: Spain\verb|{eos_token}|\\
+        ---\\
+        Question: In which country is the city of London located?\\
+        Answer: United Kingdom\verb|{eos_token}|\\
+        ---\\
+        Question: In which country is the city of Beijing located?\\
+        Answer: China\verb|{eos_token}|\\
+        ---\\
+        Question:\verb|{question}|\\Answer:
+\end{tcolorbox}
+
+Prompt for Notable People dataset:
+\begin{tcolorbox}[graybox]
+I am going to ask you what year a person was born. End your sentence with \verb|{eos_token}|.Here are some examples of questions that might help you:\\
+        --- \\
+        Question: What year was Barack Obama (politician from US) born?\\
+        Answer: 1961\verb|{eos_token}|\\
+        ---\\
+        Question: What year was Vladimir Putin (politician from Russia) born?\\
+        Answer: 1952\verb|{eos_token}|\\
+        ---\\
+        Question: What year was Xi Jinping (politician from China) born?\\
+        Answer: 1953\verb|{eos_token}|\\
+        ---\\
+        Question:\verb|{question}|\\Answer:
+\end{tcolorbox}
+
+Prompt for Medals dataset:
+\begin{tcolorbox}[graybox]
+I am going to ask you a question about the Olympics. End your sentence with \verb|{eos_token}|.Here are some examples of questions that might help you:\\
+        --- \\
+        Question: Which country won gold in Gymnastics Women's Team All-Around in the 1928 Summer Olympics?\\
+        Answer: Netherlands\verb|{eos_token}|\\
+        ---\\
+        Question: Which country won gold in Hockey Women's Hockey in the 2004 Summer Olympics?\\
+        Answer: Germany\verb|{eos_token}|\\
+        ---\\
+        Question: Which country won gold in Fencing Men's Sabre, Individual in the 1964 Summer Olympics?\\
+        Answer: Hungary\verb|{eos_token}|\\
+        ---\\
+        Question:\verb|{question}|\\Answer:
+\end{tcolorbox}
+
+Prompt for TriviaQA dataset:
+\begin{tcolorbox}[graybox]
+I am going to ask you a question. Answer concisely. End your sentence with \verb|{eos_token}|.Here are some examples of questions that might help you:\\
+        --- \\
+        Question: In which month are St David's Day and St Patrick's Day celebrated in the UK?\\
+        Answer: March\verb|{eos_token}|\\
+        ---\\
+        Question: What is the common English name of Mozart's Serenade for Strings in d major?\\
+        Answer: A little night music\verb|{eos_token}|\\
+        ---\\
+        Question: In which US State do teams play baseball in the Cactus League?\\
+        Answer: Arizona\verb|{eos_token}|\\
+        ---\\
+        Question:\verb|{question}|\\Answer:
+\end{tcolorbox}
+
+Prompt for Math Operations dataset:
+\begin{tcolorbox}[graybox]
+I am going to ask you questions about maths. Answer with an integer value, without decimal places. End your sentence with \verb|{eos_token}|.Here are some examples of questions that might help you:\\
+        --- \\
+        Question: What is 604 minus 866?\\
+        Answer: -262\verb|{eos_token}|\\
+        ---\\
+        Question: What is 927 plus 855?\\
+        Answer: 1782\verb|{eos_token}|\\
+        ---\\
+        Question: What is 531 times 955?\\
+        Answer: 507105\verb|{eos_token}|\\
+        ---\\
+        Question:\verb|{question}|\\Answer:
+\end{tcolorbox}
+
+Prompt for GSM8K dataset:
+\begin{tcolorbox}[graybox]
+I am going to ask you a question that requires your answer in a boxed integer. End your sentence with \verb|{eos_token}|.Here are some examples of questions that might help you:\\
+        --- \\
+        Question: Weng earns \$12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?\\
+        Answer: \$\textbackslash boxed\{10\}\$\verb|{eos_token}|\\
+        ---\\
+        Question: Julie is reading a 120-page book. Yesterday, she was able to read 12 pages and today, she read twice as many pages as yesterday. If she wants to read half of the remaining pages tomorrow, how many pages should she read?\\
+        Answer: \$\textbackslash boxed\{42\}\$\verb|{eos_token}|\\
+        ---\\
+        Question: Mark has a garden with flowers. He planted plants of three different colors in it. Ten of them are yellow, and there are 80\% more of those in purple. There are only 25\% as many green flowers as there are yellow and purple flowers. How many flowers does Mark have in his garden?\\
+        Answer: \$\textbackslash boxed\{35\}\$\verb|{eos_token}|\\
+        ---\\
+        Question:\verb|{question}|\\Answer:
+\end{tcolorbox}
+
+Prompt for the verbalized confidence experiment:
+\begin{tcolorbox}[graybox]
+I am going to ask you about your confidence to answer a question. The confidence indicates how likely you think your answer will be true. Please respond with only a percentage and end with \verb|{eos_token}|, so your answer should be following the format
+
+\smallskip
+Answer: (percentage)$\%$\verb|{eos_token}|
+\smallskip
+
+\noindent
+How confident are you that you can answer correctly ‘\verb|{question}|’? Answer:
+\end{tcolorbox}
+
+\section{The Use of Large Language Models in this research paper}
+
+Besides being the subject of the investigation, the authors acknowledge having used Large Language Models in polishing the writing of some sections and for finding related works to be mentioned. 
+
+
+
+\end{document}
