@@ -4,10 +4,6 @@
 \usepackage[scaled]{helvet}
 \usepackage{graphicx}
 \usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{booktabs}
-\usepackage{multirow}
-\usepackage{array}
 \usepackage{enumitem}
 \usepackage{microtype}
 \usepackage{xcolor}
@@ -18,24 +14,41 @@
 \graphicspath{{../paper/figs/}}
 \emergencystretch=2em
 
-\setlist[itemize]{leftmargin=*,itemsep=0.3em,topsep=0.25em}
-\setlist[enumerate]{leftmargin=*,itemsep=0.2em,topsep=0.2em}
-\setlength{\columnsep}{0.7em}
-\setlength{\columnseprule}{0mm}
+\setlist[itemize]{leftmargin=*,itemsep=0.34em,topsep=0.18em}
+\setlist[enumerate]{leftmargin=1.35em,itemsep=0.32em,topsep=0.15em}
 
 \definecolor{ink}{HTML}{16324F}
 \definecolor{accent}{HTML}{0F6C7B}
 \definecolor{accentlight}{HTML}{E7F6F8}
 \definecolor{sand}{HTML}{F7F4EE}
-\definecolor{warm}{HTML}{C96C4A}
 \definecolor{border}{HTML}{8AA4B6}
 \definecolor{muted}{HTML}{5E6A75}
 \definecolor{sky}{HTML}{EDF6FA}
 
 \newcommand{\AUROC}{\textsc{AUROC}}
 \newcommand{\OOD}{\textsc{OOD}}
-\newcommand{\dirscore}{\textsc{Direction}}
-\newcommand{\best}[1]{\textbf{\color{ink}#1}}
+\newcommand{\best}[1]{{\sffamily\bfseries #1}}
+\newcommand{\statvalue}[1]{{\sffamily\bfseries\fontsize{27}{29}\selectfont #1}}
+\newcommand{\statcard}[2]{%
+\fcolorbox{border}{sky}{%
+\begin{minipage}[c][4.7em][c]{0.47\linewidth}
+\centering
+\statvalue{#1}\\[-0.12em]
+{\sffamily\small #2}
+\end{minipage}}}
+\newcommand{\resultcallout}[1]{%
+\begin{center}
+\fcolorbox{border}{accentlight}{%
+\parbox{0.92\linewidth}{%
+\centering
+\sffamily\bfseries\large\color{ink}#1}}
+\end{center}}
+\newcommand{\footerpanel}[2]{%
+\fcolorbox{border}{accentlight}{%
+\begin{minipage}[t][4.8em][t]{0.305\linewidth}
+{\sffamily\bfseries\large\color{ink}#1}\\[0.35em]
+#2
+\end{minipage}}}
 
 \begin{document}
 
@@ -43,7 +56,7 @@
  grid=false,
  eyecatcher=false,
  columns=4,
- colspacing=0.75em,
+ colspacing=0.85em,
  headerColorOne=ink,
  headerColorTwo=accent,
  borderColor=border,
@@ -58,240 +71,109 @@
  background=plain,
  bgColorOne=white,
  bgColorTwo=white,
- headerheight=0.13\textheight,
- boxpadding=0.5em,
- linewidth=2pt,
- headerfont=\bfseries\Large,
+ headerheight=0.115\textheight,
+ boxpadding=0.7em,
+ linewidth=1.6pt,
+ headerfont=\sffamily\bfseries\Large,
  textfont={\small}
 }
 {}
 {
-No Answer Needed: Predicting LLM Answer Accuracy\\[0.1em]
-from Question-Only Linear Probes
+\begin{minipage}{0.99\linewidth}
+\centering
+{\sffamily\bfseries\fontsize{18}{20}\selectfont
+No Answer Needed: Predicting LLM Answer Accuracy\\[0.12em]
+from Question-Only Linear Probes}
+\end{minipage}
 }
 {
-\vspace{0.25em}
-Iv\'an Vicente Moreno Cencerrado$^{*1,2}$ \enspace Arnau Padr\'es Masdemont$^{*2,3}$ \enspace
-Anton Gonzalvez Hawthorne$^{*2,4}$\\[0.15em]
-David Demitri Africa$^{*2,3}$ \enspace Lorenzo Pacchiardi$^{3}$\\[0.2em]
+\begin{minipage}{0.99\linewidth}
+\centering\sffamily\normalsize
+Iv\'an Vicente Moreno Cencerrado$^{1,2*}$ \enspace
+Arnau Padr\'es Masdemont$^{2,3*}$ \enspace
+Anton Gonzalvez Hawthorne$^{2,4*}$ \enspace
+David Demitri Africa$^{2,3*}$ \enspace
+Lorenzo Pacchiardi$^{3}$\\[0.15em]
 \normalsize
-$^1$Universidad Internacional de Valencia \enspace
-$^2$MARS \enspace
-$^3$University of Cambridge \enspace
-$^4$Independent Researcher\\[0.1em]
+$^1$Universidad Internacional de Valencia \enspace|\enspace
+$^2$MARS \enspace|\enspace
+$^3$University of Cambridge \enspace|\enspace
+$^4$Independent Researcher \enspace|\enspace
 $^*$Equal contribution
+\end{minipage}
 }
 {}
 
-\headerbox{\bf Overview}{name=overview,column=0,row=0,span=1}{
-\begin{itemize}
-\item \textbf{Question:} can an LLM anticipate whether it will answer a question correctly \emph{before} it generates any answer tokens?
-\item We extract the residual stream at the final question token and learn a simple linear probe from question-only activations.
-\item Probes are trained on TriviaQA and evaluated in distribution and \OOD{} on factual and arithmetic datasets.
-\end{itemize}
-
-\vspace{0.3em}
-\textbf{\color{accent}Headline findings}
-\begin{itemize}
-\item A single question-only direction beats the best baseline on \best{24/30} \OOD{} model-dataset comparisons.
-\item On factual \OOD{} datasets (People, Cities, Medals), it wins on \best{17/18} comparisons.
-\item Best layers appear in the \best{middle-to-late} part of the transformer stack.
-\item ``I don't know'' responses lie at the negative extreme of the learned direction.
-\item Transfer breaks on GSM8K, suggesting factual and arithmetic correctness are structurally different.
-\end{itemize}
-
+\headerbox{}{name=footer,column=0,span=4,above=bottom,height=0.11,textborder=none,headerborder=none,headershade=none,boxheaderheight=0em,borderColor=white,boxColorOne=white,boxColorTwo=white}{
 \begin{center}
-\fcolorbox{border}{accentlight}{
-\parbox{0.92\linewidth}{
-\centering
-\textbf{\color{ink}Takeaway:} LLM internals contain a linearly accessible \emph{pre-answer self-assessment signal} for factual QA.
-}}
+\footerpanel{Models and data}{Six open models from 7B to 70B. Train on TriviaQA 60K and test on Cities, Notable People, Medals, Math Operations, and GSM8K.}\hfill
+\footerpanel{Main takeaway}{A simple question-only linear probe exposes a factual self-correctness signal before generation, but arithmetic reasoning appears to rely on a different internal mechanism.}\hfill
+\footerpanel{Further information}{\url{github.com/ivanvmoreno/correctness-model-internals}\\
+\url{imorenocencerrado@alumnos.viu.es}}
 \end{center}
 }
 
-\headerbox{\bf Experimental Setup}{name=setup,column=0,below=overview,span=1}{
-\textbf{\color{accent}Models}
-\begin{center}
-\scriptsize
-\begin{tabular}{lc}
-\toprule
-\textbf{Model} & \textbf{Best layer} \\
-\midrule
-Llama 3.1 8B & 14 / 32 \\
-Llama 3.3 70B & 76 / 80 \\
-Qwen 2.5 7B & 22 / 28 \\
-DeepSeek R1 32B & 44 / 64 \\
-Mistral 7B & 16 / 32 \\
-Ministral 8B & 18 / 36 \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-\textbf{\color{accent}Datasets}
+\headerbox{Introduction}{name=introduction,column=0,row=0,span=1}{
 \begin{itemize}
-\item \textbf{Training source:} TriviaQA (60K), chosen for breadth and diversity.
-\item \textbf{Factual \OOD{} tests:} Cities (10K), Notable People (16K), Medals (9K).
-\item \textbf{Arithmetic tests:} Math Operations (6K) and GSM8K (8K).
-\end{itemize}
-
-\textbf{\color{accent}Protocol}
-\begin{itemize}
-\item 3-shot prompting, temperature 0, activations captured at the last prompt token.
-\item 10K TriviaQA samples are reserved for layer selection; the remaining data uses 5-fold evaluation.
-\item After activations are cached, training the probe is a one-shot operation taking less than 3 minutes on CPU.
+\item Do large language models internally anticipate whether they will answer a factual question correctly \emph{before} they generate any answer tokens?
+\item We test the \textbf{Linear Representation Hypothesis} for factual correctness: after a question is read, is there a simple direction in activation space that separates future right from wrong answers?
+\item Across six open models from 7B to 70B parameters, we find strong evidence that such a question-only direction exists.
 \end{itemize}
 }
 
-\headerbox{\bf Why It Matters}{name=why,column=0,below=setup,above=bottom,span=1}{
-\begin{itemize}
-\item The signal is \textbf{internal}: it generalizes better than black-box assessors built from question embeddings.
-\item The probe is \textbf{lightweight}: no answer sampling or uncertainty module is required at test time.
-\item A model-specific correctness direction could support abstention, routing, or human-review policies for factual QA.
-\item The GSM8K failure mode suggests that reasoning accuracy requires a different internal verification mechanism.
-\end{itemize}
+\headerbox{Materials and methods}{name=methods,column=0,below=introduction,above=footer,span=1}{
+\begin{enumerate}
+\item Read the prompt, stop at the final question token, and extract the residual stream before generation.
+\item Train a one-dimensional difference-of-means direction on TriviaQA. This deliberate simplicity tests linear separability rather than maximizing predictive accuracy with a richer classifier.
+\item Compare the probe against black-box assessors and verbalized confidence in distribution, across factual \OOD{} datasets, and on arithmetic GSM8K.
+\end{enumerate}
 
-\vspace{0.4em}
-\textbf{\color{accent}Practical message}
+\begin{center}
+{\sffamily\bfseries\Large $s(x)=\langle h(x), v \rangle$}
+\end{center}
 
-The strongest gains appear when we want a cheap, pre-generation estimate of whether a model is likely to know a factual answer.
-
-\vspace{0.5em}
-\textbf{Paper and code:} \url{github.com/ivanvmoreno/correctness-model-internals}
+The score is computed from question-only activations: a positive projection means the internal state already looks more like questions the model will answer correctly.
 }
 
-\headerbox{\bf Method}{name=method,column=1,row=0,span=1}{
-\begin{itemize}
-\item For each question \(x\), extract residual activations \(h^{(l)}(x)\) at every layer \emph{after} the question is read and \emph{before} any answer token is generated.
-\item Generate one answer \(y = M(x)\), grade it as correct or incorrect, and compute a linear direction
-\[
-v^{(l)} = \mu_{\mathrm{correct}}^{(l)} - \mu_{\mathrm{incorrect}}^{(l)}.
-\]
-\item Score a new question using
-\[
-s^{(l)}(x) = \langle h^{(l)}(x), v^{(l)} \rangle
-\]
-and select the layer with the highest held-out \AUROC{} on TriviaQA.
-\item Evaluate that same direction in distribution and on unseen datasets.
-\end{itemize}
+\headerbox{Results}{name=results,column=1,row=0,span=2,above=footer}{
+\resultcallout{One simple question-only direction generalizes across factual datasets, beats black-box assessors under domain shift, and supports the Linear Representation Hypothesis for factual correctness.}
 
 \begin{center}
-\includegraphics[width=0.98\linewidth]{diagram.pdf}
-\end{center}
-
-\vspace{0.2em}
-\textbf{\color{accent}Interpretation}
-
-A positive projection means the current internal state looks more like questions the model will answer correctly, even though the answer itself is never used at test time.
-}
-
-\headerbox{\bf Where The Signal Appears}{name=layers,column=1,below=method,above=bottom,span=1}{
-\textbf{\color{accent}Layer-wise emergence}
-\begin{itemize}
-\item Early layers are weak predictors; performance rises and then saturates in the middle or late-middle of the network.
-\item This pattern is consistent across all six model families and scales.
-\end{itemize}
-
-\begin{center}
-\includegraphics[width=0.95\linewidth]{find_best_layer_plot.pdf}
-\end{center}
-
-\vspace{0.2em}
-\textbf{\color{accent}Sample efficiency}
-\begin{itemize}
-\item About \best{160} training questions already give strong performance.
-\item Around \best{2,560} training questions match the performance of the full 48,540-sample TriviaQA training set.
-\item Larger models converge faster, suggesting their correctness signal is more linearly accessible.
-\end{itemize}
-
-\begin{center}
-\includegraphics[width=0.98\linewidth]{training_samples_exp_all_models.pdf}
-\end{center}
-}
-
-\headerbox{\bf Main Results}{name=results,column=2,row=0,span=2}{
-\begin{minipage}[t]{0.46\linewidth}
-\textbf{\color{accent}Average \OOD{} \AUROC{} over 6 models}
-
-\vspace{0.4em}
-\begin{center}
-\scriptsize
-\resizebox{0.98\linewidth}{!}{
-\begin{tabular}{lccc}
-\toprule
-\textbf{Test set} & \textbf{Best baseline} & \textbf{\dirscore{}} & \textbf{Gap} \\
-\midrule
-Notable People & 0.659 & \best{0.749} & +0.091 \\
-Cities & 0.695 & \best{0.842} & +0.147 \\
-Math Operations & 0.612 & \best{0.834} & +0.222 \\
-Medals & 0.629 & \best{0.665} & +0.036 \\
-GSM8K & \best{0.579} & 0.557 & -0.022 \\
-\bottomrule
-\end{tabular}}
-\end{center}
-
-\vspace{0.4em}
-\begin{itemize}
-\item Overall \OOD{} average: \best{0.729} for \dirscore{} vs 0.594 for assessors and 0.583 for verbalized confidence.
-\item Factual \OOD{} average: \best{0.752} for \dirscore{} vs 0.651 and 0.587.
-\item The probe slightly trails assessors in distribution, but transfers much better across domain shifts.
-\end{itemize}
-
-\begin{center}
-\fcolorbox{border}{sky}{
-\parbox{0.94\linewidth}{
-\centering
-\textbf{\color{ink}\dirscore{} wins on 24/30 \OOD{} comparisons and 17/18 factual \OOD{} comparisons.}
-}}
-\end{center}
-\end{minipage}
+\begin{minipage}[t]{0.96\linewidth}
+\statcard{24/30}{\OOD{} wins vs best black-box baseline}
 \hfill
-\begin{minipage}[t]{0.51\linewidth}
-\textbf{\color{accent}Train on one dataset, test on another}
+\statcard{17/18}{factual \OOD{} wins}
 
-\vspace{0.4em}
-\begin{minipage}[t]{0.49\linewidth}
-\centering
-\includegraphics[width=\linewidth]{heatmap_auc_mistral_7b_best_layer.pdf}\\[-0.1em]
-\small Mistral 7B Instruct
-\end{minipage}
+\vspace{0.55em}
+\statcard{0.729}{mean \OOD{} \AUROC{}}
 \hfill
-\begin{minipage}[t]{0.49\linewidth}
-\centering
-\includegraphics[width=\linewidth]{heatmap_auc_llama_3_70b_best_layer.pdf}\\[-0.1em]
-\small Llama 3.3 70B Instruct
+\statcard{0.752}{mean factual \OOD{} \AUROC{}}
 \end{minipage}
+\end{center}
 
-\vspace{0.5em}
-\begin{itemize}
-\item Directions learned from \textbf{TriviaQA} transfer best overall, likely because the dataset is broad and less shortcut-prone.
-\item Directions trained on narrow datasets are often more dataset-specific.
-\item The largest model, Llama 3.3 70B, shows the most consistent cross-dataset structure.
-\end{itemize}
-\end{minipage}
+\vspace{0.55em}
+\begin{center}
+{\sffamily\bfseries\color{muted}Question-only probe pipeline}\\[0.2em]
+\includegraphics[width=0.88\linewidth]{diagram.pdf}
+\end{center}
+
+\small The score is defined from question-only activations before answer generation, then reused across held-out questions and datasets. Assessor averages are lower at 0.594 overall \OOD{} and 0.651 factual \OOD{}.
+
+\vspace{0.45em}
+\resultcallout{Sample efficiency is unusually high: about 160 questions already help, and roughly 2,560 recover the full 48,540-question training-set performance.}
 }
 
-\headerbox{\bf What The Direction Captures}{name=qualitative,column=2,below=results,above=bottom,span=2}{
-\begin{minipage}[t]{0.58\linewidth}
+\headerbox{Conclusions}{name=conclusions,column=3,row=0,span=1,above=footer}{
 \begin{itemize}
-\item Some models output ``I don't know'' even when prompted to answer in a concrete format.
-\item Those abstentions sit at the \textbf{most negative} end of the correctness direction, below ordinary wrong answers.
-\item High-score mistakes are often near misses, such as being off by a year; high-score correct answers tend to be canonical, well-known facts.
-\item The learned direction therefore behaves like both a \textbf{correctness predictor} and a \textbf{confidence / knowledge-awareness axis}.
+\item These results validate the \textbf{Linear Representation Hypothesis} for factual correctness: a one-dimensional pre-answer direction already separates future right from wrong answers.
+\item The linear probe outperforms black-box assessors under factual domain shift, even though the best assessor remains slightly stronger in distribution.
+\item The signal emerges only after mid-layer processing, saturates later in the stack, and becomes cleaner in larger models.
+\item Unprompted ``I don't know'' responses occupy the negative extreme of the same direction, indicating a latent confidence or knowledge-awareness axis.
+\item Manual inspection suggests the scores are meaningfully calibrated: high-score mistakes are often near misses rather than arbitrary failures.
 \end{itemize}
 
-\vspace{0.4em}
-\textbf{\color{accent}Bottom line}
-\begin{itemize}
-\item LLMs encode a transferable pre-answer factual self-assessment signal in their residual stream.
-\item The signal is linearly accessible, data-efficient, and stronger in larger models.
-\item Arithmetic reasoning is different: a factual correctness direction does \emph{not} transfer to GSM8K.
-\end{itemize}
-\end{minipage}
-\hfill
-\begin{minipage}[t]{0.38\linewidth}
-\centering
-\includegraphics[width=\linewidth]{idk_plot.pdf}
-\end{minipage}
+\vspace{0.35em}
+For factual QA, the direction behaves like both a self-correctness signal and a self-awareness signal.
 }
 
 \end{poster}
