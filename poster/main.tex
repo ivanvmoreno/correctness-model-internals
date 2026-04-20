@@ -1,180 +1,259 @@
-\documentclass[landscape,paperwidth=48in,paperheight=36in,fontscale=0.29]{baposter}
+\documentclass[final]{beamer}
+
+% ====================
+% Template path
+% ====================
+
+\makeatletter
+\def\input@path{{./}}
+\makeatother
+
+% ====================
+% Packages
+% ====================
 
 \usepackage[T1]{fontenc}
-\usepackage[scaled]{helvet}
+\usepackage{lmodern}
+\usepackage[size=custom,width=121.92,height=91.44,scale=1.0]{beamerposter}
+\usetheme{gemini}
+\usecolortheme{cam}
 \usepackage{graphicx}
 \usepackage{amsmath}
-\usepackage{enumitem}
-\usepackage{microtype}
-\usepackage{xcolor}
-\usepackage{url}
+\usepackage{booktabs}
+\usepackage{anyfontsize}
 
-\renewcommand{\familydefault}{\sfdefault}
-\urlstyle{same}
-\graphicspath{{../paper/figs/}}
-\emergencystretch=2em
+% ====================
+% Poster-specific setup
+% ====================
 
-\setlist[itemize]{leftmargin=*,itemsep=0.34em,topsep=0.18em}
-\setlist[enumerate]{leftmargin=1.35em,itemsep=0.32em,topsep=0.15em}
+\graphicspath{{../paper/figs/}{../poster_tpl/logos/}{img/}}
 
-\definecolor{ink}{HTML}{16324F}
-\definecolor{accent}{HTML}{0F6C7B}
-\definecolor{accentlight}{HTML}{E7F6F8}
-\definecolor{sand}{HTML}{F7F4EE}
-\definecolor{border}{HTML}{8AA4B6}
-\definecolor{muted}{HTML}{5E6A75}
-\definecolor{sky}{HTML}{EDF6FA}
-
+\newlength{\sepwidth}
+\setlength{\sepwidth}{0.025\paperwidth}
+\newlength{\leftcolwidth}
+\setlength{\leftcolwidth}{0.19\paperwidth}
+\newlength{\maincolwidth}
+\setlength{\maincolwidth}{0.52\paperwidth}
+\newlength{\rightcolwidth}
+\setlength{\rightcolwidth}{0.19\paperwidth}
+\newcommand{\separatorcolumn}{\begin{column}{\sepwidth}\end{column}}
 \newcommand{\AUROC}{\textsc{AUROC}}
 \newcommand{\OOD}{\textsc{OOD}}
-\newcommand{\best}[1]{{\sffamily\bfseries #1}}
-\newcommand{\statvalue}[1]{{\sffamily\bfseries\fontsize{27}{29}\selectfont #1}}
-\newcommand{\statcard}[2]{%
-\fcolorbox{border}{sky}{%
-\begin{minipage}[c][4.7em][c]{0.47\linewidth}
-\centering
-\statvalue{#1}\\[-0.12em]
-{\sffamily\small #2}
-\end{minipage}}}
-\newcommand{\resultcallout}[1]{%
-\begin{center}
-\fcolorbox{border}{accentlight}{%
-\parbox{0.92\linewidth}{%
-\centering
-\sffamily\bfseries\large\color{ink}#1}}
-\end{center}}
-\newcommand{\footerpanel}[2]{%
-\fcolorbox{border}{accentlight}{%
-\begin{minipage}[t][4.8em][t]{0.305\linewidth}
-{\sffamily\bfseries\large\color{ink}#1}\\[0.35em]
-#2
-\end{minipage}}}
+\newcommand{\best}[1]{\textbf{#1}}
+
+% ====================
+% Title
+% ====================
+
+\title{No Answer Needed: Predicting LLM Answer Accuracy from Question-Only Linear Probes}
+
+\author{
+Iv\'an Vicente Moreno Cencerrado$^{1,2*}$ \and
+Arnau Padr\'es Masdemont$^{2,3*}$ \and
+Anton Gonzalvez Hawthorne$^{2,4*}$ \and
+David Demitri Africa$^{2,3*}$ \and
+Lorenzo Pacchiardi$^{3}$
+}
+
+\institute[shortinst]{
+$^1$ Universidad Internacional de Valencia \samelineand
+$^2$ MARS \samelineand
+$^3$ University of Cambridge \samelineand
+$^4$ Independent Researcher \samelineand
+$^*$ Equal contribution
+}
+
+\footercontent{
+\small
+Code: \href{https://github.com/ivanvmoreno/correctness-model-internals}{github.com/ivanvmoreno/correctness-model-internals}
+\hfill
+Contact: \href{mailto:imorenocencerrado@alumnos.viu.es}{imorenocencerrado@alumnos.viu.es}
+}
+
+\logoleft{\includegraphics[height=3.9cm]{iclr.svg.png}}
+\logoright{
+\begin{tabular}{@{}c@{}}
+\includegraphics[height=3.9cm]{paper.svg.png} \\
+{\scriptsize Full paper}
+\end{tabular}
+}
+
+% ====================
+% Body
+% ====================
 
 \begin{document}
 
-\begin{poster}{
- grid=false,
- eyecatcher=false,
- columns=4,
- colspacing=0.85em,
- headerColorOne=ink,
- headerColorTwo=accent,
- borderColor=border,
- boxColorOne=white,
- boxColorTwo=sand,
- headerFontColor=white,
- textborder=faded,
- headerborder=open,
- headershape=roundedright,
- headershade=plain,
- boxshade=plain,
- background=plain,
- bgColorOne=white,
- bgColorTwo=white,
- headerheight=0.115\textheight,
- boxpadding=0.7em,
- linewidth=1.6pt,
- headerfont=\sffamily\bfseries\Large,
- textfont={\small}
-}
-{}
-{
-\begin{minipage}{0.99\linewidth}
+\begin{frame}[t]
+\begin{columns}[t]
+\separatorcolumn
+
+\begin{column}{\leftcolwidth}
+
+\begin{block}{Motivation}
+\begin{itemize}
+\item If LLMs can recognize likely failure before generating an answer, that gives us both a scientific test of internal self-assessment and a practical handle for safer factual QA.
+\item We ask whether question-only activations already contain a simple direction that separates future right from wrong answers.
+\item The paper focuses on factual correctness, then asks where that signal generalizes and where it breaks.
+\end{itemize}
+\end{block}
+
+\begin{block}{High-level approach}
+\begin{itemize}
+\item Following Burger et al. (2024), we extract a fixed activation vector \(h\) from one layer at the final prompt token, before any answer token is generated.
+\item We split activations by correctness and compute class centroids \(\mu_{\mathrm{false}}\) and \(\mu_{\mathrm{true}}\), then define the latent correctness direction
+\[
+w = \mu_{\mathrm{true}} - \mu_{\mathrm{false}}.
+\]
+\item We center activations by the mean centroid
+\[
+\mu = \tfrac{1}{2}\left(\mu_{\mathrm{false}} + \mu_{\mathrm{true}}\right)
+\]
+and score an activation by projecting it onto the normalized correctness direction:
+\[
+\mathrm{score}(h) = \frac{(h-\mu)^\top w}{\lVert w\rVert}.
+\]
+\item We use the raw score directly rather than converting it into a calibrated probability.
+\end{itemize}
+
+This deliberately simple, question-only probe tests \textbf{linear separability} rather than maximizing predictive accuracy with a richer classifier.
+\end{block}
+
+\begin{block}{Baselines \& positioning}
+\begin{itemize}
+\item \textbf{Black-box assessors:} logistic-regression classifiers on question embeddings predict model success from question features alone.
+\item \textbf{Verbalized confidence:} the model is asked to self-report a confidence score after seeing the question.
+\item \textbf{Sampling / richer methods:} other approaches use multiple generations, logits, or more expressive non-linear models, but these are costlier or less direct for free-form QA.
+\item \textbf{Our position:} a white-box, pre-generation, one-dimensional linear probe on internals. It is intentionally minimal, scientifically interpretable, and stronger under factual domain shift even when the best assessor remains slightly better in distribution.
+\end{itemize}
+\end{block}
+
+\end{column}
+
+\separatorcolumn
+
+\begin{column}{\maincolwidth}
+
+\begin{block}{Experimental setup}
+\begin{columns}[t,totalwidth=\linewidth]
+\begin{column}{0.32\linewidth}
+\textbf{Models}\\[0.3ex]
 \centering
-{\sffamily\bfseries\fontsize{18}{20}\selectfont
-No Answer Needed: Predicting LLM Answer Accuracy\\[0.12em]
-from Question-Only Linear Probes}
-\end{minipage}
-}
-{
-\begin{minipage}{0.99\linewidth}
-\centering\sffamily\normalsize
-Iv\'an Vicente Moreno Cencerrado$^{1,2*}$ \enspace
-Arnau Padr\'es Masdemont$^{2,3*}$ \enspace
-Anton Gonzalvez Hawthorne$^{2,4*}$ \enspace
-David Demitri Africa$^{2,3*}$ \enspace
-Lorenzo Pacchiardi$^{3}$\\[0.15em]
-\normalsize
-$^1$Universidad Internacional de Valencia \enspace|\enspace
-$^2$MARS \enspace|\enspace
-$^3$University of Cambridge \enspace|\enspace
-$^4$Independent Researcher \enspace|\enspace
-$^*$Equal contribution
-\end{minipage}
-}
-{}
+\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Model & Layers \\
+\midrule
+Llama 3.1 8B & 32 \\
+Llama 3.3 70B & 80 \\
+Qwen 2.5 7B & 28 \\
+DeepSeek R1 Distill 32B & 64 \\
+Mistral 7B & 32 \\
+Ministral 8B & 36 \\
+\bottomrule
+\end{tabular}
+\end{column}
+\begin{column}{0.64\linewidth}
+\textbf{Datasets}\\[0.3ex]
+\centering
+\footnotesize
+\begin{tabular}{@{}lclp{0.47\linewidth}@{}}
+\toprule
+Dataset & Purpose & Size & Example \\
+\midrule
+TriviaQA & train / ID & 60K & What is the collective name of the four holy books of the Hindu religion? \\
+Cities & factual OOD & 10K & In which country is the city of Hungerford located? \\
+Notable People & factual OOD & 16K & What year was Thabo Mbeki (politician from South Africa) born? \\
+Medals & factual OOD & 9K & Which country won gold in Gymnastics Men's Team All-Around in the 1948 Summer Olympics? \\
+Math Ops. & arithmetic & 6K & What is 5 plus 2? \\
+GSM8K & reasoning & 8K & Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May? \\
+\bottomrule
+\end{tabular}
+\end{column}
+\end{columns}
 
-\headerbox{}{name=footer,column=0,span=4,above=bottom,height=0.11,textborder=none,headerborder=none,headershade=none,boxheaderheight=0em,borderColor=white,boxColorOne=white,boxColorTwo=white}{
-\begin{center}
-\footerpanel{Models and data}{Six open models from 7B to 70B. Train on TriviaQA 60K and test on Cities, Notable People, Medals, Math Operations, and GSM8K.}\hfill
-\footerpanel{Main takeaway}{A simple question-only linear probe exposes a factual self-correctness signal before generation, but arithmetic reasoning appears to rely on a different internal mechanism.}\hfill
-\footerpanel{Further information}{\url{github.com/ivanvmoreno/correctness-model-internals}\\
-\url{imorenocencerrado@alumnos.viu.es}}
-\end{center}
-}
-
-\headerbox{Introduction}{name=introduction,column=0,row=0,span=1}{
+\vspace{0.6ex}
+\textbf{Protocol}\\[0.2ex]
 \begin{itemize}
-\item Do large language models internally anticipate whether they will answer a factual question correctly \emph{before} they generate any answer tokens?
-\item We test the \textbf{Linear Representation Hypothesis} for factual correctness: after a question is read, is there a simple direction in activation space that separates future right from wrong answers?
-\item Across six open models from 7B to 70B parameters, we find strong evidence that such a question-only direction exists.
+\item 3-shot prompting with temperature 0; activations are extracted at the final question token before any answer token is generated.
+\item 10K TriviaQA examples are reserved for layer selection, then the remaining data are evaluated in 5 folds.
+\item Baselines are a logistic-regression black-box assessor on question embeddings and verbalized confidence.
+\item The output is a raw scalar score reused across held-out questions and across datasets.
 \end{itemize}
-}
+\end{block}
 
-\headerbox{Materials and methods}{name=methods,column=0,below=introduction,above=footer,span=1}{
-\begin{enumerate}
-\item Read the prompt, stop at the final question token, and extract the residual stream before generation.
-\item Train a one-dimensional difference-of-means direction on TriviaQA. This deliberate simplicity tests linear separability rather than maximizing predictive accuracy with a richer classifier.
-\item Compare the probe against black-box assessors and verbalized confidence in distribution, across factual \OOD{} datasets, and on arithmetic GSM8K.
-\end{enumerate}
-
+\begin{columns}[t,totalwidth=\linewidth]
+\begin{column}{0.48\linewidth}
+\begin{exampleblock}{Emergence \& sample efficiency}
 \begin{center}
-{\sffamily\bfseries\Large $s(x)=\langle h(x), v \rangle$}
+\includegraphics[width=\linewidth]{find_best_layer_plot.pdf}
 \end{center}
-
-The score is computed from question-only activations: a positive projection means the internal state already looks more like questions the model will answer correctly.
-}
-
-\headerbox{Results}{name=results,column=1,row=0,span=2,above=footer}{
-\resultcallout{One simple question-only direction generalizes across factual datasets, beats black-box assessors under domain shift, and supports the Linear Representation Hypothesis for factual correctness.}
-
-\begin{center}
-\begin{minipage}[t]{0.96\linewidth}
-\statcard{24/30}{\OOD{} wins vs best black-box baseline}
-\hfill
-\statcard{17/18}{factual \OOD{} wins}
-
-\vspace{0.55em}
-\statcard{0.729}{mean \OOD{} \AUROC{}}
-\hfill
-\statcard{0.752}{mean factual \OOD{} \AUROC{}}
-\end{minipage}
-\end{center}
-
-\vspace{0.55em}
-\begin{center}
-{\sffamily\bfseries\color{muted}Question-only probe pipeline}\\[0.2em]
-\includegraphics[width=0.88\linewidth]{diagram.pdf}
-\end{center}
-
-\small The score is defined from question-only activations before answer generation, then reused across held-out questions and datasets. Assessor averages are lower at 0.594 overall \OOD{} and 0.651 factual \OOD{}.
-
-\vspace{0.45em}
-\resultcallout{Sample efficiency is unusually high: about 160 questions already help, and roughly 2,560 recover the full 48,540-question training-set performance.}
-}
-
-\headerbox{Conclusions}{name=conclusions,column=3,row=0,span=1,above=footer}{
 \begin{itemize}
-\item These results validate the \textbf{Linear Representation Hypothesis} for factual correctness: a one-dimensional pre-answer direction already separates future right from wrong answers.
-\item The linear probe outperforms black-box assessors under factual domain shift, even though the best assessor remains slightly stronger in distribution.
-\item The signal emerges only after mid-layer processing, saturates later in the stack, and becomes cleaner in larger models.
-\item Unprompted ``I don't know'' responses occupy the negative extreme of the same direction, indicating a latent confidence or knowledge-awareness axis.
-\item Manual inspection suggests the scores are meaningfully calibrated: high-score mistakes are often near misses rather than arbitrary failures.
+\item The correctness signal is weak early and becomes strongest in the \textbf{mid-to-late} stack across all six models.
+\item This supports the Linear Representation Hypothesis: the signal becomes linearly accessible before generation rather than requiring a richer non-linear probe.
+\item About \best{160} questions already help, and roughly \best{2,560} recover the full 48,540-sample training-set performance.
+\item Larger models need fewer samples and show a cleaner signal.
+\end{itemize}
+\end{exampleblock}
+\end{column}
+\begin{column}{0.48\linewidth}
+\begin{exampleblock}{Probe-score inspection}
+\begin{center}
+\includegraphics[width=0.96\linewidth]{idk_plot.pdf}
+\end{center}
+\begin{itemize}
+\item Unprompted ``I don't know'' answers naturally occupy the most negative end of the score distribution.
+\item Manual inspection suggests the scores are meaningfully calibrated: high-score errors are often near misses rather than arbitrary failures.
+\item In year-like or other quantitative questions, answers that are only slightly off the ground truth tend to score less negatively than clearly wrong answers.
+\end{itemize}
+\end{exampleblock}
+\end{column}
+\end{columns}
+
+\end{column}
+
+\separatorcolumn
+
+\begin{column}{\rightcolwidth}
+
+\begin{alertblock}{Key findings}
+\begin{itemize}
+\item Strong \OOD{} performance: the probe stays strong across factual datasets and beats black-box assessors.
+\item The probe beats the best black-box baseline on \best{24/30} \OOD{} comparisons and on \best{17/18} factual \OOD{} comparisons.
+\item Mean \OOD{} \AUROC{} is \best{0.729} for the probe versus 0.594 for assessors; on factual \OOD{}, it is \best{0.752} versus 0.651.
 \end{itemize}
 
-\vspace{0.35em}
-For factual QA, the direction behaves like both a self-correctness signal and a self-awareness signal.
-}
+\begin{center}
+\includegraphics[width=0.96\linewidth]{heatmap_auc_llama_3_70b_best_layer.pdf}
+\end{center}
+\small Train on TriviaQA, then test elsewhere: the probe stays strong on factual targets, while GSM8K remains weak.
+\end{alertblock}
 
-\end{poster}
+\begin{block}{Limitations}
+\begin{itemize}
+\item The direction does not transfer to arithmetic reasoning: GSM8K remains weak, indicating factual versus arithmetic misalignment.
+\item The method assumes white-box access to internal activations.
+\item Because the probe is deliberately linear and one-dimensional, it may underestimate the total predictive information available in the model internals.
+\end{itemize}
+\end{block}
+
+\begin{block}{Acknowledgements}
+\small
+MARS, the Mentorship for Alignment Research Students program by the Cambridge AI Safety Hub.
+
+\vspace{0.8ex}
+\begin{center}
+\begin{tabular}{@{}c@{}}
+\includegraphics[height=3.2cm]{repo.svg.png} \\
+{\scriptsize Code repository}
+\end{tabular}
+\end{center}
+\end{block}
+
+\end{column}
+
+\separatorcolumn
+\end{columns}
+
+\end{frame}
 \end{document}
